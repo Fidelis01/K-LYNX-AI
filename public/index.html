@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K-LYNX AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+
+/* ---------- GLOBAL ---------- */
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Open Sans', sans-serif;
+}
+
+body{
+background:#05060f;
+color:white;
+min-height:100vh;
+}
+
+/* ---------- TOP BAR ---------- */
+
+.topBar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px 30px;
+}
+
+.logo{
+font-size:22px;
+font-weight:600;
+letter-spacing:1px;
+}
+
+.right{
+display:flex;
+gap:15px;
+align-items:center;
+}
+
+select{
+background:#111;
+color:white;
+border:none;
+padding:6px 10px;
+border-radius:6px;
+}
+
+.profile{
+width:35px;
+height:35px;
+border-radius:50%;
+background:linear-gradient(135deg,#ff69b4,#8a2be2,#4b0082);
+}
+
+/* ---------- HERO ---------- */
+
+.hero{
+display:flex;
+justify-content:center;
+align-items:center;
+margin-top:60px;
+padding:20px;
+}
+
+.heroCard{
+max-width:600px;
+width:100%;
+padding:40px;
+border-radius:20px;
+
+/* glass effect */
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(15px);
+
+box-shadow:
+0 0 40px rgba(255,105,180,0.2),
+0 0 80px rgba(138,43,226,0.15);
+
+text-align:center;
+}
+
+.heroCard h1{
+font-size:28px;
+margin-bottom:10px;
+}
+
+.heroCard p{
+opacity:0.8;
+margin-bottom:25px;
+}
+
+/* BUTTONS */
+
+.heroButtons{
+display:flex;
+justify-content:center;
+gap:15px;
+flex-wrap:wrap;
+}
+
+.btn{
+padding:10px 20px;
+border-radius:20px;
+border:none;
+cursor:pointer;
+font-weight:600;
+}
+
+/* primary */
+
+.primary{
+background:linear-gradient(135deg,#ff69b4,#8a2be2,#4b0082);
+color:white;
+}
+
+/* secondary */
+
+.secondary{
+background:rgba(255,255,255,0.1);
+color:white;
+}
+
+/* hover */
+
+.btn:hover{
+transform:scale(1.05);
+}
+
+/* ---------- FEATURES ---------- */
+
+.features{
+margin-top:60px;
+padding:20px;
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:20px;
+}
+
+/* CARD */
+
+.card{
+padding:25px;
+border-radius:15px;
+text-align:center;
+cursor:pointer;
+
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(10px);
+
+transition:0.3s;
+}
+
+/* hover glow */
+
+.card:hover{
+transform:translateY(-5px) scale(1.03);
+
+box-shadow:
+0 0 20px rgba(255,105,180,0.3),
+0 0 40px rgba(138,43,226,0.2);
+}
+
+.card h3{
+font-size:16px;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media(max-width:900px){
+.features{
+grid-template-columns:repeat(2,1fr);
+}
+}
+
+@media(max-width:600px){
+.features{
+grid-template-columns:1fr;
+}
+}
+/* ---------- GLASS PANEL MODAL ---------- */
+
+.featureModal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  width: 320px;
+  max-width: 90%;
+  padding: 25px;
+  border-radius: 20px;
+  
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  
+  box-shadow:
+    0 0 30px rgba(255, 105, 180, 0.25),
+    0 0 60px rgba(138, 43, 226, 0.2);
+  
+  text-align: center;
+  z-index: 100;
+  
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.3s;
+}
+
+.featureModal.active {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
+
+.featureModal h2 {
+  margin-bottom: 10px;
+}
+
+.featureModal p {
+  font-size: 14px;
+  opacity: 0.85;
+  margin-bottom: 20px;
+}
+
+/* modal buttons */
+
+.modalButtons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.modalButtons button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.useBtn {
+  background: linear-gradient(135deg, #ff69b4, #8a2be2, #4b0082);
+  color: white;
+}
+
+.backBtn {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+
+</style>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+
+<div class="topBar">
+
+<div class="logo">K-LYNX AI++</div>
+
+<div class="right">
+<select>
+<option>English</option>
+<option>Zulu</option>
+<option>Xhosa</option>
+<option>Sesotho</option>
+<option>Sepedi</option>
+<option>Setswana</option>
+<option>Afrikaans</option>
+<option>Siswati</option>
+<option>isiNdebele</option>
+<option>Tshivenda</option>
+<option>Xitsonga</option>
+<option>Swahili</option>
+<option>Pidgin</option>
+<option>Arabic</option>
+<option>Portuguese</option>
+<option>Japanese</option>
+<option>Korean</option>
+<option>Spanish</option>
+<option>Hindi</option>
+<option>Thai</option>
+<option>German</option>
+<option>Italian</option>
+<option>Dutch</option>
+<option>Bengali</option>
+<option>French</option>
+</select>
+
+<div class="profile"></div>
+</div>
+
+</div>
+
+<!-- HERO -->
+
+<div class="hero">
+
+<div class="heroCard">
+
+<h1>Welcome to K-LYNX AI++</h1>
+<p>Powerful AI for work, life, and growth.</p>
+
+<div class="heroButtons">
+<button class="btn primary" onclick="startChat()">Start Chat</button>
+<button class="btn secondary" onclick="scrollFeatures()">Explore Features</button>
+</div>
+
+</div>
+
+</div>
+
+<!-- FEATURES -->
+
+<div class="features" id="features">
+
+<div class="card" onclick="openFeature('Core Intelligence')"><h3>Core Intelligence</h3></div>
+<div class="card" onclick="openFeature('Creative Engine')"><h3>Creative Engine</h3></div>
+<div class="card" onclick="openFeature('Professional Writer')"><h3>Professional Writer</h3></div>
+<div class="card" onclick="openFeature('Emotional Insight')"><h3>Emotional Insight</h3></div>
+<div class="card" onclick="openFeature('Document Intelligence')"><h3>Document Intelligence</h3></div>
+<div class="card" onclick="openFeature('CV Architect')"><h3>CV Architect</h3></div>
+<div class="card" onclick="openFeature('Smart Scheduler')"><h3>Smart Scheduler</h3></div>
+<div class="card" onclick
+ ="openFeature('Educational Tutor')"><h3>Educational Tutor</h3></div>
+<div class="card" onclick
+ ="openFeature('Currency Converter')"><h3>Currency Converter</h3></div>
+<div class="card" onclick="openFeature('Career Alerts')"><h3>Career Alerts</h3></div>
+<div class="card" onclick
+="openFeature('Q&A–Teach AI')"><h3>Q&A–Teach AI</h3></div>
+<div class="card" onclick="openFeature('AI Calls')"><h3>AI Calls</h3></div>
+<div class="card" onclick
+ ="openFeature( 'AI Powered Meetings')"><h3>AI Powered Meetings</h3></div>
+ <div class="card" onclick
+  ="openFeature('Private Journal')"><h3>Private Journal</h3></div>
+
+
+</div>
+
+<script>
+
+/* BUTTON ACTIONS */
+
+function startChat() {
+  alert("Chat feature coming next 🔥")
+}
+
+function scrollFeatures() {
+  document.getElementById("features").scrollIntoView({ behavior: "smooth" })
+}
+
+/* FEATURE DESCRIPTIONS */
+
+const featureDescriptions = {
+  
+  "Core Intelligence": "Your main AI assistant for asking questions, exploring knowledge, and solving problems.",
+  
+  "Creative Engine": "Generate stories, ideas, scripts, and creative content instantly.",
+  
+  "Professional Writer": "Write emails, proposals, and formal documents professionally.",
+  
+  "Emotional Insight": "Understand emotions and receive thoughtful, human-like responses.",
+  
+  "Document Intelligence": "Upload and simplify PDFs, contracts, and complex documents.",
+  
+  "CV Architect": "Build a professional CV quickly and easily.",
+  
+  "Smart Scheduler": "Organize your day, tasks, and productivity.",
+  
+  "Educational Tutor": "Provides past exam questions, memoranda, and educational challenges to help you practice and assess your knowledge.",
+  
+ "Currency Converter": "Quickly and accurately converts currencies, helping you stay on top of exchange rates.",
+  
+  "Career Alerts": "Get job opportunities tailored to your skills.",
+  
+ "Q&A–Teach AI": "Lets you ask questions and teaches the AI to provide better answers over time.",
+
+  "AI Calls": "Talk to AI through voice or video interaction.",
+  
+  "AI Powered Meetings": "AI joins meetings, takes notes, and summarizes.",
+  
+  "Private Journal": "A safe space for your thoughts and personal reflection."
+  
+}
+
+/* MODAL LOGIC */
+
+let selectedFeature = ""
+
+function openFeature(name) {
+  
+  selectedFeature = name
+  
+  document.getElementById("modalTitle").innerText = name
+  document.getElementById("modalDesc").innerText = featureDescriptions[name] || "Explore this feature."
+  
+  document.getElementById("featureModal").classList.add("active")
+  
+}
+
+function closeModal() {
+  document.getElementById("featureModal").classList.remove("active")
+}
+
+function useFeature() {
+  alert("Launching " + selectedFeature + " 🚀")
+  closeModal()
+}
+
+</script>
+<!-- FEATURE MODAL -->
+
+<div class="featureModal" id="featureModal">
+  
+  <h2 id="modalTitle">Feature</h2>
+  <p id="modalDesc">Description</p>
+  
+  <div class="modalButtons">
+    <button class="backBtn" onclick="closeModal()">Back</button>
+    <button class="useBtn" onclick="useFeature()">Use Feature</button>
+  </div>
+  
+</div>
+</body>
+</html>
