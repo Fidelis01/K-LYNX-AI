@@ -30,7 +30,8 @@ exports.getUsersByResetToken = async (token) => {
 
 // Create new user
 exports.createUser = async (name, email, password, language, token) => {
-    const hashedPassword = await require('bcrypt').hash(password, 10);
+    const bcrypt = require('bcrypt');
+    const hashedPassword = await bcrypt.hash(password, 10);
     
     const result = await db.query(
         'INSERT INTO users (name, email, password, language, verification_token, created_at) VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING id',
