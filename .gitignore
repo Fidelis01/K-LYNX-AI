@@ -1,2 +1,4 @@
 .env
-node_modules
+temp_backups/
+node_modules/
+*.zip
