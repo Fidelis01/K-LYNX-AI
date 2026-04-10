@@ -3,12 +3,13 @@ const express = require('express')
 const app = express();
 const path = require('path')
 const dotenv = require('dotenv');
-dotenv.config();
+dotenv.config(); // Still needed for local development
 const loginRoutes = require('./routes/login')
 const cors = require('cors')
 const { Pool } = require('pg');
 const fs = require('fs');
 const archiver = require('archiver');
+const config = require('./config');
 
 app.use(cors({
     origin: 'http://127.0.0.1:5500', 
@@ -18,20 +19,18 @@ app.use(cors({
 app.use(express.json())
 app.use(express.static('public'));
 
-const loginRoutees = require('./routes/login')
-
 app.use('/auth', loginRoutes)
 
 // Database configuration for backup (only if DB_HOST exists)
 let db = null;
-if (process.env.DB_HOST) {
+if (config.db.host) {
     db = new Pool({
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT || 5432,
-        database: process.env.DB_NAME,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+        host: config.db.host,
+        port: config.db.port,
+        database: config.db.name,
+        user: config.db.user,
+        password: config.db.password,
+        ssl: config.db.ssl ? { rejectUnauthorized: false } : false
     });
     
     // Backup directory
@@ -138,14 +137,14 @@ app.get('/backup', async (req, res) => {
     if (!db) {
         return res.status(500).json({ 
             error: 'Database not configured', 
-            message: 'Please add database credentials to .env file' 
+            message: 'Database credentials not set in environment variables' 
         });
     }
     
     const { password } = req.query;
     
     // Check password from environment variable
-    if (!password || password !== process.env.BACKUP_PASSWORD) {
+    if (!password || password !== config.backupPassword) {
         return res.status(401).json({ 
             error: 'Unauthorized', 
             message: 'Valid password required as query parameter: ?password=xxx' 
@@ -177,10 +176,10 @@ app.get('/backup', async (req, res) => {
         // Write header
         sqlDumpStream.write(`-- PostgreSQL Database Backup\n`);
         sqlDumpStream.write(`-- Generated: ${new Date().toISOString()}\n`);
-        sqlDumpStream.write(`-- Database: ${process.env.DB_NAME}\n`);
-        sqlDumpStream.write(`-- Host: ${process.env.DB_HOST}\n`);
+        sqlDumpStream.write(`-- Database: ${config.db.name}\n`);
+        sqlDumpStream.write(`-- Host: ${config.db.host}\n`);
         sqlDumpStream.write(`-- Tables: ${tables.length}\n\n`);
-        sqlDumpStream.write(`-- Enable foreign key checks\n`);
+        sqlDumpStream.write(`-- Disable foreign key checks\n`);
         sqlDumpStream.write(`SET session_replication_role = 'replica';\n\n`);
         
         // Export each table to SQL
@@ -191,8 +190,8 @@ app.get('/backup', async (req, res) => {
             sqlDumpStream.write(`\n-- End of table: ${tableName}\n\n`);
         }
         
-        // Disable foreign key checks at the end
-        sqlDumpStream.write(`\n-- Restore foreign key checks\n`);
+        // Re-enable foreign key checks
+        sqlDumpStream.write(`\n-- Re-enable foreign key checks\n`);
         sqlDumpStream.write(`SET session_replication_role = 'origin';\n`);
         
         sqlDumpStream.end();
@@ -212,14 +211,13 @@ app.get('/backup', async (req, res) => {
         
         // Create README file
         const readmePath = path.join(tempDir, 'README.txt');
-        const tableList = tables.join(', ');
         fs.writeFileSync(readmePath, `
 ================================================================
 DATABASE BACKUP - ${new Date().toISOString()}
 ================================================================
 
-This backup was created from: ${process.env.DB_HOST}
-Database name: ${process.env.DB_NAME}
+This backup was created from: ${config.db.host}
+Database name: ${config.db.name}
 
 FILES INCLUDED:
 ---------------
@@ -236,22 +234,8 @@ Total tables: ${tables.length}
 HOW TO RESTORE TO A NEW POSTGRESQL DATABASE:
 --------------------------------------------
 
-Option 1: Using psql (Recommended)
-1. Create a new PostgreSQL database on Render
-2. Get your new database credentials (host, username, database name, password)
-3. Run this command:
+Using psql (Recommended):
    psql -h NEW_DATABASE_HOST -U NEW_USERNAME -d NEW_DATABASE_NAME < ${backupId}.sql
-
-Option 2: Using the JSON backup (Node.js script)
-   const { Pool } = require('pg');
-   const backup = require('./${backupId}.json');
-   // Then insert data programmatically
-
-IMPORTANT NOTES:
-----------------
-- Make sure your new database is empty before restoring
-- The SQL file will automatically drop and recreate tables
-- Foreign key constraints are temporarily disabled during restore
 
 TIMESTAMP: ${new Date().toString()}
 ================================================================
@@ -283,9 +267,8 @@ TIMESTAMP: ${new Date().toString()}
         res.download(zipPath, zipFilename, (err) => {
             if (err) {
                 console.error('Download error:', err);
-                res.status(500).json({ error: 'Download failed' });
             }
-            // Delete zip file after download (30 seconds)
+            // Delete zip file after download
             setTimeout(() => {
                 if (fs.existsSync(zipPath)) {
                     fs.unlinkSync(zipPath);
@@ -296,7 +279,6 @@ TIMESTAMP: ${new Date().toString()}
         
     } catch (error) {
         console.error('Backup failed:', error);
-        // Clean up on error
         if (fs.existsSync(tempDir)) {
             fs.rmSync(tempDir, { recursive: true, force: true });
         }
@@ -311,14 +293,13 @@ TIMESTAMP: ${new Date().toString()}
 app.get('/db-status', async (req, res) => {
     if (!db) {
         return res.status(500).json({ 
-            error: 'Database not configured', 
-            message: 'Please add database credentials to .env file' 
+            error: 'Database not configured' 
         });
     }
     
     const { password } = req.query;
     
-    if (!password || password !== process.env.BACKUP_PASSWORD) {
+    if (!password || password !== config.backupPassword) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
     
@@ -337,30 +318,20 @@ app.get('/db-status', async (req, res) => {
             });
         }
         
-        // Get database size
-        const dbSize = await db.query(`
-            SELECT pg_database_size($1) as size,
-                   pg_size_pretty(pg_database_size($1)) as size_pretty
-        `, [process.env.DB_NAME]);
-        
         res.json({
             success: true,
             database: {
-                name: process.env.DB_NAME,
-                host: process.env.DB_HOST,
-                size: dbSize.rows[0].size_pretty,
-                size_bytes: dbSize.rows[0].size
+                name: config.db.name,
+                host: config.db.host,
             },
             tables: tableInfo,
             statistics: {
                 total_tables: tables.length,
-                total_rows: totalRows,
-                backup_available: true
+                total_rows: totalRows
             },
             timestamp: new Date().toISOString()
         });
     } catch (error) {
-        console.error('Status check failed:', error);
         res.status(500).json({ 
             error: 'Failed to get database status', 
             message: error.message 
@@ -372,14 +343,13 @@ app.get('/db-status', async (req, res) => {
 app.get('/test-db', async (req, res) => {
     if (!db) {
         return res.status(500).json({ 
-            error: 'Database not configured', 
-            message: 'Please add database credentials to .env file' 
+            error: 'Database not configured' 
         });
     }
     
     const { password } = req.query;
     
-    if (!password || password !== process.env.BACKUP_PASSWORD) {
+    if (!password || password !== config.backupPassword) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
     
@@ -403,15 +373,12 @@ app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'))
 })
 
-const port = process.env.PORT || 5000
+const port = config.port;
 
 app.listen(port, () => {
     console.log(`Server is listening on port ${port}...`)
-    if (process.env.DB_HOST) {
-        console.log(`✅ Backup endpoint: http://localhost:${port}/backup?password=YOUR_PASSWORD`)
-        console.log(`✅ Status endpoint: http://localhost:${port}/db-status?password=YOUR_PASSWORD`)
-        console.log(`✅ Test DB endpoint: http://localhost:${port}/test-db?password=YOUR_PASSWORD`)
-    } else {
-        console.log(`⚠️  Database not configured. Add DB_* variables to .env to enable backup features`)
+    if (config.db.host) {
+        console.log(`✅ Backup endpoint available`)
+        console.log(`⚠️  Remember: Set environment variables on Render, don't use .env file in production`)
     }
 })
