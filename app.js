@@ -11,14 +11,11 @@ const fs = require('fs');
 const archiver = require('archiver');
 const bcrypt = require('bcrypt');
 
+// CORS configuration - FIXED
 app.use(cors({
     origin: ['https://klynxai.onrender.com', 'http://localhost:5000', 'http://127.0.0.1:5500'],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    credentials: true
 }));
-
-app.options('*', cors());
 
 app.use(express.json())
 app.use(express.static('public'));
