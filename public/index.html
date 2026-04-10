@@ -32,7 +32,7 @@
    .logo {
     font-size: 28px;
     font-weight: 800;
-    background: linear-gradient(135deg, #FFD700, #FFA500);
+    background: linear-gradient(135deg, #00d4ff, #00ffaa);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -51,13 +51,13 @@
     font-weight: 500;
    }
 
-   .nav-links a:hover { color: #FFD700; }
+   .nav-links a:hover { color: #00d4ff; }
 
    .profile-icon {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #FFD700, #FFA500);
+    background: linear-gradient(135deg, #00d4ff, #00ffaa);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -82,7 +82,7 @@
     font-size: 56px;
     font-weight: 800;
     margin-bottom: 20px;
-    background: linear-gradient(135deg, #FFD700, #FFA500, #FF6347);
+    background: linear-gradient(135deg, #00d4ff, #00ffaa, #00d4ff);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -103,7 +103,7 @@
    }
 
    .btn-primary {
-    background: linear-gradient(135deg, #FFD700, #FFA500);
+    background: linear-gradient(135deg, #00d4ff, #00ffaa);
     color: #0F172A;
     padding: 12px 30px;
     border: none;
@@ -116,7 +116,7 @@
 
    .btn-primary:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(255,215,0,0.3);
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
    }
 
    .btn-secondary {
@@ -169,12 +169,12 @@
 
    .feature-card:hover {
     transform: translateY(-10px);
-    border-color: rgba(255,215,0,0.5);
+    border-color: rgba(0, 212, 255, 0.5);
     box-shadow: 0 20px 40px rgba(0,0,0,0.3);
    }
 
    .feature-icon { font-size: 48px; margin-bottom: 20px; }
-   .feature-card h3 { font-size: 20px; margin-bottom: 15px; color: #FFD700; }
+   .feature-card h3 { font-size: 20px; margin-bottom: 15px; color: #00d4ff; }
    .feature-card p { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.5; }
 
    .stats-section {
@@ -194,7 +194,7 @@
    .stat-item h2 {
     font-size: 48px;
     font-weight: 800;
-    color: #FFD700;
+    color: #00d4ff;
    }
 
    .stat-item p {
@@ -238,7 +238,7 @@
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #FFD700, #FFA500);
+    background: linear-gradient(135deg, #00d4ff, #00ffaa);
    }
 
    .author-info h4 { font-size: 16px; margin-bottom: 5px; }
@@ -260,7 +260,7 @@
 
    .footer-section h4 {
     margin-bottom: 20px;
-    color: #FFD700;
+    color: #00d4ff;
    }
 
    .footer-section p, .footer-section a {
@@ -270,7 +270,7 @@
     display: block;
    }
 
-   .footer-section a:hover { color: #FFD700; }
+   .footer-section a:hover { color: #00d4ff; }
 
    .social-links {
     display: flex;
@@ -290,7 +290,7 @@
    }
 
    .social-links a:hover {
-    background: #FFD700;
+    background: #00d4ff;
     color: #0F172A;
    }
 
@@ -322,7 +322,7 @@
     max-width: 500px;
     width: 90%;
     text-align: center;
-    border: 1px solid rgba(255,215,0,0.3);
+    border: 1px solid rgba(0, 212, 255, 0.3);
    }
 
    .close-modal {
@@ -342,7 +342,7 @@
 <body>
 
 <div class="header">
-    <div class="logo">K-LYNX AI++ <span>beta</span></div>
+    <div class="logo">K-LYNX AI++ <span style="font-size:12px;">beta</span></div>
     <div class="nav-links">
         <a href="#">Home</a>
         <a href="#features">Features</a>
@@ -524,16 +524,21 @@
     const user = localStorage.getItem('user');
     
     if (!token && !user) {
-        window.location.href = '/login.html';
+        window.location.href = 'login.html';
     }
 
-    function startChat() { alert("🚀 Chat feature coming soon!"); }
-    function scrollToFeatures() { document.getElementById('features').scrollIntoView({ behavior: 'smooth' }); }
+    function startChat() { 
+        window.location.href = 'chat.html';
+    }
+    
+    function scrollToFeatures() { 
+        document.getElementById('features').scrollIntoView({ behavior: 'smooth' }); 
+    }
     
     function logout() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        window.location.href = '/login.html';
+        window.location.href = 'login.html';
     }
 
     let selectedFeature = "";
