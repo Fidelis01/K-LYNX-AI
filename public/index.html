@@ -132,7 +132,8 @@
    }
 
    .btn-secondary:hover {
-    background: rgba(255,255,255,0.2);
+    background: rgba(0, 212, 255, 0.2);
+    border-color: #00d4ff;
     transform: translateY(-3px);
    }
 
@@ -220,6 +221,11 @@
     padding: 30px;
     border-radius: 20px;
     border: 1px solid rgba(255,255,255,0.1);
+    transition: 0.3s;
+   }
+
+   .testimonial-card:hover {
+    border-color: rgba(0, 212, 255, 0.5);
    }
 
    .testimonial-text {
@@ -268,6 +274,7 @@
     text-decoration: none;
     line-height: 2;
     display: block;
+    transition: 0.3s;
    }
 
    .footer-section a:hover { color: #00d4ff; }
@@ -287,11 +294,13 @@
     align-items: center;
     justify-content: center;
     transition: 0.3s;
+    color: white;
    }
 
    .social-links a:hover {
     background: #00d4ff;
     color: #0F172A;
+    transform: translateY(-3px);
    }
 
    .copyright {
@@ -329,6 +338,11 @@
     float: right;
     font-size: 28px;
     cursor: pointer;
+    transition: 0.3s;
+   }
+
+   .close-modal:hover {
+    color: #00d4ff;
    }
 
    @media (max-width: 768px) {
@@ -347,7 +361,7 @@
         <a href="#">Home</a>
         <a href="#features">Features</a>
         <div class="profile-icon" onclick="logout()">
-            <i class="fas fa-user"></i>
+            <i class="fas fa-sign-out-alt"></i>
         </div>
     </div>
 </div>
@@ -520,15 +534,29 @@
 </div>
 
 <script>
+    const API_BASE_URL = 'https://klynxai.onrender.com';
+    
+    // Check if user is logged in
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
     
     if (!token && !user) {
-        window.location.href = 'login.html';
+        window.location.href = `${API_BASE_URL}/login.html`;
+    }
+
+    // Display welcome message with user name
+    if (user) {
+        try {
+            const userData = JSON.parse(user);
+            const heroTitle = document.querySelector('.hero h1');
+            if (heroTitle && userData.name) {
+                heroTitle.innerHTML = `Welcome back, ${userData.name}! 👋`;
+            }
+        } catch(e) {}
     }
 
     function startChat() { 
-        window.location.href = 'chat.html';
+        window.location.href = `${API_BASE_URL}/chat.html`;
     }
     
     function scrollToFeatures() { 
@@ -538,7 +566,7 @@
     function logout() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        window.location.href = 'login.html';
+        window.location.href = `${API_BASE_URL}/login.html`;
     }
 
     let selectedFeature = "";
