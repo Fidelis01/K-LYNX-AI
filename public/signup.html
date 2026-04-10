@@ -217,16 +217,19 @@
         </div>
 
         <div class="login-link">
-            Already have an account? <a href="login.html">Login</a>
+            Already have an account? <a href="/login.html">Login</a>
         </div>
     </div>
 </div>
 
 <script>
+    // Your Render server URL
+    const API_BASE_URL = 'https://klynxai.onrender.com';
+    
     // Check if already logged in
     const token = localStorage.getItem('token');
     if (token) {
-        window.location.href = 'index.html';
+        window.location.href = `${API_BASE_URL}/index.html`;
     }
 
     function showError(msg) {
@@ -275,9 +278,9 @@
         btn.disabled = true;
 
         try {
-            console.log('Sending registration request for:', email);
+            console.log('Sending registration to:', `${API_BASE_URL}/auth/register`);
             
-            const response = await fetch('/auth/register', {
+            const response = await fetch(`${API_BASE_URL}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, password, language })
@@ -290,14 +293,14 @@
             if (response.ok) {
                 showSuccess('✅ Registration successful! Please check your email for verification.');
                 setTimeout(() => { 
-                    window.location.href = 'login.html'; 
+                    window.location.href = `${API_BASE_URL}/login.html`; 
                 }, 3000);
             } else {
                 showError('❌ ' + (data.message || 'Registration failed'));
             }
         } catch (err) {
             console.error('Fetch error:', err);
-            showError('❌ Cannot connect to server. Please make sure the server is running.');
+            showError('❌ Cannot connect to server. Please make sure you are online.');
         } finally {
             btn.innerText = originalText;
             btn.disabled = false;
