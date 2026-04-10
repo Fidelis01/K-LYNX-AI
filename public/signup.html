@@ -217,7 +217,7 @@
         </div>
 
         <div class="login-link">
-            Already have an account? <a href="/login.html">Login</a>
+            Already have an account? <a href="login.html">Login</a>
         </div>
     </div>
 </div>
@@ -229,7 +229,7 @@
     // Check if already logged in
     const token = localStorage.getItem('token');
     if (token) {
-        window.location.href = `${API_BASE_URL}/index.html`;
+        window.location.href = `${API_BASE_URL}/`;
     }
 
     function showError(msg) {
@@ -278,9 +278,9 @@
         btn.disabled = true;
 
         try {
-            console.log('Sending registration to:', `${API_BASE_URL}/auth/register`);
+            console.log('Sending registration to:', `${API_BASE_URL}/register`);
             
-            const response = await fetch(`${API_BASE_URL}/auth/register`, {
+            const response = await fetch(`${API_BASE_URL}/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, password, language })
@@ -291,10 +291,10 @@
             console.log('Response data:', data);
 
             if (response.ok) {
-                showSuccess('✅ Registration successful! Please check your email for verification.');
+                showSuccess('✅ Account created successfully! Redirecting to login...');
                 setTimeout(() => { 
                     window.location.href = `${API_BASE_URL}/login.html`; 
-                }, 3000);
+                }, 2000);
             } else {
                 showError('❌ ' + (data.message || 'Registration failed'));
             }
