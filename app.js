@@ -157,6 +157,80 @@ app.get('/test-db', async (req, res) => {
     }
 });
 
+// DELETE user by email
+app.delete('/delete-user', async (req, res) => {
+    const { password, email } = req.query;
+    
+    if (password !== process.env.BACKUP_PASSWORD) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    try {
+        const result = await db.query('DELETE FROM users WHERE email = $1 RETURNING *', [email]);
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        res.json({ 
+            success: true, 
+            message: `Deleted user: ${email}`,
+            deleted: result.rows[0]
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// DELETE all users
+app.delete('/delete-all-users', async (req, res) => {
+    const { password } = req.query;
+    
+    if (password !== process.env.BACKUP_PASSWORD) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    try {
+        const result = await db.query('DELETE FROM users RETURNING *');
+        
+        res.json({ 
+            success: true, 
+            message: `Deleted ${result.rows.length} users`,
+            deleted: result.rows.length
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Reset database (drop and recreate table)
+app.post('/reset-database', async (req, res) => {
+    const { password } = req.query;
+    
+    if (password !== process.env.BACKUP_PASSWORD) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    try {
+        await db.query('DROP TABLE IF EXISTS users');
+        await db.query(`
+            CREATE TABLE users (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                language VARCHAR(100),
+                is_verified BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        
+        res.json({ success: true, message: 'Database reset successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // ========== SERVE HTML PAGES ==========
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
