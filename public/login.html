@@ -167,7 +167,7 @@
         </div>
 
         <div class="signup-link">
-            Don't have an account? <a href="/signup">Sign Up</a>
+            Don't have an account? <a href="signup.html">Sign Up</a>
         </div>
     </div>
 </div>
@@ -176,7 +176,7 @@
     // Check if already logged in
     const token = localStorage.getItem('token');
     if (token) {
-        window.location.href = '/dashboard';
+        window.location.href = 'index.html';
     }
 
     function showError(msg) {
