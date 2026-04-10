@@ -293,7 +293,7 @@
             if (response.ok) {
                 showSuccess('✅ Account created successfully! Redirecting to login...');
                 setTimeout(() => { 
-                    window.location.href = `${API_BASE_URL}/login.html`; 
+                    window.location.href = `${API_BASE_URL}/index.html`; 
                 }, 2000);
             } else {
                 showError('❌ ' + (data.message || 'Registration failed'));
