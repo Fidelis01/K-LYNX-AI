@@ -167,7 +167,7 @@
         </div>
 
         <div class="signup-link">
-            Don't have an account? <a href="/signup.html">Sign Up</a>
+            Don't have an account? <a href="signup.html">Sign Up</a>
         </div>
     </div>
 </div>
@@ -178,7 +178,7 @@
     // Check if already logged in
     const token = localStorage.getItem('token');
     if (token) {
-        window.location.href = `${API_BASE_URL}/index.html`;
+        window.location.href = `${API_BASE_URL}/`;
     }
 
     function showError(msg) {
@@ -205,8 +205,13 @@
             return;
         }
 
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.innerText = 'Logging in...';
+        btn.disabled = true;
+
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            const response = await fetch(`${API_BASE_URL}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
@@ -219,14 +224,17 @@
                 localStorage.setItem('user', JSON.stringify(data.user));
                 showSuccess('✅ Login successful! Redirecting...');
                 setTimeout(() => { 
-                    window.location.href = `${API_BASE_URL}/index.html`; 
+                    window.location.href = `${API_BASE_URL}/`; 
                 }, 1500);
             } else {
                 showError('❌ ' + (data.message || 'Invalid credentials'));
             }
         } catch (err) {
             console.error('Login error:', err);
-            showError('❌ Could not connect to the server');
+            showError('❌ Cannot connect to server');
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
         }
     }
 
