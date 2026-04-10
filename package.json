@@ -5,9 +5,10 @@
   "license": "ISC",
   "author": "",
   "type": "commonjs",
-  "main": "klynx.js",
+  "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "dependencies": {
     "archiver": "^7.0.1",
