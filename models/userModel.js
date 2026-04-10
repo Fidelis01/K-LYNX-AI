@@ -1,148 +1,64 @@
-const pool = require('../database');
-const bcrypt = require('bcrypt');
-const crypto = require('crypto');
+// models/userModel.js
+const { Pool } = require('pg');
 
-async function createUser(name, email, password, language, verificationToken) {
-    try{
-        //const verificationToken = crypto.randomBytes(32).toString('hex');
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+const db = new Pool({
+    database: process.env.database,
+    user: process.env.user,
+    password: process.env.password,
+    host: process.env.host,
+    port: 5432,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
 
-        const [result] = await pool.query ('INSERT INTO users (name, email, password, language, verification_token) VALUES (?, ?, ?, ?, ?)', [name, email, hashedPassword, language, verificationToken])
-        return { userId: result.insertId, /*token: verificationToken*/ };
-        } catch (err) {
-        console.error('Database Error:', err.message);
-        throw err
-        }
-    }
+// Get user by email
+exports.getUsersByEmail = async (email) => {
+    const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+    return result.rows[0];
+};
 
-    async function getUsersByEmail(email) {
-        try {
-            const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
-            return rows[0]; 
-        } catch (err) {
-            console.error('Database Error:', err.message);
-            throw err; 
-        }
-    }
+// Get user by verification token
+exports.getUserByToken = async (token) => {
+    const result = await db.query('SELECT * FROM users WHERE verification_token = $1', [token]);
+    return result.rows[0];
+};
 
-    
-    async function getUsers(id) {
-        try {
-            const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [id])
-            return rows[0];
-        } catch (err) {
-            console.error('Database Error:', err.message);
-            throw err
-        }
-    }
-    
-    async function deleteUser(id){
-        try {
-            const[result] = await pool.query('DELETE FROM users WHERE id = ?', [id]);
-    
-            if ( result.affectedRows === 0){
-                console.log(`No user found with ID: ${id}`);
-                return false;
-            }
-    
-            console.log(`User wit ID ${id} deleted succesfully.`);
-            return true;
-        } catch (err) {
-            console.log('Database Error:', err.message);
-            throw err
-        }
-    }
-    
-    async function updateUser(id, name, email, password, language) {
-        try{
-            const [result] = await pool.query('UPDATE users SET name = ?, email = ? password = ?, languae = ?, WHERE id = ?', [name, email, password, language, id]);
-            return result.affectedRows > 0;
-        } catch (err) {
-            console.log('Database Error:', err.message);
-            throw err;
-        }
-    
-    
-    }
-    
-    
-    async function loginUser(email, password) {
-        const user = await getUsersByEmail(email);
-    
-        if(!user) {
-            return {success: false, message: "User not found"};
-        }
-    
-        const isMatch = await bcrypt.compare(password, user.password);
-    
-        if(isMatch) {
-            return {success: true, user: user};
-        } else {
-            return {success: false, message: 'Incorrect Password'};
-        }
-    }
+// Get user by reset token
+exports.getUsersByResetToken = async (token) => {
+    const result = await db.query('SELECT * FROM users WHERE reset_password_token = $1 AND reset_password_expires > NOW()', [token]);
+    return result.rows[0];
+};
 
-    async function runSecurityTest() {
-    try {
-        console.log('starting security');
-        const testName = 'TestUs';
-        const testPass= 'SuperSecret11';
-        const testEmail = 'texztemails@example.com';
-        const testLang = 'english';
-
-        const newId = await createUser(testName, testPass, testLang, testEmail);
-        console.log(`user created with ID: ${newId}`);
-        
-        const user = await getUsers(newId)
-        console.log('Database result');
-        console.log(`Name : ${user.name}`);
-        console.log(`Plain password sent : ${testPass}`);
-        console.log(`Stored password in DB: ${user.password}`);
-        
-        const isMatch = await bcrypt.compare(testPass, user.password)
-        console.log(`\n password Match Verification: ${isMatch ? "SUCCESS (Hashes Match)": "FAILED"}`);
-    } catch (err) {
-        console.error("Test failed:", err.message);
-        
-    }
-}
-
-async function getUserByToken(token) {
-    const [rows] = await pool.query ('SELECT * FROM users WHERE verification_token = ?', [token]);
-    return rows[0];
-}
-
-async function markAsVerifiedUser(userId) {
-    await pool.query('Update users SET is_verified = 1, verification_token = NULL WHERE id = ?', [userId])
-}
-
-async function setResetToken(email, token, expiry) {
-    await pool.query('UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE email = ?', [token, expiry, email]);
-}
-
-async function getUsersByResetToken(token) {
-    const [rows] = await pool.query('SELECT * FROM users WHERE reset_token = ? AND reset_token_expiry > NOW()', [token]);
-    return rows[0]
-}
-
-async function updatePassword(userId, hashedPassword) {
-    await pool.query('UPDATE users SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE id = ?', [hashedPassword, userId])
-}
-
-//runSecurityTest()
+// Create new user
+exports.createUser = async (name, email, password, language, token) => {
+    const hashedPassword = await require('bcrypt').hash(password, 10);
     
-    module.exports = {
-    getUsers,
-    createUser,
-    deleteUser,
-    updateUser,
-    getUsersByEmail,
-    getUserByToken,
-    markAsVerifiedUser,
-    setResetToken,
-    getUsersByResetToken,
-    updatePassword,
-    loginUser,
-    runSecurityTest
-    }
+    const result = await db.query(
+        'INSERT INTO users (name, email, password, language, verification_token, created_at) VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING id',
+        [name, email, hashedPassword, language, token]
+    );
+    return result.rows[0];
+};
+
+// Mark user as verified
+exports.markAsVerifiedUser = async (userId) => {
+    await db.query(
+        'UPDATE users SET is_verified = true, verification_token = NULL WHERE id = $1',
+        [userId]
+    );
+};
+
+// Set reset token
+exports.setResetToken = async (email, token, expiry) => {
+    await db.query(
+        'UPDATE users SET reset_password_token = $1, reset_password_expires = $2 WHERE email = $3',
+        [token, expiry, email]
+    );
+};
+
+// Update password
+exports.updatePassword = async (userId, hashedPassword) => {
+    await db.query(
+        'UPDATE users SET password = $1, reset_password_token = NULL, reset_password_expires = NULL WHERE id = $2',
+        [hashedPassword, userId]
+    );
+};
