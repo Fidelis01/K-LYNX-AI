@@ -19,6 +19,32 @@ const db = new Pool({
     host: process.env.host || 'localhost',  // Add this
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
+// After your database connection code
+
+async function createUsersTable() {
+    try {
+        const createTableQuery = `
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                language VARCHAR(100),
+                is_verified BOOLEAN DEFAULT FALSE,
+                verification_token VARCHAR(255),
+                reset_password_token VARCHAR(255),
+                reset_password_expires TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `;
+        
+        await db.query(createTableQuery);
+        console.log('✅ Users table created or already exists');
+    } catch (error) {
+        console.error('❌ Error creating users table:', error.message);
+    }
+}
+createUsersTable();
 
 app.use(cors({
     origin: 'http://127.0.0.1:5500', 
