@@ -74,7 +74,6 @@
         font-size: 0.95rem;
         outline: none;
         transition: all 0.2s;
-        cursor: pointer;
     }
 
     .input-group select option {
@@ -90,7 +89,7 @@
 
     .signup-btn {
         width: 100%;
-        background: linear-gradient(135deg, #00d4ff, #00aa88);
+        background: linear-gradient(135deg, #00d4ff, #00ffaa);
         border: none;
         border-radius: 40px;
         padding: 12px;
@@ -218,7 +217,7 @@
         </div>
 
         <div class="login-link">
-            Already have an account? <a href="/login">Login</a>
+            Already have an account? <a href="login.html">Login</a>
         </div>
     </div>
 </div>
@@ -227,7 +226,7 @@
     // Check if already logged in
     const token = localStorage.getItem('token');
     if (token) {
-        window.location.href = '/dashboard';
+        window.location.href = 'index.html';
     }
 
     function showError(msg) {
@@ -246,12 +245,14 @@
 
     // SIGNUP FUNCTION
     async function signup() {
+        // Get values
         const name = document.getElementById('fullname').value.trim();
         const email = document.getElementById('email').value.trim();
         const language = document.getElementById('language').value;
-        const password = document.getElementById('password').value.trim();
-        const confirmPassword = document.getElementById('confirmPassword').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
 
+        // Validation
         if (!name || !email || !password) {
             showError('❌ Please fill in Name, Email, and Password');
             return;
@@ -267,25 +268,39 @@
             return;
         }
 
+        // Show loading state
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.innerText = 'Creating account...';
+        btn.disabled = true;
+
         try {
+            console.log('Sending registration request for:', email);
+            
             const response = await fetch('/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, email, password, language })
             });
 
+            console.log('Response status:', response.status);
             const data = await response.json();
+            console.log('Response data:', data);
 
             if (response.ok) {
-                showSuccess('✅ Registered successfully! Please login.');
+                showSuccess('✅ Registration successful! Please check your email for verification.');
                 setTimeout(() => { 
-                    window.location.href = '/login'; 
-                }, 2000);
+                    window.location.href = 'login.html'; 
+                }, 3000);
             } else {
                 showError('❌ ' + (data.message || 'Registration failed'));
             }
         } catch (err) {
-            showError('❌ Could not connect to the server');
+            console.error('Fetch error:', err);
+            showError('❌ Cannot connect to server. Please make sure the server is running.');
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
         }
     }
 
