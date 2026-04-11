@@ -15,10 +15,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// Database connection - using internal URL (no SSL needed)
+// Simple session storage (in production, use a proper session store)
+const adminSessions = new Map();
+
+// Database connection using connection string
 const db = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: false  // Important: false for internal Render connections
+    ssl: false
 });
 
 // Create users table
@@ -40,6 +43,48 @@ async function initDB() {
     }
 }
 initDB();
+
+// ============ ADMIN AUTH ============
+
+// Admin login - creates a session
+app.post('/api/admin/login', (req, res) => {
+    const { password } = req.body;
+    
+    if (password === process.env.BACKUP_PASSWORD) {
+        const sessionId = Date.now().toString() + Math.random().toString(36);
+        adminSessions.set(sessionId, { createdAt: Date.now() });
+        res.json({ success: true, sessionId });
+    } else {
+        res.status(401).json({ error: 'Invalid password' });
+    }
+});
+
+// Middleware to verify admin session
+function verifyAdminSession(req, res, next) {
+    const sessionId = req.headers['x-admin-session'];
+    
+    if (!sessionId || !adminSessions.has(sessionId)) {
+        return res.status(401).json({ error: 'Unauthorized - Please login to admin panel' });
+    }
+    
+    // Check if session is expired (1 hour)
+    const session = adminSessions.get(sessionId);
+    if (Date.now() - session.createdAt > 3600000) {
+        adminSessions.delete(sessionId);
+        return res.status(401).json({ error: 'Session expired - Please login again' });
+    }
+    
+    next();
+}
+
+// Admin logout
+app.post('/api/admin/logout', (req, res) => {
+    const sessionId = req.headers['x-admin-session'];
+    if (sessionId) {
+        adminSessions.delete(sessionId);
+    }
+    res.json({ success: true });
+});
 
 // ============ AUTH ROUTES ============
 
@@ -99,7 +144,7 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Get all users
+// Get all users (no auth needed for admin panel to load)
 app.get('/api/users', async (req, res) => {
     try {
         const result = await db.query('SELECT id, name, email, language, created_at FROM users ORDER BY id DESC');
@@ -109,13 +154,10 @@ app.get('/api/users', async (req, res) => {
     }
 });
 
-// Delete user by email
-app.delete('/api/users/:email', async (req, res) => {
-    const { password } = req.query;
-    if (password !== process.env.BACKUP_PASSWORD) {
-        return res.status(401).json({ error: 'Unauthorized' });
-    }
-    
+// ============ PROTECTED ADMIN ROUTES (require session) ============
+
+// Delete user by email - PROTECTED
+app.delete('/api/admin/users/:email', verifyAdminSession, async (req, res) => {
     try {
         const result = await db.query('DELETE FROM users WHERE email = $1 RETURNING *', [req.params.email]);
         if (result.rowCount === 0) {
@@ -127,13 +169,8 @@ app.delete('/api/users/:email', async (req, res) => {
     }
 });
 
-// Delete all users
-app.delete('/api/users/all', async (req, res) => {
-    const { password } = req.query;
-    if (password !== process.env.BACKUP_PASSWORD) {
-        return res.status(401).json({ error: 'Unauthorized' });
-    }
-    
+// Delete all users - PROTECTED
+app.delete('/api/admin/users/all', verifyAdminSession, async (req, res) => {
     try {
         const result = await db.query('DELETE FROM users RETURNING *');
         res.json({ success: true, message: `Deleted ${result.rowCount} users` });
@@ -142,14 +179,8 @@ app.delete('/api/users/all', async (req, res) => {
     }
 });
 
-// ============ BACKUP ROUTE ============
-
-app.get('/api/backup', async (req, res) => {
-    const { password } = req.query;
-    if (password !== process.env.BACKUP_PASSWORD) {
-        return res.status(401).json({ error: 'Unauthorized' });
-    }
-    
+// Backup database - PROTECTED
+app.get('/api/admin/backup', verifyAdminSession, async (req, res) => {
     try {
         const tables = await db.query(`
             SELECT table_name FROM information_schema.tables 
