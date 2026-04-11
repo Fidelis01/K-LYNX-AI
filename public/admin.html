@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel | K-LYNX AI++</title>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>Admin Panel | K-LYNX AI</title>
     <style>
         * {
             margin: 0;
@@ -14,10 +12,9 @@
         }
 
         body {
-            font-family: 'Open Sans', sans-serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
             min-height: 100vh;
-            color: #fff;
             padding: 20px;
         }
 
@@ -26,21 +23,22 @@
             margin: 0 auto;
         }
 
+        /* Header */
         .header {
             background: rgba(15, 23, 42, 0.95);
             backdrop-filter: blur(10px);
             padding: 20px 30px;
-            border-radius: 15px;
+            border-radius: 16px;
             margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .logo {
-            font-size: 28px;
-            font-weight: 800;
+            font-size: 24px;
+            font-weight: bold;
             background: linear-gradient(135deg, #00d4ff, #00ffaa);
             -webkit-background-clip: text;
             background-clip: text;
@@ -48,10 +46,10 @@
         }
 
         .back-btn {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 10px 20px;
-            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 20px;
+            border-radius: 20px;
             color: white;
             text-decoration: none;
             transition: 0.3s;
@@ -62,83 +60,95 @@
             border-color: #00d4ff;
         }
 
+        /* Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card h2 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .card h3 {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
 
         .stat-card {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
-            padding: 25px;
-            border-radius: 15px;
+            padding: 20px;
+            border-radius: 16px;
             text-align: center;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .stat-card h3 {
-            font-size: 14px;
-            color: rgba(255,255,255,0.7);
-            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .stat-card .number {
             font-size: 36px;
-            font-weight: 800;
+            font-weight: bold;
             color: #00d4ff;
         }
 
-        .panel {
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(255,255,255,0.1);
+        .stat-card .label {
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 8px;
+            font-size: 14px;
         }
 
-        .panel h2 {
-            margin-bottom: 20px;
-            color: #00d4ff;
-            font-size: 24px;
-        }
-
+        /* Forms */
         .input-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .input-group label {
             display: block;
+            color: rgba(255, 255, 255, 0.9);
             margin-bottom: 8px;
-            color: rgba(255,255,255,0.9);
+            font-size: 14px;
         }
 
-        .input-group input {
+        input, select {
             width: 100%;
             padding: 12px 16px;
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
+            border-radius: 12px;
             color: white;
             font-size: 14px;
             outline: none;
         }
 
-        .input-group input:focus {
+        input:focus {
             border-color: #00d4ff;
             box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
         }
 
+        /* Buttons */
         .btn {
-            padding: 12px 24px;
+            padding: 10px 20px;
             border: none;
             border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
             transition: 0.3s;
             margin-right: 10px;
+            margin-bottom: 10px;
         }
 
         .btn-primary {
@@ -157,18 +167,18 @@
         }
 
         .btn-secondary {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             color: white;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
-        .users-table {
-            width: 100%;
+        /* Table */
+        .table-wrapper {
             overflow-x: auto;
         }
 
@@ -180,7 +190,7 @@
         th, td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         th {
@@ -188,26 +198,28 @@
             font-weight: 600;
         }
 
-        .delete-btn {
-            background: rgba(255,68,68,0.2);
+        .delete-user-btn {
+            background: rgba(255, 68, 68, 0.2);
             border: 1px solid #ff4444;
             color: #ff8888;
-            padding: 5px 10px;
-            border-radius: 5px;
+            padding: 5px 12px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 12px;
         }
 
-        .delete-btn:hover {
+        .delete-user-btn:hover {
             background: #ff4444;
             color: white;
         }
 
+        /* Alerts */
         .alert {
-            padding: 15px;
-            border-radius: 10px;
+            padding: 12px 16px;
+            border-radius: 12px;
             margin-bottom: 20px;
             display: none;
+            animation: fadeIn 0.3s ease;
         }
 
         .alert-success {
@@ -222,124 +234,175 @@
             color: #ff8888;
         }
 
+        .alert-info {
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid #00d4ff;
+            color: #00d4ff;
+        }
+
+        /* Loading */
         .loading {
             text-align: center;
-            padding: 20px;
+            padding: 40px;
             color: #00d4ff;
+        }
+
+        /* Login Section */
+        .login-section {
+            max-width: 400px;
+            margin: 100px auto;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @media (max-width: 768px) {
             .stats-grid { grid-template-columns: 1fr; }
-            .panel { padding: 20px; }
             th, td { font-size: 12px; padding: 8px; }
+            .btn { padding: 8px 16px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <div class="logo">K-LYNX AI++ <span style="font-size:12px;">admin</span></div>
-            <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
-        </div>
-
-        <div id="alert" class="alert"></div>
-
-        <div class="stats-grid" id="stats">
-            <div class="stat-card">
-                <h3>Total Users</h3>
-                <div class="number" id="totalUsers">-</div>
-            </div>
-            <div class="stat-card">
-                <h3>Database Status</h3>
-                <div class="number" id="dbStatus">-</div>
-            </div>
-            <div class="stat-card">
-                <h3>Last Backup</h3>
-                <div class="number" id="lastBackup">-</div>
+        <!-- Login Section -->
+        <div id="loginSection" class="login-section">
+            <div class="card">
+                <h2 style="text-align: center;">🔐 Admin Access</h2>
+                <div class="input-group">
+                    <label>Admin Password</label>
+                    <input type="password" id="adminPassword" placeholder="Enter admin password" onkeypress="if(event.key==='Enter') authenticate()">
+                </div>
+                <button class="btn btn-primary" onclick="authenticate()" style="width: 100%;">Login</button>
             </div>
         </div>
 
-        <div class="panel">
-            <h2><i class="fas fa-database"></i> Database Actions</h2>
-            <div class="input-group">
-                <label>Admin Password</label>
-                <input type="password" id="adminPassword" placeholder="Enter admin password">
+        <!-- Admin Panel (hidden until login) -->
+        <div id="adminPanel" style="display: none;">
+            <div class="header">
+                <div class="logo">K-LYNX AI++ <span style="font-size: 12px;">admin</span></div>
+                <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
             </div>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button class="btn btn-primary" onclick="backupDatabase()"><i class="fas fa-download"></i> Download Backup</button>
-                <button class="btn btn-secondary" onclick="testConnection()"><i class="fas fa-plug"></i> Test Connection</button>
-                <button class="btn btn-secondary" onclick="refreshUsers()"><i class="fas fa-sync"></i> Refresh Users</button>
+
+            <div id="alert" class="alert"></div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="number" id="totalUsers">-</div>
+                    <div class="label">Total Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="dbStatus">-</div>
+                    <div class="label">Database Status</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="lastBackup">-</div>
+                    <div class="label">Last Backup</div>
+                </div>
             </div>
-        </div>
 
-        <div class="panel">
-            <h2><i class="fas fa-user-minus"></i> Delete User by Email</h2>
-            <div class="input-group">
-                <label>Email Address</label>
-                <input type="email" id="deleteEmail" placeholder="user@example.com">
+            <!-- Actions -->
+            <div class="card">
+                <h2>📊 Database Actions</h2>
+                <button class="btn btn-primary" onclick="backupDatabase()">💾 Download Backup</button>
+                <button class="btn btn-secondary" onclick="refreshUsers()">🔄 Refresh Users</button>
+                <button class="btn btn-secondary" onclick="testConnection()">🔌 Test Connection</button>
             </div>
-            <button class="btn btn-danger" onclick="deleteUser()"><i class="fas fa-trash"></i> Delete User</button>
-        </div>
 
-        <div class="panel">
-            <h2><i class="fas fa-trash-alt"></i> Danger Zone</h2>
-            <p style="margin-bottom: 15px; color: #ff8888;">⚠️ These actions are permanent and cannot be undone!</p>
-            <button class="btn btn-warning" onclick="deleteAllUsers()"><i class="fas fa-skull-crossbones"></i> Delete ALL Users</button>
-            <button class="btn btn-danger" onclick="resetDatabase()"><i class="fas fa-database"></i> Drop & Recreate Table</button>
-        </div>
+            <!-- Delete Single User -->
+            <div class="card">
+                <h2>🗑️ Delete User by Email</h2>
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="deleteEmail" placeholder="user@example.com">
+                </div>
+                <button class="btn btn-danger" onclick="deleteUser()">Delete User</button>
+            </div>
 
-        <div class="panel">
-            <h2><i class="fas fa-users"></i> All Users</h2>
-            <div class="users-table" id="usersList">
-                <div class="loading">Loading users...</div>
+            <!-- Danger Zone -->
+            <div class="card">
+                <h2>⚠️ Danger Zone</h2>
+                <p style="margin-bottom: 15px; color: #ff8888; font-size: 14px;">These actions are permanent and cannot be undone!</p>
+                <button class="btn btn-warning" onclick="deleteAllUsers()">🗑️ Delete ALL Users</button>
+            </div>
+
+            <!-- Users List -->
+            <div class="card">
+                <h2>👥 All Users</h2>
+                <div class="table-wrapper" id="usersList">
+                    <div class="loading">Loading users...</div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        const API_BASE_URL = 'https://klynxai.onrender.com';
-        const BACKUP_PASSWORD = prompt('Enter admin password to continue:');
-
-        if (!BACKUP_PASSWORD) {
-            window.location.href = '/';
-        }
+        let adminPassword = '';
 
         function showAlert(message, type) {
             const alert = document.getElementById('alert');
             alert.className = `alert alert-${type}`;
-            alert.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+            alert.innerHTML = message;
             alert.style.display = 'block';
             setTimeout(() => {
                 alert.style.display = 'none';
             }, 4000);
         }
 
+        async function authenticate() {
+            adminPassword = document.getElementById('adminPassword').value.trim();
+            if (!adminPassword) {
+                showAlert('Please enter admin password', 'error');
+                return;
+            }
+            
+            // Test authentication by trying to fetch users
+            try {
+                const response = await fetch(`/api/users`);
+                if (response.ok) {
+                    document.getElementById('loginSection').style.display = 'none';
+                    document.getElementById('adminPanel').style.display = 'block';
+                    showAlert('Login successful!', 'success');
+                    refreshUsers();
+                    testConnection();
+                } else {
+                    showAlert('Authentication failed', 'error');
+                }
+            } catch (err) {
+                showAlert('Cannot connect to server', 'error');
+            }
+        }
+
         async function testConnection() {
             try {
-                const response = await fetch(`${API_BASE_URL}/test-db?password=${BACKUP_PASSWORD}`);
-                const data = await response.json();
+                const response = await fetch('/api/users');
                 if (response.ok) {
-                    document.getElementById('dbStatus').innerText = 'Online';
+                    document.getElementById('dbStatus').innerHTML = '🟢 Online';
                     showAlert('Database connected successfully!', 'success');
                 } else {
-                    document.getElementById('dbStatus').innerText = 'Error';
+                    document.getElementById('dbStatus').innerHTML = '🔴 Error';
                     showAlert('Database connection failed!', 'error');
                 }
-            } catch (error) {
-                document.getElementById('dbStatus').innerText = 'Offline';
+            } catch (err) {
+                document.getElementById('dbStatus').innerHTML = '🔴 Offline';
                 showAlert('Cannot connect to database!', 'error');
             }
         }
 
         async function backupDatabase() {
+            if (!adminPassword) {
+                showAlert('Please login first', 'error');
+                return;
+            }
             try {
-                showAlert('Starting backup download...', 'success');
-                window.location.href = `${API_BASE_URL}/backup?password=${BACKUP_PASSWORD}`;
-                setTimeout(() => {
-                    document.getElementById('lastBackup').innerText = new Date().toLocaleTimeString();
-                }, 2000);
-            } catch (error) {
-                showAlert('Backup failed: ' + error.message, 'error');
+                window.location.href = `/api/backup?password=${adminPassword}`;
+                document.getElementById('lastBackup').innerHTML = new Date().toLocaleTimeString();
+                showAlert('Backup download started...', 'success');
+            } catch (err) {
+                showAlert('Backup failed: ' + err.message, 'error');
             }
         }
 
@@ -348,13 +411,13 @@
             usersDiv.innerHTML = '<div class="loading">Loading users...</div>';
             
             try {
-                const response = await fetch(`${API_BASE_URL}/users`);
+                const response = await fetch('/api/users');
                 const users = await response.json();
                 
-                document.getElementById('totalUsers').innerText = users.length;
+                document.getElementById('totalUsers').innerHTML = users.length;
                 
                 if (users.length === 0) {
-                    usersDiv.innerHTML = '<p style="text-align:center; padding:20px;">No users found</p>';
+                    usersDiv.innerHTML = '<p style="text-align:center; padding:40px;">No users found</p>';
                     return;
                 }
                 
@@ -373,7 +436,7 @@
                         <tbody>
                 `;
                 
-                users.forEach(user => {
+                for (const user of users) {
                     const date = new Date(user.created_at).toLocaleDateString();
                     html += `
                         <tr>
@@ -382,17 +445,17 @@
                             <td>${escapeHtml(user.email)}</td>
                             <td>${escapeHtml(user.language || 'English')}</td>
                             <td>${date}</td>
-                            <td><button class="delete-btn" onclick="deleteUserByEmail('${user.email}')">Delete</button></td>
+                            <td><button class="delete-user-btn" onclick="deleteUserByEmail('${escapeHtml(user.email)}')">Delete</button></td>
                         </tr>
                     `;
-                });
+                }
                 
                 html += `</tbody></table>`;
                 usersDiv.innerHTML = html;
                 
-            } catch (error) {
-                usersDiv.innerHTML = '<p style="text-align:center; padding:20px; color:#ff8888;">Error loading users</p>';
-                showAlert('Failed to load users', 'error');
+            } catch (err) {
+                usersDiv.innerHTML = '<p style="text-align:center; padding:40px; color:#ff8888;">Error loading users</p>';
+                showAlert('Failed to load users: ' + err.message, 'error');
             }
         }
 
@@ -405,20 +468,20 @@
             
             if (confirm(`Are you sure you want to delete user: ${email}?`)) {
                 try {
-                    const response = await fetch(`${API_BASE_URL}/delete-user?password=${BACKUP_PASSWORD}&email=${email}`, {
+                    const response = await fetch(`/api/users/${encodeURIComponent(email)}?password=${adminPassword}`, {
                         method: 'DELETE'
                     });
                     const data = await response.json();
                     
                     if (response.ok) {
-                        showAlert(`Deleted user: ${email}`, 'success');
+                        showAlert(`✅ Deleted user: ${email}`, 'success');
                         document.getElementById('deleteEmail').value = '';
                         refreshUsers();
                     } else {
                         showAlert(data.error || 'Delete failed', 'error');
                     }
-                } catch (error) {
-                    showAlert('Delete failed: ' + error.message, 'error');
+                } catch (err) {
+                    showAlert('Delete failed: ' + err.message, 'error');
                 }
             }
         }
@@ -426,19 +489,19 @@
         async function deleteUserByEmail(email) {
             if (confirm(`Are you sure you want to delete user: ${email}?`)) {
                 try {
-                    const response = await fetch(`${API_BASE_URL}/delete-user?password=${BACKUP_PASSWORD}&email=${email}`, {
+                    const response = await fetch(`/api/users/${encodeURIComponent(email)}?password=${adminPassword}`, {
                         method: 'DELETE'
                     });
                     const data = await response.json();
                     
                     if (response.ok) {
-                        showAlert(`Deleted user: ${email}`, 'success');
+                        showAlert(`✅ Deleted user: ${email}`, 'success');
                         refreshUsers();
                     } else {
                         showAlert(data.error || 'Delete failed', 'error');
                     }
-                } catch (error) {
-                    showAlert('Delete failed: ' + error.message, 'error');
+                } catch (err) {
+                    showAlert('Delete failed: ' + err.message, 'error');
                 }
             }
         }
@@ -447,41 +510,19 @@
             if (confirm('⚠️ WARNING: This will delete ALL users from the database! This cannot be undone! Are you sure?')) {
                 if (confirm('Type "CONFIRM" to proceed:')) {
                     try {
-                        const response = await fetch(`${API_BASE_URL}/delete-all-users?password=${BACKUP_PASSWORD}`, {
+                        const response = await fetch(`/api/users/all?password=${adminPassword}`, {
                             method: 'DELETE'
                         });
                         const data = await response.json();
                         
                         if (response.ok) {
-                            showAlert(`Deleted ${data.deleted || 0} users`, 'success');
+                            showAlert(`✅ Deleted ${data.message || 'all'} users`, 'success');
                             refreshUsers();
                         } else {
                             showAlert(data.error || 'Delete failed', 'error');
                         }
-                    } catch (error) {
-                        showAlert('Delete failed: ' + error.message, 'error');
-                    }
-                }
-            }
-        }
-
-        async function resetDatabase() {
-            if (confirm('⚠️⚠️⚠️ DANGER: This will DROP and RECREATE the users table! All data will be lost! This cannot be undone! ⚠️⚠️⚠️')) {
-                if (confirm('Type "RESET DATABASE" to confirm:')) {
-                    try {
-                        const response = await fetch(`${API_BASE_URL}/reset-database?password=${BACKUP_PASSWORD}`, {
-                            method: 'POST'
-                        });
-                        const data = await response.json();
-                        
-                        if (response.ok) {
-                            showAlert('Database reset successfully!', 'success');
-                            refreshUsers();
-                        } else {
-                            showAlert(data.error || 'Reset failed', 'error');
-                        }
-                    } catch (error) {
-                        showAlert('Reset failed: ' + error.message, 'error');
+                    } catch (err) {
+                        showAlert('Delete failed: ' + err.message, 'error');
                     }
                 }
             }
@@ -492,10 +533,6 @@
             div.textContent = text;
             return div.innerHTML;
         }
-
-        // Initial load
-        testConnection();
-        refreshUsers();
     </script>
 </body>
 </html>
