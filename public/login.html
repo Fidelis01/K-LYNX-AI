@@ -1,247 +1,279 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Login | K-LYNX AI++</title>
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | K-LYNX AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-        background-color: #0F172A;
-    }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
 
-    .login-container {
-        max-width: 450px;
-        width: 100%;
-    }
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-    .login-card {
-        background: rgba(15, 25, 45, 0.2);
-        backdrop-filter: blur(12px);
-        border-radius: 30px;
-        padding: 35px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
-        text-align: center;
-    }
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #00d4ff, #00ffaa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 28px;
+        }
 
-    .logo h1 {
-        font-size: 2.2rem;
-        background: linear-gradient(135deg, #00d4ff, #00ffaa);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-        margin-bottom: 5px;
-    }
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
 
-    .logo p {
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 0.8rem;
-        margin-bottom: 25px;
-    }
+        .input-group {
+            margin-bottom: 20px;
+        }
 
-    .input-group {
-        margin-bottom: 18px;
-        text-align: left;
-    }
+        .input-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
 
-    .input-group label {
-        display: block;
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 0.85rem;
-        margin-bottom: 6px;
-    }
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
 
-    .input-group input {
-        width: 100%;
-        padding: 12px 16px;
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 40px;
-        color: white;
-        font-size: 0.95rem;
-        outline: none;
-        transition: all 0.2s;
-    }
+        input:focus {
+            border-color: #00d4ff;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+        }
 
-    .input-group input:focus {
-        border-color: #00d4ff;
-        box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
-    }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #00d4ff, #00ffaa);
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s;
+            color: #0F172A;
+        }
 
-    .login-btn {
-        width: 100%;
-        background: linear-gradient(135deg, #00d4ff, #00ffaa);
-        border: none;
-        border-radius: 40px;
-        padding: 12px;
-        font-weight: bold;
-        font-size: 1rem;
-        color: #0a0f1e;
-        cursor: pointer;
-        transition: transform 0.2s;
-        margin-top: 10px;
-    }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+        }
 
-    .login-btn:hover { transform: scale(1.02); }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
 
-    .signup-link {
-        margin-top: 18px;
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 0.8rem;
-    }
+        .error-msg, .success-msg {
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            display: none;
+            font-size: 14px;
+        }
 
-    .signup-link a { 
-        color: #00d4ff; 
-        text-decoration: none; 
-        cursor: pointer;
-        font-weight: bold;
-    }
+        .error-msg {
+            background: rgba(255, 68, 68, 0.2);
+            border: 1px solid #ff4444;
+            color: #ff8888;
+        }
 
-    .signup-link a:hover {
-        text-decoration: underline;
-    }
+        .success-msg {
+            background: rgba(0, 255, 100, 0.2);
+            border: 1px solid #00ff64;
+            color: #88ff88;
+        }
 
-    .error-msg, .success-msg {
-        border-radius: 12px;
-        padding: 10px;
-        text-align: center;
-        font-size: 0.8rem;
-        margin-bottom: 20px;
-        display: none;
-    }
+        .signup-link {
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
 
-    .error-msg { 
-        background: rgba(255, 80, 80, 0.2); 
-        border: 1px solid rgba(255, 80, 80, 0.5); 
-        color: #ff8888; 
-    }
-    
-    .success-msg { 
-        background: rgba(0, 255, 100, 0.2); 
-        border: 1px solid rgba(0, 255, 100, 0.5); 
-        color: #88ff88; 
-    }
+        .signup-link a {
+            color: #00d4ff;
+            text-decoration: none;
+            font-weight: 600;
+        }
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    #loginForm { animation: fadeIn 0.3s ease-in-out; }
-</style>
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .forgot-password a {
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .forgot-password a:hover {
+            color: #00d4ff;
+        }
+    </style>
 </head>
 <body>
-<div class="login-container">
-    <div class="login-card">
-        <div class="logo">
-            <h1>K-LYNX AI++</h1>
-            <p>Login to your account</p>
-        </div>
+    <div class="card">
+        <h1>K-LYNX AI++</h1>
+        <div class="subtitle">Welcome back! Login to your account</div>
         
         <div id="errorMsg" class="error-msg"></div>
         <div id="successMsg" class="success-msg"></div>
-
-        <!-- LOGIN FORM -->
-        <div id="loginForm">
-            <div class="input-group">
-                <label>📧 Email Address</label>
-                <input type="email" id="loginEmail" placeholder="Enter your email" autofocus>
-            </div>
-            <div class="input-group">
-                <label>🔑 Password</label>
-                <input type="password" id="loginPassword" placeholder="Enter your password">
-            </div>
-            <button class="login-btn" onclick="login()">Login</button>
+        
+        <div class="input-group">
+            <label>📧 Email Address</label>
+            <input type="email" id="email" placeholder="email@example.com" autofocus>
         </div>
+
+        <div class="input-group">
+            <label>🔑 Password</label>
+            <input type="password" id="password" placeholder="Enter your password">
+        </div>
+
+        <div class="forgot-password">
+            <a href="#">Forgot password?</a>
+        </div>
+
+        <button id="loginBtn" onclick="login()">Login</button>
 
         <div class="signup-link">
             Don't have an account? <a href="signup.html">Sign Up</a>
         </div>
     </div>
-</div>
 
-<script>
-    const API_BASE_URL = 'https://klynxai.onrender.com';
-    
-    // Check if already logged in
-    const token = localStorage.getItem('token');
-    if (token) {
-        window.location.href = `${API_BASE_URL}/`;
-    }
-
-    function showError(msg) {
-        const errorDiv = document.getElementById('errorMsg');
-        errorDiv.textContent = msg;
-        errorDiv.style.display = 'block';
-        setTimeout(() => { errorDiv.style.display = 'none'; }, 4000);
-    }
-
-    function showSuccess(msg) {
-        const successDiv = document.getElementById('successMsg');
-        successDiv.textContent = msg;
-        successDiv.style.display = 'block';
-        setTimeout(() => { successDiv.style.display = 'none'; }, 3000);
-    }
-
-    // LOGIN FUNCTION
-    async function login() {
-        const email = document.getElementById('loginEmail').value.trim();
-        const password = document.getElementById('loginPassword').value.trim();
-
-        if (!email || !password) {
-            showError('❌ Please fill in all fields');
-            return;
+    <script>
+        // Check if already logged in
+        const token = localStorage.getItem('token');
+        if (token) {
+            window.location.href = '/';
         }
 
-        const btn = event.target;
-        const originalText = btn.innerText;
-        btn.innerText = 'Logging in...';
-        btn.disabled = true;
+        function showError(msg) {
+            const errorDiv = document.getElementById('errorMsg');
+            errorDiv.textContent = msg;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
+        function showSuccess(msg) {
+            const successDiv = document.getElementById('successMsg');
+            successDiv.textContent = msg;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
 
-            const data = await response.json();
+        async function login() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
 
-            if (response.ok) {
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify(data.user));
-                showSuccess('✅ Login successful! Redirecting...');
-                setTimeout(() => { 
-                    window.location.href = `${API_BASE_URL}/`; 
-                }, 1500);
-            } else {
-                showError('❌ ' + (data.message || 'Invalid credentials'));
+            // Validation
+            if (!email || !password) {
+                showError('❌ Please fill in both email and password');
+                return;
             }
-        } catch (err) {
-            console.error('Login error:', err);
-            showError('❌ Cannot connect to server');
-        } finally {
-            btn.innerText = originalText;
-            btn.disabled = false;
-        }
-    }
 
-    // Enter key support
-    document.getElementById('loginPassword').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') login();
-    });
-</script>
+            if (!email.includes('@') || !email.includes('.')) {
+                showError('❌ Please enter a valid email address');
+                return;
+            }
+
+            // Disable button and show loading
+            const btn = document.getElementById('loginBtn');
+            const originalText = btn.innerText;
+            btn.innerText = 'Logging in...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Store token and user data
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    showSuccess('✅ Login successful! Redirecting...');
+                    
+                    // Redirect to dashboard after 1.5 seconds
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1500);
+                } else {
+                    showError('❌ ' + (data.error || 'Invalid email or password'));
+                }
+            } catch (err) {
+                console.error('Login error:', err);
+                showError('❌ Cannot connect to server. Please make sure you are online.');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Enter key support
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+    </script>
 </body>
 </html>
