@@ -15,10 +15,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// Database connection using connection string
+// Database connection - using internal URL (no SSL needed)
 const db = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
+    ssl: false  // Important: false for internal Render connections
 });
 
 // Create users table
@@ -48,16 +48,13 @@ app.post('/api/register', async (req, res) => {
     try {
         const { name, email, password, language } = req.body;
         
-        // Check if user exists
         const existing = await db.query('SELECT * FROM users WHERE email = $1', [email]);
         if (existing.rows.length > 0) {
             return res.status(400).json({ error: 'Email already registered' });
         }
         
-        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
         
-        // Create user
         const result = await db.query(
             'INSERT INTO users (name, email, password, language) VALUES ($1, $2, $3, $4) RETURNING id, name, email',
             [name, email, hashedPassword, language || 'English']
@@ -102,7 +99,7 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Get all users (for admin)
+// Get all users
 app.get('/api/users', async (req, res) => {
     try {
         const result = await db.query('SELECT id, name, email, language, created_at FROM users ORDER BY id DESC');
@@ -145,7 +142,7 @@ app.delete('/api/users/all', async (req, res) => {
     }
 });
 
-// ============ BACKUP ROUTES ============
+// ============ BACKUP ROUTE ============
 
 app.get('/api/backup', async (req, res) => {
     const { password } = req.query;
@@ -164,14 +161,13 @@ app.get('/api/backup', async (req, res) => {
         const tempDir = path.join(__dirname, backupId);
         fs.mkdirSync(tempDir);
         
-        let sql = `-- K-LYNX Database Backup\n-- Generated: ${new Date().toISOString()}\n\n`;
+        let sql = `-- Database Backup\n-- Generated: ${new Date().toISOString()}\n\n`;
         
         for (const { table_name } of tables.rows) {
             const data = await db.query(`SELECT * FROM ${table_name}`);
             sql += `-- Table: ${table_name}\n`;
             sql += `DROP TABLE IF EXISTS ${table_name} CASCADE;\n`;
             
-            // Get columns
             const cols = await db.query(`
                 SELECT column_name FROM information_schema.columns 
                 WHERE table_name = $1 AND table_schema = 'public'
@@ -225,6 +221,6 @@ app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, 'public',
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📱 Visit: http://localhost:${PORT}/signup.html`);
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📱 Visit: https://klynxai.onrender.com/signup.html`);
 });
