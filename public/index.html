@@ -49,6 +49,7 @@
     text-decoration: none;
     transition: 0.3s;
     font-weight: 500;
+    cursor: pointer;
    }
 
    .nav-links a:hover { color: #00d4ff; }
@@ -341,9 +342,7 @@
     transition: 0.3s;
    }
 
-   .close-modal:hover {
-    color: #00d4ff;
-   }
+   .close-modal:hover { color: #00d4ff; }
 
    @media (max-width: 768px) {
     .hero h1 { font-size: 36px; }
@@ -358,21 +357,21 @@
 <div class="header">
     <div class="logo">K-LYNX AI++ <span style="font-size:12px;">beta</span></div>
     <div class="nav-links">
-        <a href="#">Home</a>
-        <a href="#features">Features</a>
+        <a onclick="scrollToSection('home')">Home</a>
+        <a onclick="scrollToSection('features')">Features</a>
         <div class="profile-icon" onclick="logout()">
             <i class="fas fa-sign-out-alt"></i>
         </div>
     </div>
 </div>
 
-<div class="hero">
+<div class="hero" id="home">
     <div class="hero-content">
-        <h1>Welcome to K-LYNX AI++</h1>
+        <h1 id="welcomeTitle">Welcome to K-LYNX AI++</h1>
         <p>Experience the next generation of artificial intelligence designed to supercharge your productivity, creativity, and growth.</p>
         <div class="btn-group">
             <button class="btn-primary" onclick="startChat()">Start Chatting <i class="fas fa-arrow-right"></i></button>
-            <button class="btn-secondary" onclick="scrollToFeatures()">Explore Features <i class="fas fa-robot"></i></button>
+            <button class="btn-secondary" onclick="scrollToSection('features')">Explore Features <i class="fas fa-robot"></i></button>
         </div>
     </div>
 </div>
@@ -380,76 +379,20 @@
 <div class="features-section" id="features">
     <h2 class="section-title">🌟 Powerful Features</h2>
     <div class="features-grid">
-        <div class="feature-card" onclick="openFeature('Core Intelligence')">
-            <div class="feature-icon">🧠</div>
-            <h3>Core Intelligence</h3>
-            <p>Your main AI assistant for asking questions, exploring knowledge, and solving complex problems.</p>
-        </div>
-        <div class="feature-card" onclick="openFeature('Creative Engine')">
-            <div class="feature-icon">🎨</div>
-            <h3>Creative Engine</h3>
-            <p>Generate stories, ideas, scripts, and creative content instantly with our advanced AI.</p>
-        </div>
-        <div class="feature-card" onclick="openFeature('Professional Writer')">
-            <div class="feature-icon">✍️</div>
-            <h3>Professional Writer</h3>
-            <p>Write emails, proposals, reports, and formal documents with professional-grade assistance.</p>
-        </div>
-        <div class="feature-card" onclick="openFeature('Emotional Insight')">
-            <div class="feature-icon">💝</div>
-            <h3>Emotional Insight</h3>
-            <p>Understand emotions and receive thoughtful, human-like responses that show genuine empathy.</p>
-        </div>
-        <div class="feature-card" onclick="openFeature('Document Intelligence')">
-            <div class="feature-icon">📄</div>
-            <h3>Document Intelligence</h3>
-            <p>Upload and analyze PDFs, contracts, and complex documents with intelligent summarization.</p>
-        </div>
-        <div class="feature-card" onclick="openFeature('CV Architect')">
-            <div class="feature-icon">📝</div>
-            <h3>CV Architect</h3>
-            <p>Build a professional CV quickly and easily with AI-powered suggestions.</p>
-        </div>
-        <div class="feature-card" onclick="openFeature('Smart Scheduler')">
-            <div class="feature-icon">📅</div>
-            <h3>Smart Scheduler</h3>
-            <p>Organize your day, tasks, and productivity with intelligent scheduling assistance.</p>
-        </div>
-        <div class="feature-card" onclick="openFeature('Educational Tutor')">
-            <div class="feature-icon">📚</div>
-            <h3>Educational Tutor</h3>
-            <p>Past exam questions, memoranda, and challenges to help you practice and learn.</p>
-        </div>
-        <div class="feature-card" onclick="openFeature('Currency Converter')">
-            <div class="feature-icon">💱</div>
-            <h3>Currency Converter</h3>
-            <p>Quickly and accurately convert currencies with real-time exchange rates.</p>
-        </div>
-        <div class="feature-card" onclick="openFeature('Career Alerts')">
-            <div class="feature-icon">💼</div>
-            <h3>Career Alerts</h3>
-            <p>Get job opportunities tailored to your skills and career preferences.</p>
-        </div>
-        <div class="feature-card" onclick="openFeature('Q&A–Teach AI')">
-            <div class="feature-icon">❓</div>
-            <h3>Q&A–Teach AI</h3>
-            <p>Ask questions and teach the AI to provide better answers over time.</p>
-        </div>
-        <div class="feature-card" onclick="openFeature('AI Calls')">
-            <div class="feature-icon">📞</div>
-            <h3>AI Calls</h3>
-            <p>Talk to AI through voice or video interaction for natural conversations.</p>
-        </div>
-        <div class="feature-card" onclick="openFeature('AI Powered Meetings')">
-            <div class="feature-icon">🎥</div>
-            <h3>AI Powered Meetings</h3>
-            <p>AI joins meetings, takes notes, summarizes discussions, and extracts action items.</p>
-        </div>
-        <div class="feature-card" onclick="openFeature('Private Journal')">
-            <div class="feature-icon">📓</div>
-            <h3>Private Journal</h3>
-            <p>A safe, encrypted space for your thoughts, reflections, and personal growth.</p>
-        </div>
+        <div class="feature-card" onclick="openFeature('Core Intelligence')"><div class="feature-icon">🧠</div><h3>Core Intelligence</h3><p>Your main AI assistant for asking questions, exploring knowledge, and solving complex problems.</p></div>
+        <div class="feature-card" onclick="openFeature('Creative Engine')"><div class="feature-icon">🎨</div><h3>Creative Engine</h3><p>Generate stories, ideas, scripts, and creative content instantly with our advanced AI.</p></div>
+        <div class="feature-card" onclick="openFeature('Professional Writer')"><div class="feature-icon">✍️</div><h3>Professional Writer</h3><p>Write emails, proposals, reports, and formal documents with professional-grade assistance.</p></div>
+        <div class="feature-card" onclick="openFeature('Emotional Insight')"><div class="feature-icon">💝</div><h3>Emotional Insight</h3><p>Understand emotions and receive thoughtful, human-like responses that show genuine empathy.</p></div>
+        <div class="feature-card" onclick="openFeature('Document Intelligence')"><div class="feature-icon">📄</div><h3>Document Intelligence</h3><p>Upload and analyze PDFs, contracts, and complex documents with intelligent summarization.</p></div>
+        <div class="feature-card" onclick="openFeature('CV Architect')"><div class="feature-icon">📝</div><h3>CV Architect</h3><p>Build a professional CV quickly and easily with AI-powered suggestions.</p></div>
+        <div class="feature-card" onclick="openFeature('Smart Scheduler')"><div class="feature-icon">📅</div><h3>Smart Scheduler</h3><p>Organize your day, tasks, and productivity with intelligent scheduling assistance.</p></div>
+        <div class="feature-card" onclick="openFeature('Educational Tutor')"><div class="feature-icon">📚</div><h3>Educational Tutor</h3><p>Past exam questions, memoranda, and challenges to help you practice and learn.</p></div>
+        <div class="feature-card" onclick="openFeature('Currency Converter')"><div class="feature-icon">💱</div><h3>Currency Converter</h3><p>Quickly and accurately convert currencies with real-time exchange rates.</p></div>
+        <div class="feature-card" onclick="openFeature('Career Alerts')"><div class="feature-icon">💼</div><h3>Career Alerts</h3><p>Get job opportunities tailored to your skills and career preferences.</p></div>
+        <div class="feature-card" onclick="openFeature('Q&A–Teach AI')"><div class="feature-icon">❓</div><h3>Q&A–Teach AI</h3><p>Ask questions and teach the AI to provide better answers over time.</p></div>
+        <div class="feature-card" onclick="openFeature('AI Calls')"><div class="feature-icon">📞</div><h3>AI Calls</h3><p>Talk to AI through voice or video interaction for natural conversations.</p></div>
+        <div class="feature-card" onclick="openFeature('AI Powered Meetings')"><div class="feature-icon">🎥</div><h3>AI Powered Meetings</h3><p>AI joins meetings, takes notes, summarizes discussions, and extracts action items.</p></div>
+        <div class="feature-card" onclick="openFeature('Private Journal')"><div class="feature-icon">📓</div><h3>Private Journal</h3><p>A safe, encrypted space for your thoughts, reflections, and personal growth.</p></div>
     </div>
 </div>
 
@@ -465,63 +408,20 @@
 <div class="testimonials">
     <h2 class="section-title">⭐ What Our Users Say</h2>
     <div class="testimonials-grid">
-        <div class="testimonial-card">
-            <p class="testimonial-text">"K-LYNX AI has transformed how I work. The document intelligence feature alone saves me hours every week!"</p>
-            <div class="testimonial-author">
-                <div class="author-avatar"></div>
-                <div class="author-info"><h4>Sarah Johnson</h4><p>Product Manager</p></div>
-            </div>
-        </div>
-        <div class="testimonial-card">
-            <p class="testimonial-text">"The CV Architect helped me land my dream job. The AI suggestions were incredibly helpful."</p>
-            <div class="testimonial-author">
-                <div class="author-avatar"></div>
-                <div class="author-info"><h4>Michael Chen</h4><p>Software Engineer</p></div>
-            </div>
-        </div>
-        <div class="testimonial-card">
-            <p class="testimonial-text">"Best AI assistant I've ever used. The emotional insight feature makes conversations feel genuinely human."</p>
-            <div class="testimonial-author">
-                <div class="author-avatar"></div>
-                <div class="author-info"><h4>Amanda Williams</h4><p>Content Creator</p></div>
-            </div>
-        </div>
+        <div class="testimonial-card"><p class="testimonial-text">"K-LYNX AI has transformed how I work. The document intelligence feature alone saves me hours every week!"</p><div class="testimonial-author"><div class="author-avatar"></div><div class="author-info"><h4>Sarah Johnson</h4><p>Product Manager</p></div></div></div>
+        <div class="testimonial-card"><p class="testimonial-text">"The CV Architect helped me land my dream job. The AI suggestions were incredibly helpful."</p><div class="testimonial-author"><div class="author-avatar"></div><div class="author-info"><h4>Michael Chen</h4><p>Software Engineer</p></div></div></div>
+        <div class="testimonial-card"><p class="testimonial-text">"Best AI assistant I've ever used. The emotional insight feature makes conversations feel genuinely human."</p><div class="testimonial-author"><div class="author-avatar"></div><div class="author-info"><h4>Amanda Williams</h4><p>Content Creator</p></div></div></div>
     </div>
 </div>
 
 <div class="footer">
     <div class="footer-content">
-        <div class="footer-section">
-            <h4>K-LYNX AI++</h4>
-            <p>Empowering minds with artificial intelligence. Built for Africa, designed for the world.</p>
-            <div class="social-links">
-                <a href="#"><i class="fab fa-twitter"></i></a>
-                <a href="#"><i class="fab fa-linkedin"></i></a>
-                <a href="#"><i class="fab fa-github"></i></a>
-                <a href="#"><i class="fab fa-discord"></i></a>
-            </div>
-        </div>
-        <div class="footer-section">
-            <h4>Product</h4>
-            <a href="#features">Features</a>
-            <a href="#">API</a>
-            <a href="#">Integrations</a>
-        </div>
-        <div class="footer-section">
-            <h4>Company</h4>
-            <a href="#">About Us</a>
-            <a href="#">Blog</a>
-            <a href="#">Contact</a>
-        </div>
-        <div class="footer-section">
-            <h4>Legal</h4>
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
-        </div>
+        <div class="footer-section"><h4>K-LYNX AI++</h4><p>Empowering minds with artificial intelligence. Built for Africa, designed for the world.</p><div class="social-links"><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-linkedin"></i></a><a href="#"><i class="fab fa-github"></i></a><a href="#"><i class="fab fa-discord"></i></a></div></div>
+        <div class="footer-section"><h4>Product</h4><a onclick="scrollToSection('features')">Features</a><a href="#">API</a><a href="#">Integrations</a></div>
+        <div class="footer-section"><h4>Company</h4><a href="#">About Us</a><a href="#">Blog</a><a href="#">Contact</a></div>
+        <div class="footer-section"><h4>Legal</h4><a href="#">Privacy Policy</a><a href="#">Terms of Service</a></div>
     </div>
-    <div class="copyright">
-        <p>&copy; 2026 K-LYNX AI++. All rights reserved. Built with ❤️ in South Africa.</p>
-    </div>
+    <div class="copyright"><p>&copy; 2026 K-LYNX AI++. All rights reserved. Built with ❤️ in South Africa.</p></div>
 </div>
 
 <div class="modal" id="featureModal">
@@ -534,39 +434,30 @@
 </div>
 
 <script>
-    const API_BASE_URL = 'https://klynxai.onrender.com';
-    
-    // Check if user is logged in
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
     
     if (!token && !user) {
-        window.location.href = `${API_BASE_URL}/login.html`;
+        window.location.href = '/login.html';
     }
 
-    // Display welcome message with user name
     if (user) {
         try {
             const userData = JSON.parse(user);
-            const heroTitle = document.querySelector('.hero h1');
-            if (heroTitle && userData.name) {
-                heroTitle.innerHTML = `Welcome back, ${userData.name}! 👋`;
+            const welcomeTitle = document.getElementById('welcomeTitle');
+            if (welcomeTitle && userData.name) {
+                welcomeTitle.innerHTML = `Welcome back, ${userData.name}! 👋`;
             }
         } catch(e) {}
     }
 
-    function startChat() { 
-        window.location.href = `${API_BASE_URL}/chat.html`;
-    }
-    
-    function scrollToFeatures() { 
-        document.getElementById('features').scrollIntoView({ behavior: 'smooth' }); 
-    }
+    function startChat() { window.location.href = '/chat.html'; }
+    function scrollToSection(section) { document.getElementById(section).scrollIntoView({ behavior: 'smooth' }); }
     
     function logout() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        window.location.href = `${API_BASE_URL}/login.html`;
+        window.location.href = '/login.html';
     }
 
     let selectedFeature = "";
