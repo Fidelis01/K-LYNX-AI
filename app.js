@@ -1,38 +1,53 @@
-// Import packages
 const express = require('express');
 const path = require('path');
-const dotenv = require('dotenv');
 const cors = require('cors');
 const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
-
-dotenv.config();
+const archiver = require('archiver');
+const fs = require('fs');
+require('dotenv').config();
 
 const app = express();
 
-// CORS configuration
-app.use(cors({
-    origin: ['https://klynxai.onrender.com', 'http://localhost:5000', 'http://127.0.0.1:5500'],
-    credentials: true
-}));
-
+// Middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
 // Database connection
 const db = new Pool({
-    database: process.env.database,
-    user: process.env.user,
-    password: process.env.password,
-    host: process.env.host || 'localhost',
-    port: 5432,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT || 5432,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    ssl: { rejectUnauthorized: false }
 });
 
+// Delete specific users by email (FIXED)
+async function deleteUsers() {
+    try {
+        // Delete user with email containing 'joshua' (case insensitive)
+        const result = await db.query(`DELETE FROM users WHERE email ILIKE $1 RETURNING *`, ['%joshua%']);
+        console.log(`✅ Deleted ${result.rowCount} user(s) with 'joshua' in email`);
+        
+        // To delete a specific email, use:
+        // await db.query(`DELETE FROM users WHERE email = $1`, ['specific@email.com']);
+        
+        // To delete ALL users, use:
+        // await db.query(`DELETE FROM users`);
+        
+    } catch (error) {
+        console.log('❌ Delete error:', error.message);
+    }
+}
+
+// Run delete function (uncomment to run once)
+// deleteUsers();
+
 // Create users table
-async function createUsersTable() {
+async function initDB() {
     try {
         await db.query(`
             CREATE TABLE IF NOT EXISTS users (
@@ -40,217 +55,197 @@ async function createUsersTable() {
                 name VARCHAR(255) NOT NULL,
                 email VARCHAR(255) UNIQUE NOT NULL,
                 password VARCHAR(255) NOT NULL,
-                language VARCHAR(100),
-                is_verified BOOLEAN DEFAULT TRUE,
+                language VARCHAR(100) DEFAULT 'English',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
+            )
         `);
-        console.log('✅ Users table ready');
-    } catch (error) {
-        console.error('Table creation error:', error.message);
+        console.log('✅ Database ready');
+    } catch (err) {
+        console.error('DB init error:', err.message);
     }
 }
-createUsersTable();
+initDB();
 
-// ========== REGISTER ENDPOINT ==========
-app.post('/register', async (req, res) => {
+// ============ AUTH ROUTES ============
+
+// Register
+app.post('/api/register', async (req, res) => {
     try {
         const { name, email, password, language } = req.body;
         
-        console.log('Registration attempt for:', email);
-        
         // Check if user exists
-        const existingUser = await db.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (existingUser.rows.length > 0) {
-            return res.status(400).json({ message: 'Email already in use!' });
+        const existing = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (existing.rows.length > 0) {
+            return res.status(400).json({ error: 'Email already registered' });
         }
         
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
         
-        // Insert user
+        // Create user
         const result = await db.query(
             'INSERT INTO users (name, email, password, language) VALUES ($1, $2, $3, $4) RETURNING id, name, email',
             [name, email, hashedPassword, language || 'English']
         );
         
-        console.log('User created:', result.rows[0]);
-        
-        res.status(201).json({ 
-            success: true,
-            message: 'Account created successfully! You can now login.',
-            user: result.rows[0]
-        });
-        
-    } catch (error) {
-        console.error('Registration error:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Registration failed: ' + error.message 
-        });
+        res.json({ success: true, user: result.rows[0] });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
     }
 });
 
-// ========== LOGIN ENDPOINT ==========
-app.post('/login', async (req, res) => {
+// Login
+app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
         
-        console.log('Login attempt for:', email);
-        
-        // Find user
         const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
-        
         if (result.rows.length === 0) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+            return res.status(401).json({ error: 'Invalid credentials' });
         }
         
         const user = result.rows[0];
-        
-        // Check password
-        const validPassword = await bcrypt.compare(password, user.password);
-        if (!validPassword) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+        const valid = await bcrypt.compare(password, user.password);
+        if (!valid) {
+            return res.status(401).json({ error: 'Invalid credentials' });
         }
         
-        // Create token
-        const token = jwt.sign(
-            { id: user.id, email: user.email },
-            process.env.JWT_SECRET || 'your-secret-key',
-            { expiresIn: '7d' }
-        );
+        const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
         
         res.json({
             success: true,
-            message: 'Login successful',
-            token: token,
+            token,
             user: { id: user.id, name: user.name, email: user.email }
         });
-        
-    } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({ message: 'Server error: ' + error.message });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
-// ========== GET USERS (for testing) ==========
-app.get('/users', async (req, res) => {
+// Get all users (for admin)
+app.get('/api/users', async (req, res) => {
     try {
-        const result = await db.query('SELECT id, name, email, language, created_at FROM users');
+        const result = await db.query('SELECT id, name, email, language, created_at FROM users ORDER BY id DESC');
         res.json(result.rows);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
-// ========== TEST DB ENDPOINT ==========
-app.get('/test-db', async (req, res) => {
-    try {
-        const result = await db.query('SELECT NOW()');
-        res.json({ 
-            success: true, 
-            message: 'Database connected',
-            time: result.rows[0].now
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// DELETE user by email
-app.delete('/delete-user', async (req, res) => {
-    const { password, email } = req.query;
-    
+// Delete user by email (with password protection)
+app.delete('/api/users/:email', async (req, res) => {
+    const { password } = req.query;
     if (password !== process.env.BACKUP_PASSWORD) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
     
     try {
-        const result = await db.query('DELETE FROM users WHERE email = $1 RETURNING *', [email]);
-        
-        if (result.rows.length === 0) {
+        const result = await db.query('DELETE FROM users WHERE email = $1 RETURNING *', [req.params.email]);
+        if (result.rowCount === 0) {
             return res.status(404).json({ error: 'User not found' });
         }
-        
-        res.json({ 
-            success: true, 
-            message: `Deleted user: ${email}`,
-            deleted: result.rows[0]
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.json({ success: true, message: `Deleted user: ${req.params.email}` });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
-// DELETE all users
-app.delete('/delete-all-users', async (req, res) => {
+// Delete all users (with password protection)
+app.delete('/api/users/all', async (req, res) => {
     const { password } = req.query;
-    
     if (password !== process.env.BACKUP_PASSWORD) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
     
     try {
         const result = await db.query('DELETE FROM users RETURNING *');
-        
-        res.json({ 
-            success: true, 
-            message: `Deleted ${result.rows.length} users`,
-            deleted: result.rows.length
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.json({ success: true, message: `Deleted ${result.rowCount} users` });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
-// Reset database (drop and recreate table)
-app.post('/reset-database', async (req, res) => {
+// ============ BACKUP ROUTES ============
+
+app.get('/api/backup', async (req, res) => {
     const { password } = req.query;
-    
     if (password !== process.env.BACKUP_PASSWORD) {
         return res.status(401).json({ error: 'Unauthorized' });
     }
     
     try {
-        await db.query('DROP TABLE IF EXISTS users');
-        await db.query(`
-            CREATE TABLE users (
-                id SERIAL PRIMARY KEY,
-                name VARCHAR(255) NOT NULL,
-                email VARCHAR(255) UNIQUE NOT NULL,
-                password VARCHAR(255) NOT NULL,
-                language VARCHAR(100),
-                is_verified BOOLEAN DEFAULT TRUE,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
+        const tables = await db.query(`
+            SELECT table_name FROM information_schema.tables 
+            WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
         `);
         
-        res.json({ success: true, message: 'Database reset successfully' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+        const timestamp = Date.now();
+        const backupId = `backup_${timestamp}`;
+        const tempDir = path.join(__dirname, backupId);
+        fs.mkdirSync(tempDir);
+        
+        let sql = `-- K-LYNX Database Backup\n-- Generated: ${new Date().toISOString()}\n\n`;
+        
+        for (const { table_name } of tables.rows) {
+            const data = await db.query(`SELECT * FROM ${table_name}`);
+            sql += `-- Table: ${table_name}\n`;
+            sql += `DROP TABLE IF EXISTS ${table_name} CASCADE;\n`;
+            
+            // Get columns
+            const cols = await db.query(`
+                SELECT column_name, data_type FROM information_schema.columns 
+                WHERE table_name = $1 AND table_schema = 'public'
+            `, [table_name]);
+            
+            const colNames = cols.rows.map(c => c.column_name);
+            sql += `CREATE TABLE ${table_name} (${colNames.map(c => `${c} TEXT`).join(', ')});\n`;
+            
+            for (const row of data.rows) {
+                const values = colNames.map(c => {
+                    const val = row[c];
+                    if (val === null) return 'NULL';
+                    return `'${String(val).replace(/'/g, "''")}'`;
+                });
+                sql += `INSERT INTO ${table_name} (${colNames.join(', ')}) VALUES (${values.join(', ')});\n`;
+            }
+            sql += `\n`;
+        }
+        
+        fs.writeFileSync(path.join(tempDir, `${backupId}.sql`), sql);
+        
+        const zipPath = path.join(__dirname, `${backupId}.zip`);
+        const archive = archiver('zip');
+        const output = fs.createWriteStream(zipPath);
+        
+        await new Promise((resolve, reject) => {
+            output.on('close', resolve);
+            archive.on('error', reject);
+            archive.pipe(output);
+            archive.directory(tempDir, false);
+            archive.finalize();
+        });
+        
+        fs.rmSync(tempDir, { recursive: true });
+        
+        res.download(zipPath, `${backupId}.zip`, () => {
+            setTimeout(() => fs.unlinkSync(zipPath), 60000);
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
-// ========== SERVE HTML PAGES ==========
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.get('/login.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
-app.get('/signup.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'signup.html'));
-});
-
-app.get('/chat.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'chat.html'));
-});
+// ============ SERVE PAGES ============
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
+app.get('/signup.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'signup.html')));
+app.get('/chat.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'chat.html')));
+app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 
 // Start server
-const port = process.env.PORT || 5000;
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-    console.log(`http://localhost:${port}`);
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📱 Visit: http://localhost:${PORT}/signup.html`);
 });
