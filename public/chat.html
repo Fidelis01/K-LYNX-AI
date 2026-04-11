@@ -267,18 +267,18 @@
         <div class="messages-area" id="messagesArea">
             <div class="message ai">
                 <div class="message-content">
-                    Hello! I'm K-LYNX AI assistant. How can I help you today?
+                    Hello! I'm K-LYNX AI++. How can I help you today?
                     <span class="message-time">Just now</span>
                 </div>
             </div>
         </div>
 
         <div class="suggestions">
-            <div class="suggestion-chip" onclick="sendSuggestion('What is K-LYNX AI?')">What is K-LYNX AI?</div>
-            <div class="suggestion-chip" onclick="sendSuggestion('Help me write an email')">Help me write an email</div>
-            <div class="suggestion-chip" onclick="sendSuggestion('Explain AI in simple terms')">Explain AI simply</div>
-            <div class="suggestion-chip" onclick="sendSuggestion('Create a to-do list')">Create a to-do list</div>
+            <div class="suggestion-chip" onclick="sendSuggestion('What is Python?')">What is Python?</div>
             <div class="suggestion-chip" onclick="sendSuggestion('Tell me a joke')">Tell me a joke</div>
+            <div class="suggestion-chip" onclick="sendSuggestion('What can you do?')">What can you do?</div>
+            <div class="suggestion-chip" onclick="sendSuggestion('Weather in Lagos')">Weather in Lagos</div>
+            <div class="suggestion-chip" onclick="sendSuggestion('100 USD to KES')">100 USD to KES</div>
         </div>
 
         <div class="input-area">
@@ -290,27 +290,22 @@
     </div>
 
     <script>
-        const API_BASE_URL = 'https://klynxai.onrender.com';
+        // JAI API Endpoint
+        const JAI_API_URL = 'https://jai1-sh81.onrender.com';
         
-        // Check if user is logged in
-        const token = localStorage.getItem('token');
-        const user = localStorage.getItem('user');
+        // Generate or retrieve client ID
+        let clientId = localStorage.getItem('klynx_client_id');
+        if (!clientId) {
+            clientId = 'klynx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('klynx_client_id', clientId);
+        }
         
-        if (!token && !user) {
-            window.location.href = `${API_BASE_URL}/login.html`;
-        }
-
-        let userData = null;
-        if (user) {
-            try {
-                userData = JSON.parse(user);
-            } catch(e) {}
-        }
-
+        // Simple logout function (clears local storage)
         function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = `${API_BASE_URL}/login.html`;
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('klynx_client_id');
+                window.location.href = '/';
+            }
         }
 
         function handleKeyPress(event) {
@@ -334,20 +329,21 @@
             addMessage(message, 'user');
             showTypingIndicator();
             
-            let retries = 3;
-            let delay = 1000;
+            let retries = 2;
+            let delay = 2000;
             
-            for (let i = 0; i < retries; i++) {
+            for (let i = 0; i <= retries; i++) {
                 try {
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 30000);
+                    const timeoutId = setTimeout(() => controller.abort(), 60000);
                     
-                    const response = await fetch(`${API_BASE_URL}/api/chat`, {
+                    const response = await fetch(`${JAI_API_URL}/api/chat`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
                             message: message,
-                            user: userData ? userData.name : 'Anonymous'
+                            clientId: clientId,
+                            options: { speech: false }
                         }),
                         signal: controller.signal
                     });
@@ -357,31 +353,39 @@
                     if (response.ok) {
                         const data = await response.json();
                         hideTypingIndicator();
-                        const reply = data.reply || data.response || data.message || "I received your message!";
+                        const reply = data.response || data.message || "I received your message!";
                         addMessage(reply, 'ai');
                         return;
                     } else if (response.status === 503 || response.status === 429) {
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        delay *= 2;
-                        continue;
+                        // Rate limited or server spinning up, wait and retry
+                        if (i < retries) {
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            delay *= 2;
+                            continue;
+                        } else {
+                            throw new Error(`Server busy (${response.status})`);
+                        }
                     } else {
                         throw new Error(`HTTP ${response.status}`);
                     }
                 } catch (error) {
                     if (error.name === 'AbortError') {
-                        if (i === retries - 1) {
-                            hideTypingIndicator();
-                            addMessage("⚠️ The request timed out. Please try again.", 'ai');
-                        } else {
+                        if (i < retries) {
+                            addMessage("⏳ Server is waking up... Please wait.", 'ai');
                             await new Promise(resolve => setTimeout(resolve, delay));
                             delay *= 2;
+                            continue;
+                        } else {
+                            hideTypingIndicator();
+                            addMessage("⚠️ The request timed out. The server may be spinning up. Please try again in a moment.", 'ai');
                         }
-                    } else if (i === retries - 1) {
-                        hideTypingIndicator();
-                        addMessage(getFallbackResponse(message), 'ai');
-                    } else {
+                    } else if (i < retries) {
                         await new Promise(resolve => setTimeout(resolve, delay));
                         delay *= 2;
+                        continue;
+                    } else {
+                        hideTypingIndicator();
+                        addMessage(getFallbackResponse(message), 'ai');
                     }
                 }
             }
@@ -391,16 +395,13 @@
             const msg = message.toLowerCase();
             
             if (msg.includes('hello') || msg.includes('hi') || msg.includes('hey')) {
-                return "Hello! 👋 How can I assist you today?";
+                return "Hello! 👋 I'm K-LYNX AI++. How can I help you today?";
             }
             else if (msg.includes('how are you')) {
                 return "I'm doing great, thank you for asking! I'm ready to help you with anything you need.";
             }
-            else if (msg.includes('what is k-lynx') || msg.includes('what can you do')) {
-                return "K-LYNX AI++ is a powerful AI assistant that can help with writing, creativity, document analysis, scheduling, career advice, and much more!";
-            }
-            else if (msg.includes('email')) {
-                return "I'd be happy to help you write an email! Please tell me who the recipient is and what the purpose is.";
+            else if (msg.includes('what can you do') || msg.includes('help')) {
+                return "I can help with:\n🔍 Web search\n📄 Document analysis\n🌤️ Weather updates\n💰 Currency conversion\n🧮 Calculations\n💾 Memory & learning\n\nWhat would you like to try?";
             }
             else if (msg.includes('joke')) {
                 const jokes = [
@@ -411,11 +412,14 @@
                 ];
                 return jokes[Math.floor(Math.random() * jokes.length)];
             }
-            else if (msg.includes('love') || msg.includes('like')) {
-                return "That's wonderful! I'm here to support you. ❤️";
+            else if (msg.includes('weather')) {
+                return "🌤️ I can check weather for you! Try asking 'Weather in Lagos' or 'Temperature in Nairobi'";
+            }
+            else if (msg.includes('usd') || msg.includes('kes') || msg.includes('currency') || msg.includes('dollar')) {
+                return "💱 I can convert currencies! Try asking '100 USD to KES' or '50 dollars to naira'";
             }
             else {
-                return "Thanks for your message! I'm processing your request. Please try again in a moment.";
+                return "Thanks for your message! I'm K-LYNX AI++. The server might be waking up. Please try again in a moment or ask me something specific!";
             }
         }
 
@@ -426,9 +430,12 @@
             
             const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
+            // Preserve line breaks in the message
+            const formattedText = text.replace(/\n/g, '<br>');
+            
             messageDiv.innerHTML = `
                 <div class="message-content">
-                    ${escapeHtml(text)}
+                    ${escapeHtml(formattedText)}
                     <span class="message-time">${time}</span>
                 </div>
             `;
@@ -439,6 +446,8 @@
 
         function showTypingIndicator() {
             const messagesArea = document.getElementById('messagesArea');
+            // Remove existing typing indicator if any
+            hideTypingIndicator();
             const typingDiv = document.createElement('div');
             typingDiv.className = 'message ai';
             typingDiv.id = 'typingIndicator';
@@ -463,6 +472,20 @@
             div.textContent = text;
             return div.innerHTML;
         }
+        
+        // Test connection on load
+        async function testConnection() {
+            try {
+                const response = await fetch(`${JAI_API_URL}/health`, { method: 'GET' });
+                if (response.ok) {
+                    console.log('JAI API is connected');
+                }
+            } catch (error) {
+                console.log('JAI API may be spinning up');
+            }
+        }
+        
+        testConnection();
     </script>
 </body>
 </html>
