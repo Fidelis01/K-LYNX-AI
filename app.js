@@ -15,36 +15,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// Database connection
+// Database connection using connection string
 const db = new Pool({
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT || 5432,
-    database: process.env.DB_NAME,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
+    connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
 });
-
-// Delete specific users by email (FIXED)
-async function deleteUsers() {
-    try {
-        // Delete user with email containing 'joshua' (case insensitive)
-        const result = await db.query(`DELETE FROM users WHERE email ILIKE $1 RETURNING *`, ['%joshua%']);
-        console.log(`✅ Deleted ${result.rowCount} user(s) with 'joshua' in email`);
-        
-        // To delete a specific email, use:
-        // await db.query(`DELETE FROM users WHERE email = $1`, ['specific@email.com']);
-        
-        // To delete ALL users, use:
-        // await db.query(`DELETE FROM users`);
-        
-    } catch (error) {
-        console.log('❌ Delete error:', error.message);
-    }
-}
-
-// Run delete function (uncomment to run once)
-// deleteUsers();
 
 // Create users table
 async function initDB() {
@@ -111,7 +86,11 @@ app.post('/api/login', async (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
         
-        const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        const token = jwt.sign(
+            { id: user.id, email: user.email }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '7d' }
+        );
         
         res.json({
             success: true,
@@ -133,7 +112,7 @@ app.get('/api/users', async (req, res) => {
     }
 });
 
-// Delete user by email (with password protection)
+// Delete user by email
 app.delete('/api/users/:email', async (req, res) => {
     const { password } = req.query;
     if (password !== process.env.BACKUP_PASSWORD) {
@@ -151,7 +130,7 @@ app.delete('/api/users/:email', async (req, res) => {
     }
 });
 
-// Delete all users (with password protection)
+// Delete all users
 app.delete('/api/users/all', async (req, res) => {
     const { password } = req.query;
     if (password !== process.env.BACKUP_PASSWORD) {
@@ -194,7 +173,7 @@ app.get('/api/backup', async (req, res) => {
             
             // Get columns
             const cols = await db.query(`
-                SELECT column_name, data_type FROM information_schema.columns 
+                SELECT column_name FROM information_schema.columns 
                 WHERE table_name = $1 AND table_schema = 'public'
             `, [table_name]);
             
