@@ -6,8 +6,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const archiver = require('archiver');
 const fs = require('fs');
-const http = require('http');
-const WebSocket = require('ws');
 require('dotenv').config();
 
 const app = express();
@@ -17,22 +15,14 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// Create HTTP server for WebSocket
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
-
-// Store active connections
-const wsClients = new Map();
+// Session storage
 const adminSessions = new Map();
-const callRooms = new Map();
 
 // Database connection
 const db = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: false
 });
-
-const AI_API_URL = process.env.AI_API_URL || 'https://jai1-sh81.onrender.com';
 
 // Create users table
 async function initDB() {
@@ -53,171 +43,6 @@ async function initDB() {
     }
 }
 initDB();
-
-// ============ WEBSOCKET HANDLER ============
-wss.on('connection', (ws, req) => {
-    const clientId = Math.random().toString(36).substr(2, 9);
-    wsClients.set(clientId, { ws, room: null, name: null, lastActivity: Date.now() });
-    
-    ws.on('message', async (data) => {
-        try {
-            const message = JSON.parse(data);
-            
-            // Create call room
-            if (message.type === 'create-call') {
-                const roomId = Math.random().toString(36).substr(2, 8);
-                callRooms.set(roomId, { 
-                    creator: clientId, 
-                    participant: null,
-                    creatorName: message.name,
-                    createdAt: Date.now()
-                });
-                wsClients.get(clientId).room = roomId;
-                wsClients.get(clientId).name = message.name;
-                ws.send(JSON.stringify({ type: 'call-created', roomId }));
-            }
-            
-            // Join call room
-            if (message.type === 'join-call') {
-                const room = callRooms.get(message.roomId);
-                if (room && !room.participant) {
-                    room.participant = clientId;
-                    room.participantName = message.name;
-                    wsClients.get(clientId).room = message.roomId;
-                    wsClients.get(clientId).name = message.name;
-                    
-                    const creator = wsClients.get(room.creator);
-                    if (creator) {
-                        creator.ws.send(JSON.stringify({ 
-                            type: 'participant-joined', 
-                            name: message.name,
-                            participantId: clientId
-                        }));
-                    }
-                    ws.send(JSON.stringify({ type: 'call-joined', roomId: message.roomId }));
-                } else {
-                    ws.send(JSON.stringify({ type: 'call-not-found' }));
-                }
-            }
-            
-            // WebRTC signaling
-            if (message.type === 'offer') {
-                const target = wsClients.get(message.targetId);
-                if (target) {
-                    target.ws.send(JSON.stringify({
-                        type: 'offer',
-                        offer: message.offer,
-                        fromId: clientId,
-                        fromName: wsClients.get(clientId).name
-                    }));
-                }
-            }
-            
-            if (message.type === 'answer') {
-                const target = wsClients.get(message.targetId);
-                if (target) {
-                    target.ws.send(JSON.stringify({
-                        type: 'answer',
-                        answer: message.answer,
-                        fromId: clientId
-                    }));
-                }
-            }
-            
-            if (message.type === 'ice-candidate') {
-                const target = wsClients.get(message.targetId);
-                if (target) {
-                    target.ws.send(JSON.stringify({
-                        type: 'ice-candidate',
-                        candidate: message.candidate
-                    }));
-                }
-            }
-            
-            // End call
-            if (message.type === 'end-call') {
-                const client = wsClients.get(clientId);
-                if (client && client.room) {
-                    const room = callRooms.get(client.room);
-                    if (room) {
-                        const otherId = room.creator === clientId ? room.participant : room.creator;
-                        if (otherId) {
-                            const other = wsClients.get(otherId);
-                            if (other) {
-                                other.ws.send(JSON.stringify({ type: 'call-ended' }));
-                                other.room = null;
-                            }
-                        }
-                        callRooms.delete(client.room);
-                        client.room = null;
-                        ws.send(JSON.stringify({ type: 'call-ended' }));
-                    }
-                }
-            }
-            
-            // List active calls
-            if (message.type === 'list-calls') {
-                const activeCalls = [];
-                callRooms.forEach((room, roomId) => {
-                    if (!room.participant) {
-                        activeCalls.push({ roomId, creatorName: room.creatorName });
-                    }
-                });
-                ws.send(JSON.stringify({ type: 'calls-list', calls: activeCalls }));
-            }
-            
-            // AI voice message
-            if (message.type === 'voice') {
-                const aiResponse = await getAIResponse(message.text);
-                ws.send(JSON.stringify({ type: 'response', text: aiResponse }));
-            }
-            
-            if (message.type === 'ping') {
-                ws.send(JSON.stringify({ type: 'pong' }));
-            }
-            
-        } catch (err) {
-            console.error('WebSocket error:', err);
-        }
-    });
-    
-    ws.on('close', () => {
-        const client = wsClients.get(clientId);
-        if (client && client.room) {
-            const room = callRooms.get(client.room);
-            if (room) {
-                const otherId = room.creator === clientId ? room.participant : room.creator;
-                if (otherId) {
-                    const other = wsClients.get(otherId);
-                    if (other) {
-                        other.ws.send(JSON.stringify({ type: 'peer-disconnected' }));
-                        other.room = null;
-                    }
-                }
-                callRooms.delete(client.room);
-            }
-        }
-        wsClients.delete(clientId);
-    });
-});
-
-async function getAIResponse(userMessage) {
-    try {
-        const response = await fetch(`${AI_API_URL}/api/chat`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                message: userMessage,
-                clientId: 'voice-call',
-                options: { speech: false }
-            })
-        });
-        const data = await response.json();
-        return data.response || "How can I help you?";
-    } catch (error) {
-        return "Sorry, I'm having trouble responding.";
-    }
-}
 
 // ============ ADMIN AUTH ============
 app.post('/api/admin/login', (req, res) => {
@@ -370,11 +195,11 @@ app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'public',
 app.get('/signup.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'signup.html')));
 app.get('/chat.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'chat.html')));
 app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
-
+app.get('/ai-calls.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'AI-Calls.html')));
 
 // Start server
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📱 Visit: https://klynxai.onrender.com`);
 });
