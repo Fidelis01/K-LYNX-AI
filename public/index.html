@@ -383,7 +383,7 @@
         <div class="feature-card" onclick="openFeature('Creative Engine')"><div class="feature-icon">🎨</div><h3>Creative Engine</h3><p>Generate stories, ideas, scripts, and creative content instantly with our advanced AI.</p></div>
         <div class="feature-card" onclick="openFeature('Professional Writer')"><div class="feature-icon">✍️</div><h3>Professional Writer</h3><p>Write emails, proposals, reports, and formal documents with professional-grade assistance.</p></div>
         <div class="feature-card" onclick="openFeature('Emotional Insight')"><div class="feature-icon">💝</div><h3>Emotional Insight</h3><p>Understand emotions and receive thoughtful, human-like responses that show genuine empathy.</p></div>
-        <div class="feature-card" onclick="openFeature('Document Intelligence')"><div class="feature-icon">📄</div><h3>Document Intelligence</h3><p>Upload and analyze PDFs, contracts, and complex documents with intelligent summarization.</p></div>
+        <div class="feature-card" onclick="openDocumentIntelligence()"><div class="feature-icon">📄</div><h3>Document Intelligence</h3><p>Upload and analyze PDFs, contracts, and complex documents with intelligent summarization.</p></div>
         <div class="feature-card" onclick="openFeature('CV Architect')"><div class="feature-icon">📝</div><h3>CV Architect</h3><p>Build a professional CV quickly and easily with AI-powered suggestions.</p></div>
         <div class="feature-card" onclick="openFeature('Smart Scheduler')"><div class="feature-icon">📅</div><h3>Smart Scheduler</h3><p>Organize your day, tasks, and productivity with intelligent scheduling assistance.</p></div>
         <div class="feature-card" onclick="openFeature('Educational Tutor')"><div class="feature-icon">📚</div><h3>Educational Tutor</h3><p>Past exam questions, memoranda, and challenges to help you practice and learn.</p></div>
@@ -460,13 +460,17 @@
         window.location.href = '/login.html';
     }
 
+    // Special handler for Document Intelligence
+    function openDocumentIntelligence() {
+        window.location.href = '/document-intelligence.html';
+    }
+
     let selectedFeature = "";
     const featureDescriptions = {
         "Core Intelligence": "Your main AI assistant for asking questions, exploring knowledge, and solving problems.",
         "Creative Engine": "Generate stories, ideas, scripts, and creative content instantly.",
         "Professional Writer": "Write emails, proposals, and formal documents professionally.",
         "Emotional Insight": "Understand emotions and receive thoughtful, human-like responses.",
-        "Document Intelligence": "Upload and simplify PDFs, contracts, and complex documents.",
         "CV Architect": "Build a professional CV quickly and easily.",
         "Smart Scheduler": "Organize your day, tasks, and productivity.",
         "Educational Tutor": "Provides past exam questions, memoranda, and educational challenges.",
@@ -486,7 +490,13 @@
     }
 
     function closeModal() { document.getElementById("featureModal").style.display = "none"; }
-    function useFeature() { alert("🚀 Launching " + selectedFeature + "!"); closeModal(); }
+    
+    function useFeature() { 
+        alert("🚀 Launching " + selectedFeature + "!"); 
+        closeModal();
+        // You can add navigation here if needed
+        // window.location.href = selectedFeature.toLowerCase().replace(/ /g, '-') + '.html';
+    }
 
     window.onclick = function(event) {
         const modal = document.getElementById('featureModal');
