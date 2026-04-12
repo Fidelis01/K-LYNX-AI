@@ -306,11 +306,6 @@
 
     <!-- Back Button -->
     <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
-    
-    <!-- Profile Icon -->
-    <div class="profile-icon" onclick="logout()">
-        <i class="fas fa-sign-out-alt"></i>
-    </div>
 
     <div class="chat-container">
         <div class="messages-area" id="messagesArea">
@@ -368,11 +363,7 @@
         }
 
         // ============ CHAT FUNCTIONS ============
-        function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = '/login.html';
-        }
+       
 
         function handleKeyPress(event) {
             if (event.key === 'Enter') {
