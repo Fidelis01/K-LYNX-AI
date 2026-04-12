@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-LYNX AI++ - Smart Scheduler</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Open Sans',sans-serif;background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);min-height:100vh;}
+        .back-btn{position:fixed;top:20px;left:20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:10px 20px;border-radius:25px;color:white;text-decoration:none;transition:0.3s;z-index:100;font-size:14px;display:flex;align-items:center;gap:8px;}
+        .back-btn:hover{background:rgba(0,212,255,0.2);border-color:#00d4ff;}
+        .container{max-width:1000px;margin:0 auto;padding:80px 20px 40px;}
+        .header-section{text-align:center;margin-bottom:40px;}
+        .header-section h1{font-size:48px;background:linear-gradient(135deg,#00d4ff,#00ffaa);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:15px;}
+        .header-section p{color:rgba(255,255,255,0.7);font-size:18px;}
+        .schedule-type{display:flex;justify-content:center;gap:15px;margin-bottom:30px;flex-wrap:wrap;}
+        .type-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:12px 24px;border-radius:40px;color:white;cursor:pointer;transition:0.3s;font-weight:600;}
+        .type-btn.active,.type-btn:hover{background:linear-gradient(135deg,#00d4ff,#00ffaa);color:#0F172A;border-color:transparent;}
+        .input-section{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border-radius:20px;padding:30px;margin-bottom:30px;border:1px solid rgba(0,212,255,0.3);}
+        .input-group{margin-bottom:20px;}
+        .input-group label{display:block;color:rgba(255,255,255,0.9);margin-bottom:8px;font-weight:600;}
+        .input-group input,.input-group textarea{width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:12px;color:white;font-size:14px;font-family:'Open Sans',sans-serif;}
+        .input-group input:focus,.input-group textarea:focus{outline:none;border-color:#00d4ff;}
+        .input-group textarea{min-height:80px;resize:vertical;}
+        .row-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+        .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;}
+        .generate-btn{background:linear-gradient(135deg,#00d4ff,#00ffaa);color:#0F172A;padding:14px;border:none;border-radius:40px;font-size:16px;font-weight:700;cursor:pointer;transition:0.3s;width:100%;margin-top:10px;}
+        .generate-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,212,255,0.3);}
+        .generate-btn:disabled{opacity:0.5;cursor:not-allowed;}
+        .output-section{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border-radius:20px;padding:30px;border:1px solid rgba(0,212,255,0.3);}
+        .output-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+        .output-header h3{color:#00d4ff;font-size:20px;}
+        .output-actions{display:flex;gap:10px;}
+        .action-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:8px 16px;border-radius:20px;color:white;cursor:pointer;font-size:12px;}
+        .action-btn:hover{background:rgba(0,212,255,0.2);border-color:#00d4ff;}
+        .output-content{background:rgba(0,0,0,0.3);border-radius:15px;padding:20px;min-height:300px;white-space:pre-wrap;line-height:1.6;color:rgba(255,255,255,0.9);}
+        .loading{display:none;text-align:center;padding:20px;}
+        .spinner{width:40px;height:40px;border:3px solid rgba(0,212,255,0.3);border-top-color:#00d4ff;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 10px;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+        .example-chip{display:inline-block;background:rgba(255,255,255,0.1);padding:6px 12px;border-radius:20px;font-size:11px;cursor:pointer;margin:5px;}
+        .example-chip:hover{background:rgba(0,212,255,0.3);color:#00d4ff;}
+        .loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:flex;justify-content:center;align-items:center;z-index:9999;flex-direction:column;}
+        .loading-spinner{width:50px;height:50px;border:3px solid rgba(0,212,255,0.3);border-top-color:#00d4ff;border-radius:50%;animation:spin 1s linear infinite;}
+        @media (max-width:768px){.container{padding:70px 15px 30px;}.header-section h1{font-size:32px;}.type-btn{padding:8px 16px;font-size:12px;}.row-2,.row-3{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay" class="loading-overlay" style="display:none;"><div class="loading-spinner"></div><div style="margin-top:20px;color:#00d4ff;">Checking...</div></div>
+    <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    <div class="container">
+        <div class="header-section"><h1>📅 Smart Scheduler</h1><p>Organize your day, tasks, and productivity intelligently</p></div>
+        <div class="schedule-type">
+            <button class="type-btn active" data-type="daily">📋 Daily Plan</button>
+            <button class="type-btn" data-type="weekly">📊 Weekly Schedule</button>
+            <button class="type-btn" data-type="tasks">✅ Task List</button>
+            <button class="type-btn" data-type="priorities">⭐ Priorities</button>
+        </div>
+        <div class="input-section">
+            <div class="row-2">
+                <div class="input-group"><label>Your Goals/Tasks</label><textarea id="goals" placeholder="List your tasks, deadlines, or goals..."></textarea></div>
+                <div class="input-group"><label>Time Available (hours)</label><input type="text" id="timeAvailable" placeholder="e.g., 8 hours, 40 hours/week"></div>
+            </div>
+            <div class="row-3">
+                <div class="input-group"><label>Urgent Tasks</label><input type="text" id="urgent" placeholder="What needs immediate attention?"></div>
+                <div class="input-group"><label>Important Tasks</label><input type="text" id="important" placeholder="What matters most?"></div>
+                <div class="input-group"><label>Deadlines</label><input type="text" id="deadlines" placeholder="Any upcoming deadlines?"></div>
+            </div>
+            <div><span class="example-chip" onclick="fillExample('work')">💼 Work Day</span>
+            <span class="example-chip" onclick="fillExample('student')">📚 Student Schedule</span>
+            <span class="example-chip" onclick="fillExample('project')">🚀 Project Plan</span></div>
+            <button class="generate-btn" id="generateBtn">🎯 Generate Schedule</button>
+        </div>
+        <div class="output-section">
+            <div class="output-header"><h3><i class="fas fa-calendar-alt"></i> Your Smart Schedule</h3><div class="output-actions"><button class="action-btn" onclick="copyOutput()">Copy</button><button class="action-btn" onclick="downloadOutput()">Download</button><button class="action-btn" onclick="clearOutput()">Clear</button></div></div>
+            <div class="output-content" id="outputContent"><em>Your personalized schedule will appear here...</em></div>
+            <div class="loading" id="loadingIndicator"><div class="spinner"></div><p>Planning your schedule...</p></div>
+        </div>
+    </div>
+    <script>
+        const token=localStorage.getItem('token'),user=localStorage.getItem('user');
+        if(!token&&!user){document.getElementById('loadingOverlay').style.display='flex';setTimeout(()=>{window.location.href='/login.html';},1000);}
+        else{document.getElementById('loadingOverlay').style.display='none';}
+        const API_URL='https://jai1-sh81.onrender.com';
+        let clientId=localStorage.getItem('klynx_client_id');
+        if(!clientId){clientId='klynx_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);localStorage.setItem('klynx_client_id',clientId);}
+        let currentType='daily',currentOutput='';
+        document.querySelectorAll('.type-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentType=btn.dataset.type;});});
+        function fillExample(type){
+            if(type=='work'){
+                document.getElementById('goals').value='Finish quarterly report\nPrepare presentation for Friday\nRespond to client emails\nTeam meeting at 2pm\nReview budget documents\nUpdate project timeline';
+                document.getElementById('timeAvailable').value='8 hours';
+                document.getElementById('urgent').value='Quarterly report due tomorrow, Client presentation';
+                document.getElementById('important').value='Team meeting, Budget review';
+                document.getElementById('deadlines').value='Report: Friday, Presentation: Friday';
+            }
+            if(type=='student'){
+                document.getElementById('goals').value='Study for math exam\nWrite history essay\nComplete coding project\nAttend physics lecture\nGym session\nGroup study meeting';
+                document.getElementById('timeAvailable').value='10 hours';
+                document.getElementById('urgent').value='Math exam on Monday, Essay due Friday';
+                document.getElementById('important').value='Coding project, Physics lecture';
+                document.getElementById('deadlines').value='Math: Monday, Essay: Friday, Project: Next week';
+            }
+            if(type=='project'){
+                document.getElementById('goals').value='Launch website by end of month\nComplete backend API\nDesign homepage mockups\nWrite documentation\nUser testing\nFix bugs from QA';
+                document.getElementById('timeAvailable').value='40 hours/week';
+                document.getElementById('urgent').value='Backend API, Bug fixes';
+                document.getElementById('important').value='Homepage mockups, Documentation';
+                document.getElementById('deadlines').value='Launch: End of month';
+            }
+        }
+        async function generateSchedule(){
+            const goals=document.getElementById('goals').value.trim();
+            if(!goals){alert('Please list your goals or tasks!');return;}
+            const data={type:currentType,goals:goals,time:document.getElementById('timeAvailable').value,urgent:document.getElementById('urgent').value,important:document.getElementById('important').value,deadlines:document.getElementById('deadlines').value};
+            const btn=document.getElementById('generateBtn');btn.disabled=true;btn.textContent='Planning...';
+            document.getElementById('loadingIndicator').style.display='block';
+            const prompts={daily:`Create a detailed daily schedule. Goals/Tasks: ${data.goals}. Time available: ${data.time||'8 hours'}. Urgent: ${data.urgent||'None'}. Important: ${data.important||'None'}. Deadlines: ${data.deadlines||'None'}. Include time blocks, breaks, and productivity tips.`,
+            weekly:`Create a weekly schedule. Tasks: ${data.goals}. Time: ${data.time||'40 hours/week'}. Prioritize urgent and important tasks. Include daily focus areas.`,
+            tasks:`Create an organized task list with priorities. Tasks: ${data.goals}. Urgent: ${data.urgent||'None'}. Important: ${data.important||'None'}. Deadlines: ${data.deadlines||'None'}. Categorize by urgency and importance.`,
+            priorities:`Analyze priorities and create action plan. Tasks: ${data.goals}. Urgent: ${data.urgent||'None'}. Important: ${data.important||'None'}. Deadlines: ${data.deadlines||'None'}. Use Eisenhower Matrix or similar framework.`};
+            try{
+                const res=await fetch(`${API_URL}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:prompts[currentType],clientId:clientId,options:{speech:false}})});
+                const result=await res.json();
+                if(res.ok&&result.response){currentOutput=result.response;document.getElementById('outputContent').innerHTML=currentOutput.replace(/\n/g,'<br>');}
+                else throw new Error('Failed');
+            }catch(error){document.getElementById('outputContent').innerHTML='<span style="color:#ff8888;">❌ Schedule generation failed. Please try again.</span>';}
+            finally{btn.disabled=false;btn.textContent='🎯 Generate Schedule';document.getElementById('loadingIndicator').style.display='none';}
+        }
+        function copyOutput(){if(!currentOutput){alert('Nothing to copy');return;}navigator.clipboard.writeText(currentOutput);alert('✅ Schedule copied!');}
+        function downloadOutput(){if(!currentOutput){alert('Nothing to download');return;}const blob=new Blob([currentOutput],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Schedule_${Date.now()}.txt`;a.click();URL.revokeObjectURL(a.href);}
+        function clearOutput(){currentOutput='';document.getElementById('outputContent').innerHTML='<em>Your personalized schedule will appear here...</em>';}
+        document.getElementById('generateBtn').addEventListener('click',generateSchedule);
+    </script>
+</body>
+</html>
