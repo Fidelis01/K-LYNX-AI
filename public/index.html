@@ -393,6 +393,16 @@
 </div>
 
 <script>
+    // API Configuration
+    const API_URL = 'https://jai1-sh81.onrender.com';
+    
+    // Generate or retrieve client ID
+    let clientId = localStorage.getItem('klynx_client_id');
+    if (!clientId) {
+        clientId = 'klynx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('klynx_client_id', clientId);
+    }
+    
     // Check if user is logged in
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
@@ -412,7 +422,26 @@
         } catch(e) {}
     }
 
+    // Silently notify JAI about page view
+    async function notifyJAIPageView(pageName) {
+        try {
+            await fetch(`${API_URL}/api/chat`, { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ 
+                    message: `Entering ${pageName}`,
+                    clientId: clientId,
+                    options: { speech: false }
+                })
+            });
+        } catch (error) {
+            // Silently fail - don't block navigation
+            console.log('Silent notification failed');
+        }
+    }
+
     function startChat() { 
+        notifyJAIPageView('Chat Page');
         window.location.href = '/chat.html';
     }
     
@@ -426,12 +455,10 @@
         window.location.href = '/login.html';
     }
 
-    // Feature navigation - converts feature name to filename.html
-    function openFeature(featureName) {
-        // Convert feature name to filename format
-        // Examples: "Core Intelligence" -> "Core-Intelligence.html"
-        //          "Currency Converter" -> "Currency-Converter.html"
-        //          "Q&A–Teach AI" -> "Q&A–Teach-AI.html"
+    // Feature navigation - converts feature name to filename.html with silent JAI notification
+    async function openFeature(featureName) {
+        // Silently notify JAI about feature navigation
+        await notifyJAIPageView(featureName);
         
         let filename = featureName.replace(/ /g, '-').replace(/–/g, '-');
         filename = filename + '.html';
@@ -467,6 +494,9 @@
 
     const statsSection = document.querySelector('.stats-section');
     if (statsSection) observer.observe(statsSection);
+    
+    // Silently notify that user is on dashboard
+    notifyJAIPageView('Dashboard');
 </script>
 </body>
 </html>
