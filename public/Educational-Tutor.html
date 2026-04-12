@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-LYNX AI++ - Educational Tutor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Open Sans',sans-serif;background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);min-height:100vh;}
+        .back-btn{position:fixed;top:20px;left:20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:10px 20px;border-radius:25px;color:white;text-decoration:none;transition:0.3s;z-index:100;font-size:14px;display:flex;align-items:center;gap:8px;}
+        .back-btn:hover{background:rgba(0,212,255,0.2);border-color:#00d4ff;}
+        .container{max-width:1000px;margin:0 auto;padding:80px 20px 40px;}
+        .header-section{text-align:center;margin-bottom:40px;}
+        .header-section h1{font-size:48px;background:linear-gradient(135deg,#00d4ff,#00ffaa);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:15px;}
+        .header-section p{color:rgba(255,255,255,0.7);font-size:18px;}
+        .subject-selector{display:flex;justify-content:center;gap:15px;margin-bottom:30px;flex-wrap:wrap;}
+        .subject-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:12px 24px;border-radius:40px;color:white;cursor:pointer;transition:0.3s;font-weight:600;}
+        .subject-btn.active,.subject-btn:hover{background:linear-gradient(135deg,#00d4ff,#00ffaa);color:#0F172A;border-color:transparent;}
+        .input-section{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border-radius:20px;padding:30px;margin-bottom:30px;border:1px solid rgba(0,212,255,0.3);}
+        .input-group{margin-bottom:20px;}
+        .input-group label{display:block;color:rgba(255,255,255,0.9);margin-bottom:8px;font-weight:600;}
+        .input-group input,.input-group textarea,.input-group select{width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:12px;color:white;font-size:14px;font-family:'Open Sans',sans-serif;}
+        .input-group input:focus,.input-group textarea:focus,.input-group select:focus{outline:none;border-color:#00d4ff;}
+        .input-group textarea{min-height:80px;resize:vertical;}
+        .input-group select option{background:#0F172A;color:white;}
+        .row-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+        .generate-btn{background:linear-gradient(135deg,#00d4ff,#00ffaa);color:#0F172A;padding:14px;border:none;border-radius:40px;font-size:16px;font-weight:700;cursor:pointer;transition:0.3s;width:100%;margin-top:10px;}
+        .generate-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,212,255,0.3);}
+        .generate-btn:disabled{opacity:0.5;cursor:not-allowed;}
+        .output-section{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border-radius:20px;padding:30px;border:1px solid rgba(0,212,255,0.3);}
+        .output-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+        .output-header h3{color:#00d4ff;font-size:20px;}
+        .output-actions{display:flex;gap:10px;}
+        .action-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:8px 16px;border-radius:20px;color:white;cursor:pointer;font-size:12px;}
+        .action-btn:hover{background:rgba(0,212,255,0.2);border-color:#00d4ff;}
+        .output-content{background:rgba(0,0,0,0.3);border-radius:15px;padding:20px;min-height:300px;white-space:pre-wrap;line-height:1.6;color:rgba(255,255,255,0.9);}
+        .loading{display:none;text-align:center;padding:20px;}
+        .spinner{width:40px;height:40px;border:3px solid rgba(0,212,255,0.3);border-top-color:#00d4ff;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 10px;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+        .example-chip{display:inline-block;background:rgba(255,255,255,0.1);padding:6px 12px;border-radius:20px;font-size:11px;cursor:pointer;margin:5px;}
+        .example-chip:hover{background:rgba(0,212,255,0.3);color:#00d4ff;}
+        .loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:flex;justify-content:center;align-items:center;z-index:9999;flex-direction:column;}
+        .loading-spinner{width:50px;height:50px;border:3px solid rgba(0,212,255,0.3);border-top-color:#00d4ff;border-radius:50%;animation:spin 1s linear infinite;}
+        @media (max-width:768px){.container{padding:70px 15px 30px;}.header-section h1{font-size:32px;}.subject-btn{padding:8px 16px;font-size:12px;}.row-2{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay" class="loading-overlay" style="display:none;"><div class="loading-spinner"></div><div style="margin-top:20px;color:#00d4ff;">Checking...</div></div>
+    <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    <div class="container">
+        <div class="header-section"><h1>📚 Educational Tutor</h1><p>Learn anything with AI-powered explanations, practice questions, and study help</p></div>
+        <div class="subject-selector">
+            <button class="subject-btn active" data-subject="math">📐 Mathematics</button>
+            <button class="subject-btn" data-subject="science">🔬 Science</button>
+            <button class="subject-btn" data-subject="history">📜 History</button>
+            <button class="subject-btn" data-subject="language">🗣️ Language</button>
+            <button class="subject-btn" data-subject="coding">💻 Coding</button>
+            <button class="subject-btn" data-subject="general">🎓 General</button>
+        </div>
+        <div class="input-section">
+            <div class="row-2">
+                <div class="input-group"><label>Your Question / Topic</label><textarea id="question" placeholder="Ask me anything you want to learn..."></textarea></div>
+                <div class="input-group"><label>Grade/Level (optional)</label><select id="level"><option value="beginner">Beginner</option><option value="intermediate" selected>Intermediate</option><option value="advanced">Advanced</option><option value="expert">Expert</option></select></div>
+            </div>
+            <div class="input-group"><label>Additional Context (optional)</label><textarea id="context" placeholder="Any specific areas you're struggling with or want to focus on..."></textarea></div>
+            <div class="row-2">
+                <div class="input-group"><label>Response Type</label><select id="responseType"><option value="explain">Explain Concept</option><option value="examples">Give Examples</option><option value="practice">Practice Questions</option><option value="summary">Summary</option><option value="all">All of the above</option></select></div>
+                <div class="input-group"><label>Number of examples/questions</label><input type="number" id="count" value="3" min="1" max="10"></div>
+            </div>
+            <div><span class="example-chip" onclick="setExample('math','Explain the Pythagorean theorem with real-world examples')">📐 Pythagorean theorem</span>
+            <span class="example-chip" onclick="setExample('science','How does photosynthesis work?')">🔬 Photosynthesis</span>
+            <span class="example-chip" onclick="setExample('history','Causes of World War II')">📜 WWII Causes</span>
+            <span class="example-chip" onclick="setExample('coding','What is a closure in JavaScript?')">💻 JavaScript closure</span>
+            <span class="example-chip" onclick="setExample('general','How to write a good essay')">✍️ Essay writing</span></div>
+            <button class="generate-btn" id="generateBtn">🎓 Learn Now</button>
+        </div>
+        <div class="output-section">
+            <div class="output-header"><h3><i class="fas fa-graduation-cap"></i> Lesson & Explanation</h3><div class="output-actions"><button class="action-btn" onclick="copyOutput()">Copy</button><button class="action-btn" onclick="downloadOutput()">Download</button><button class="action-btn" onclick="clearOutput()">Clear</button></div></div>
+            <div class="output-content" id="outputContent"><em>Your personalized lesson will appear here. Ask any question to start learning!</em></div>
+            <div class="loading" id="loadingIndicator"><div class="spinner"></div><p>Preparing your lesson...</p></div>
+        </div>
+    </div>
+    <script>
+        const token=localStorage.getItem('token'),user=localStorage.getItem('user');
+        if(!token&&!user){document.getElementById('loadingOverlay').style.display='flex';setTimeout(()=>{window.location.href='/login.html';},1000);}
+        else{document.getElementById('loadingOverlay').style.display='none';}
+        const API_URL='https://jai1-sh81.onrender.com';
+        let clientId=localStorage.getItem('klynx_client_id');
+        if(!clientId){clientId='klynx_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);localStorage.setItem('klynx_client_id',clientId);}
+        let currentSubject='math',currentOutput='';
+        document.querySelectorAll('.subject-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.subject-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentSubject=btn.dataset.subject;});});
+        function setExample(subject,text){document.querySelector(`.subject-btn[data-subject="${subject}"]`).click();document.getElementById('question').value=text;}
+        async function generateLesson(){
+            const question=document.getElementById('question').value.trim();
+            if(!question){alert('Please enter your question or topic!');return;}
+            const level=document.getElementById('level').value;
+            const context=document.getElementById('context').value;
+            const responseType=document.getElementById('responseType').value;
+            const count=document.getElementById('count').value;
+            const btn=document.getElementById('generateBtn');btn.disabled=true;btn.textContent='Teaching...';
+            document.getElementById('loadingIndicator').style.display='block';
+            let prompt=`You are an expert ${currentSubject} tutor. Student question: "${question}". Level: ${level}.`;
+            if(context) prompt+=` Additional context: ${context}.`;
+            prompt+=` Provide a ${responseType} response`;
+            if(responseType==='practice'||responseType==='examples') prompt+=` with ${count} ${responseType==='practice'?'questions':'examples'}.`;
+            if(responseType==='all') prompt+=` Include explanation, examples, and ${count} practice questions.`;
+            prompt+=` Be clear, educational, and engaging. Use simple language and step-by-step explanations.`;
+            try{
+                const res=await fetch(`${API_URL}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:prompt,clientId:clientId,options:{speech:false}})});
+                const result=await res.json();
+                if(res.ok&&result.response){currentOutput=result.response;document.getElementById('outputContent').innerHTML=currentOutput.replace(/\n/g,'<br>');}
+                else throw new Error('Failed');
+            }catch(error){document.getElementById('outputContent').innerHTML='<span style="color:#ff8888;">❌ Lesson generation failed. Please try again.</span>';}
+            finally{btn.disabled=false;btn.textContent='🎓 Learn Now';document.getElementById('loadingIndicator').style.display='none';}
+        }
+        function copyOutput(){if(!currentOutput){alert('Nothing to copy');return;}navigator.clipboard.writeText(currentOutput);alert('✅ Lesson copied!');}
+        function downloadOutput(){if(!currentOutput){alert('Nothing to download');return;}const blob=new Blob([currentOutput],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Lesson_${currentSubject}_${Date.now()}.txt`;a.click();URL.revokeObjectURL(a.href);}
+        function clearOutput(){currentOutput='';document.getElementById('outputContent').innerHTML='<em>Your personalized lesson will appear here. Ask any question to start learning!</em>';}
+        document.getElementById('generateBtn').addEventListener('click',generateLesson);
+    </script>
+</body>
+</html>
