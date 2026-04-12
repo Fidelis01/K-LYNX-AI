@@ -312,38 +312,6 @@
     color: rgba(255,255,255,0.5);
    }
 
-   .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.8);
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-   }
-
-   .modal-content {
-    background: linear-gradient(135deg, #1E293B, #0F172A);
-    padding: 40px;
-    border-radius: 30px;
-    max-width: 500px;
-    width: 90%;
-    text-align: center;
-    border: 1px solid rgba(0, 212, 255, 0.3);
-   }
-
-   .close-modal {
-    float: right;
-    font-size: 28px;
-    cursor: pointer;
-    transition: 0.3s;
-   }
-
-   .close-modal:hover { color: #00d4ff; }
-
    @media (max-width: 768px) {
     .hero h1 { font-size: 36px; }
     .header { padding: 15px 20px; }
@@ -383,7 +351,7 @@
         <div class="feature-card" onclick="openFeature('Creative Engine')"><div class="feature-icon">🎨</div><h3>Creative Engine</h3><p>Generate stories, ideas, scripts, and creative content instantly with our advanced AI.</p></div>
         <div class="feature-card" onclick="openFeature('Professional Writer')"><div class="feature-icon">✍️</div><h3>Professional Writer</h3><p>Write emails, proposals, reports, and formal documents with professional-grade assistance.</p></div>
         <div class="feature-card" onclick="openFeature('Emotional Insight')"><div class="feature-icon">💝</div><h3>Emotional Insight</h3><p>Understand emotions and receive thoughtful, human-like responses that show genuine empathy.</p></div>
-        <div class="feature-card" onclick="openDocumentIntelligence()"><div class="feature-icon">📄</div><h3>Document Intelligence</h3><p>Upload and analyze PDFs, contracts, and complex documents with intelligent summarization.</p></div>
+        <div class="feature-card" onclick="openFeature('Document Intelligence')"><div class="feature-icon">📄</div><h3>Document Intelligence</h3><p>Upload and analyze PDFs, contracts, and complex documents with intelligent summarization.</p></div>
         <div class="feature-card" onclick="openFeature('CV Architect')"><div class="feature-icon">📝</div><h3>CV Architect</h3><p>Build a professional CV quickly and easily with AI-powered suggestions.</p></div>
         <div class="feature-card" onclick="openFeature('Smart Scheduler')"><div class="feature-icon">📅</div><h3>Smart Scheduler</h3><p>Organize your day, tasks, and productivity with intelligent scheduling assistance.</p></div>
         <div class="feature-card" onclick="openFeature('Educational Tutor')"><div class="feature-icon">📚</div><h3>Educational Tutor</h3><p>Past exam questions, memoranda, and challenges to help you practice and learn.</p></div>
@@ -424,16 +392,8 @@
     <div class="copyright"><p>&copy; 2026 K-LYNX AI++. All rights reserved. Built with ❤️ in South Africa.</p></div>
 </div>
 
-<div class="modal" id="featureModal">
-    <div class="modal-content">
-        <span class="close-modal" onclick="closeModal()">&times;</span>
-        <h2 id="modalTitle">Feature</h2>
-        <p id="modalDesc" style="margin: 20px 0;">Description</p>
-        <button class="btn-primary" onclick="useFeature()">Use Feature</button>
-    </div>
-</div>
-
 <script>
+    // Check if user is logged in
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
     
@@ -441,6 +401,7 @@
         window.location.href = '/login.html';
     }
 
+    // Display welcome message with user name
     if (user) {
         try {
             const userData = JSON.parse(user);
@@ -451,8 +412,13 @@
         } catch(e) {}
     }
 
-    function startChat() { window.location.href = '/chat.html'; }
-    function scrollToSection(section) { document.getElementById(section).scrollIntoView({ behavior: 'smooth' }); }
+    function startChat() { 
+        window.location.href = '/chat.html';
+    }
+    
+    function scrollToSection(section) { 
+        document.getElementById(section).scrollIntoView({ behavior: 'smooth' }); 
+    }
     
     function logout() {
         localStorage.removeItem('token');
@@ -460,49 +426,21 @@
         window.location.href = '/login.html';
     }
 
-    // Special handler for Document Intelligence
-    function openDocumentIntelligence() {
-        window.location.href = '/document-intelligence.html';
+    // Feature navigation - converts feature name to filename.html
+    function openFeature(featureName) {
+        // Convert feature name to filename format
+        // Examples: "Core Intelligence" -> "Core-Intelligence.html"
+        //          "Currency Converter" -> "Currency-Converter.html"
+        //          "Q&A–Teach AI" -> "Q&A–Teach-AI.html"
+        
+        let filename = featureName.replace(/ /g, '-').replace(/–/g, '-');
+        filename = filename + '.html';
+        
+        console.log('Navigating to:', filename);
+        window.location.href = filename;
     }
 
-    let selectedFeature = "";
-    const featureDescriptions = {
-        "Core Intelligence": "Your main AI assistant for asking questions, exploring knowledge, and solving problems.",
-        "Creative Engine": "Generate stories, ideas, scripts, and creative content instantly.",
-        "Professional Writer": "Write emails, proposals, and formal documents professionally.",
-        "Emotional Insight": "Understand emotions and receive thoughtful, human-like responses.",
-        "CV Architect": "Build a professional CV quickly and easily.",
-        "Smart Scheduler": "Organize your day, tasks, and productivity.",
-        "Educational Tutor": "Provides past exam questions, memoranda, and educational challenges.",
-        "Currency Converter": "Quickly and accurately converts currencies.",
-        "Career Alerts": "Get job opportunities tailored to your skills.",
-        "Q&A–Teach AI": "Lets you ask questions and teaches the AI to provide better answers.",
-        "AI Calls": "Talk to AI through voice or video interaction.",
-        "AI Powered Meetings": "AI joins meetings, takes notes, and summarizes.",
-        "Private Journal": "A safe space for your thoughts and personal reflection."
-    };
-
-    function openFeature(name) {
-        selectedFeature = name;
-        document.getElementById("modalTitle").innerText = name;
-        document.getElementById("modalDesc").innerText = featureDescriptions[name] || "Explore this powerful feature.";
-        document.getElementById("featureModal").style.display = "flex";
-    }
-
-    function closeModal() { document.getElementById("featureModal").style.display = "none"; }
-    
-    function useFeature() { 
-        alert("🚀 Launching " + selectedFeature + "!"); 
-        closeModal();
-        // You can add navigation here if needed
-        // window.location.href = selectedFeature.toLowerCase().replace(/ /g, '-') + '.html';
-    }
-
-    window.onclick = function(event) {
-        const modal = document.getElementById('featureModal');
-        if (event.target === modal) closeModal();
-    }
-
+    // Animate stats when they come into view
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
