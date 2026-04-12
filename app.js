@@ -57,6 +57,151 @@ async function initDB() {
 initDB();
 
 // ============ WEBSOCKET VOICE CALL HANDLER ============
+const { v4: uuidv4 } = require('uuid');
+
+// Store active call rooms
+const callRooms = new Map();
+
+// WebRTC Signaling
+wss.on('connection', (ws, req) => {
+    const clientId = uuidv4();
+    wsClients.set(clientId, { ws, room: null, name: null });
+    
+    ws.on('message', async (data) => {
+        try {
+            const message = JSON.parse(data);
+            
+            // Create or join a call room
+            if (message.type === 'create-call') {
+                const roomId = uuidv4().substr(0, 8);
+                callRooms.set(roomId, { 
+                    creator: clientId, 
+                    participant: null,
+                    creatorName: message.name,
+                    createdAt: Date.now()
+                });
+                wsClients.get(clientId).room = roomId;
+                wsClients.get(clientId).name = message.name;
+                ws.send(JSON.stringify({ type: 'call-created', roomId }));
+            }
+            
+            // Join an existing call
+            if (message.type === 'join-call') {
+                const room = callRooms.get(message.roomId);
+                if (room && !room.participant) {
+                    room.participant = clientId;
+                    room.participantName = message.name;
+                    callRooms.set(message.roomId, room);
+                    wsClients.get(clientId).room = message.roomId;
+                    wsClients.get(clientId).name = message.name;
+                    
+                    // Notify creator that someone joined
+                    const creator = wsClients.get(room.creator);
+                    if (creator) {
+                        creator.ws.send(JSON.stringify({ 
+                            type: 'participant-joined', 
+                            name: message.name,
+                            participantId: clientId
+                        }));
+                    }
+                    ws.send(JSON.stringify({ type: 'call-joined', roomId: message.roomId }));
+                } else {
+                    ws.send(JSON.stringify({ type: 'call-not-found', error: 'Room not available' }));
+                }
+            }
+            
+            // WebRTC signaling (offer, answer, ice-candidate)
+            if (message.type === 'offer') {
+                const targetClient = wsClients.get(message.targetId);
+                if (targetClient) {
+                    targetClient.ws.send(JSON.stringify({
+                        type: 'offer',
+                        offer: message.offer,
+                        fromId: clientId,
+                        fromName: wsClients.get(clientId).name
+                    }));
+                }
+            }
+            
+            if (message.type === 'answer') {
+                const targetClient = wsClients.get(message.targetId);
+                if (targetClient) {
+                    targetClient.ws.send(JSON.stringify({
+                        type: 'answer',
+                        answer: message.answer,
+                        fromId: clientId
+                    }));
+                }
+            }
+            
+            if (message.type === 'ice-candidate') {
+                const targetClient = wsClients.get(message.targetId);
+                if (targetClient) {
+                    targetClient.ws.send(JSON.stringify({
+                        type: 'ice-candidate',
+                        candidate: message.candidate
+                    }));
+                }
+            }
+            
+            // End call
+            if (message.type === 'end-call') {
+                const room = callRooms.get(wsClients.get(clientId).room);
+                if (room) {
+                    const otherId = room.creator === clientId ? room.participant : room.creator;
+                    if (otherId) {
+                        const other = wsClients.get(otherId);
+                        if (other) {
+                            other.ws.send(JSON.stringify({ type: 'call-ended' }));
+                            other.room = null;
+                        }
+                    }
+                    callRooms.delete(wsClients.get(clientId).room);
+                    wsClients.get(clientId).room = null;
+                    ws.send(JSON.stringify({ type: 'call-ended' }));
+                }
+            }
+            
+            // List active calls
+            if (message.type === 'list-calls') {
+                const activeCalls = [];
+                callRooms.forEach((room, roomId) => {
+                    if (!room.participant) {
+                        activeCalls.push({
+                            roomId,
+                            creatorName: room.creatorName,
+                            createdAt: room.createdAt
+                        });
+                    }
+                });
+                ws.send(JSON.stringify({ type: 'calls-list', calls: activeCalls }));
+            }
+            
+        } catch (err) {
+            console.error('WebRTC signaling error:', err);
+        }
+    });
+    
+    ws.on('close', () => {
+        // Clean up rooms when user disconnects
+        const client = wsClients.get(clientId);
+        if (client && client.room) {
+            const room = callRooms.get(client.room);
+            if (room) {
+                const otherId = room.creator === clientId ? room.participant : room.creator;
+                if (otherId) {
+                    const other = wsClients.get(otherId);
+                    if (other) {
+                        other.ws.send(JSON.stringify({ type: 'peer-disconnected' }));
+                        other.room = null;
+                    }
+                }
+                callRooms.delete(client.room);
+            }
+        }
+        wsClients.delete(clientId);
+    });
+});
 
 wss.on('connection', (ws, req) => {
     const clientId = Date.now().toString() + '_' + Math.random().toString(36).substr(2, 9);
