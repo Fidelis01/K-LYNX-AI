@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-LYNX AI++ - Emotional Insight</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Open Sans',sans-serif;background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);min-height:100vh;}
+        .back-btn{position:fixed;top:20px;left:20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:10px 20px;border-radius:25px;color:white;text-decoration:none;transition:0.3s;z-index:100;font-size:14px;display:flex;align-items:center;gap:8px;}
+        .back-btn:hover{background:rgba(0,212,255,0.2);border-color:#00d4ff;}
+        .profile-icon{position:fixed;top:20px;right:20px;width:45px;height:45px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#00ffaa);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:0.3s;z-index:100;}
+        .profile-icon:hover{transform:scale(1.1);}
+        .profile-icon i{color:#0F172A;font-size:20px;}
+        .container{max-width:1000px;margin:0 auto;padding:80px 20px 40px;}
+        .header-section{text-align:center;margin-bottom:40px;}
+        .header-section h1{font-size:48px;background:linear-gradient(135deg,#00d4ff,#00ffaa);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:15px;}
+        .header-section p{color:rgba(255,255,255,0.7);font-size:18px;}
+        .mood-selector{display:flex;justify-content:center;gap:15px;margin-bottom:30px;flex-wrap:wrap;}
+        .mood-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:12px 24px;border-radius:40px;color:white;cursor:pointer;transition:0.3s;font-weight:600;}
+        .mood-btn.active,.mood-btn:hover{background:linear-gradient(135deg,#00d4ff,#00ffaa);color:#0F172A;border-color:transparent;}
+        .input-section{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border-radius:20px;padding:30px;margin-bottom:30px;border:1px solid rgba(0,212,255,0.3);}
+        .input-group{margin-bottom:20px;}
+        .input-group label{display:block;color:rgba(255,255,255,0.9);margin-bottom:8px;font-weight:600;}
+        .input-group textarea{width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:12px;color:white;font-size:14px;font-family:'Open Sans',sans-serif;min-height:100px;resize:vertical;}
+        .input-group textarea:focus{outline:none;border-color:#00d4ff;}
+        .generate-btn{background:linear-gradient(135deg,#00d4ff,#00ffaa);color:#0F172A;padding:14px;border:none;border-radius:40px;font-size:16px;font-weight:700;cursor:pointer;transition:0.3s;width:100%;margin-top:10px;}
+        .generate-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,212,255,0.3);}
+        .generate-btn:disabled{opacity:0.5;cursor:not-allowed;}
+        .output-section{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border-radius:20px;padding:30px;border:1px solid rgba(0,212,255,0.3);}
+        .output-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+        .output-header h3{color:#00d4ff;font-size:20px;}
+        .output-actions{display:flex;gap:10px;}
+        .action-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:8px 16px;border-radius:20px;color:white;cursor:pointer;font-size:12px;}
+        .action-btn:hover{background:rgba(0,212,255,0.2);border-color:#00d4ff;}
+        .output-content{background:rgba(0,0,0,0.3);border-radius:15px;padding:20px;min-height:250px;white-space:pre-wrap;line-height:1.6;color:rgba(255,255,255,0.9);}
+        .loading{display:none;text-align:center;padding:20px;}
+        .spinner{width:40px;height:40px;border:3px solid rgba(0,212,255,0.3);border-top-color:#00d4ff;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 10px;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+        .example-chip{display:inline-block;background:rgba(255,255,255,0.1);padding:6px 12px;border-radius:20px;font-size:11px;cursor:pointer;margin:5px;}
+        .example-chip:hover{background:rgba(0,212,255,0.3);color:#00d4ff;}
+        .loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:flex;justify-content:center;align-items:center;z-index:9999;flex-direction:column;}
+        .loading-spinner{width:50px;height:50px;border:3px solid rgba(0,212,255,0.3);border-top-color:#00d4ff;border-radius:50%;animation:spin 1s linear infinite;}
+        @media (max-width:768px){.container{padding:70px 15px 30px;}.header-section h1{font-size:32px;}.mood-btn{padding:8px 16px;font-size:12px;}}
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay" class="loading-overlay" style="display:none;"><div class="loading-spinner"></div><div style="margin-top:20px;color:#00d4ff;">Checking...</div></div>
+    <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    <div class="container">
+        <div class="header-section"><h1>💝 Emotional Insight</h1><p>Understanding emotions, empathetic responses, and thoughtful guidance</p></div>
+        <div class="mood-selector">
+            <button class="mood-btn active" data-mode="general">💬 General</button>
+            <button class="mood-btn" data-mode="anxiety">😰 Anxiety</button>
+            <button class="mood-btn" data-mode="sadness">😢 Sadness</button>
+            <button class="mood-btn" data-mode="stress">😫 Stress</button>
+            <button class="mood-btn" data-mode="motivation">💪 Motivation</button>
+            <button class="mood-btn" data-mode="relationship">💕 Relationship</button>
+        </div>
+        <div class="input-section">
+            <div class="input-group"><label>📝 Share what's on your mind...</label><textarea id="userInput" placeholder="I've been feeling..."></textarea></div>
+            <div><span class="example-chip" onclick="setExample('I feel overwhelmed with work and don\'t know how to manage my time')">😫 Work stress</span>
+            <span class="example-chip" onclick="setExample('I feel lonely even when I\'m around people')">😢 Loneliness</span>
+            <span class="example-chip" onclick="setExample('I need motivation to start my new project')">💪 Need motivation</span>
+            <span class="example-chip" onclick="setExample('I had an argument with a friend and feel hurt')">💕 Friendship</span>
+            <span class="example-chip" onclick="setExample('I feel anxious about an upcoming presentation')">😰 Presentation anxiety</span></div>
+            <button class="generate-btn" id="generateBtn">💝 Get Insight</button>
+        </div>
+        <div class="output-section">
+            <div class="output-header"><h3><i class="fas fa-heart"></i> Emotional Insight</h3><div class="output-actions"><button class="action-btn" onclick="copyOutput()">Copy</button><button class="action-btn" onclick="clearOutput()">Clear</button></div></div>
+            <div class="output-content" id="outputContent"><em>Share your thoughts and I'll provide emotional insight and support...</em></div>
+            <div class="loading" id="loadingIndicator"><div class="spinner"></div><p>Reflecting...</p></div>
+        </div>
+    </div>
+    <script>
+        const token=localStorage.getItem('token'),user=localStorage.getItem('user');
+        if(!token&&!user){document.getElementById('loadingOverlay').style.display='flex';setTimeout(()=>{window.location.href='/login.html';},1000);}
+        else{document.getElementById('loadingOverlay').style.display='none';}
+        const API_URL='https://jai1-sh81.onrender.com';
+        let clientId=localStorage.getItem('klynx_client_id');
+        if(!clientId){clientId='klynx_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);localStorage.setItem('klynx_client_id',clientId);}
+        let currentMode='general',currentOutput='';
+        
+        document.querySelectorAll('.mood-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentMode=btn.dataset.mode;});});
+        function setExample(text){document.getElementById('userInput').value=text;}
+        async function getInsight(){
+            const userText=document.getElementById('userInput').value.trim();
+            if(!userText){alert('Please share what\'s on your mind');return;}
+            const btn=document.getElementById('generateBtn');btn.disabled=true;btn.textContent='Reflecting...';
+            document.getElementById('loadingIndicator').style.display='block';
+            const modePrompts={general:`Provide empathetic emotional insight and support for: ${userText}. Be warm, understanding, and helpful.`,anxiety:`Someone is feeling anxious: ${userText}. Provide calming, grounding advice and reassurance.`,sadness:`Someone is feeling sad: ${userText}. Offer comfort, validation, and gentle encouragement.`,stress:`Someone is stressed: ${userText}. Provide practical stress-relief strategies and perspective.`,motivation:`Someone needs motivation: ${userText}. Provide inspiring, actionable encouragement.`,relationship:`Relationship concern: ${userText}. Provide thoughtful, balanced relationship advice with empathy.`};
+            const prompt=modePrompts[currentMode];
+            try{
+                const res=await fetch(`${API_URL}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:prompt,clientId:clientId,options:{speech:false}})});
+                const result=await res.json();
+                if(res.ok&&result.response){currentOutput=result.response;document.getElementById('outputContent').innerHTML=currentOutput.replace(/\n/g,'<br>');}
+                else throw new Error('Failed');
+            }catch(error){document.getElementById('outputContent').innerHTML='<span style="color:#ff8888;">❌ Unable to provide insight. Please try again.</span>';}
+            finally{btn.disabled=false;btn.textContent='💝 Get Insight';document.getElementById('loadingIndicator').style.display='none';}
+        }
+        function copyOutput(){if(!currentOutput){alert('Nothing to copy');return;}navigator.clipboard.writeText(currentOutput);alert('✅ Copied!');}
+        function clearOutput(){currentOutput='';document.getElementById('outputContent').innerHTML='<em>Share your thoughts and I\'ll provide emotional insight and support...</em>';document.getElementById('userInput').value='';}
+        document.getElementById('generateBtn').addEventListener('click',getInsight);
+    </script>
+</body>
+</html>
