@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-LYNX AI++ - Career Alerts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Open Sans',sans-serif;background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);min-height:100vh;}
+        .back-btn{position:fixed;top:20px;left:20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:10px 20px;border-radius:25px;color:white;text-decoration:none;transition:0.3s;z-index:100;font-size:14px;display:flex;align-items:center;gap:8px;}
+        .back-btn:hover{background:rgba(0,212,255,0.2);border-color:#00d4ff;}
+        .container{max-width:1000px;margin:0 auto;padding:80px 20px 40px;}
+        .header-section{text-align:center;margin-bottom:40px;}
+        .header-section h1{font-size:48px;background:linear-gradient(135deg,#00d4ff,#00ffaa);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:15px;}
+        .header-section p{color:rgba(255,255,255,0.7);font-size:18px;}
+        .career-selector{display:flex;justify-content:center;gap:15px;margin-bottom:30px;flex-wrap:wrap;}
+        .career-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:12px 24px;border-radius:40px;color:white;cursor:pointer;transition:0.3s;font-weight:600;}
+        .career-btn.active,.career-btn:hover{background:linear-gradient(135deg,#00d4ff,#00ffaa);color:#0F172A;border-color:transparent;}
+        .input-section{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border-radius:20px;padding:30px;margin-bottom:30px;border:1px solid rgba(0,212,255,0.3);}
+        .input-group{margin-bottom:20px;}
+        .input-group label{display:block;color:rgba(255,255,255,0.9);margin-bottom:8px;font-weight:600;}
+        .input-group input,.input-group textarea,.input-group select{width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:12px;color:white;font-size:14px;font-family:'Open Sans',sans-serif;}
+        .input-group input:focus,.input-group textarea:focus,.input-group select:focus{outline:none;border-color:#00d4ff;}
+        .input-group textarea{min-height:80px;resize:vertical;}
+        .input-group select option{background:#0F172A;color:white;}
+        .row-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+        .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;}
+        .generate-btn{background:linear-gradient(135deg,#00d4ff,#00ffaa);color:#0F172A;padding:14px;border:none;border-radius:40px;font-size:16px;font-weight:700;cursor:pointer;transition:0.3s;width:100%;margin-top:10px;}
+        .generate-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,212,255,0.3);}
+        .generate-btn:disabled{opacity:0.5;cursor:not-allowed;}
+        .output-section{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border-radius:20px;padding:30px;border:1px solid rgba(0,212,255,0.3);}
+        .output-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+        .output-header h3{color:#00d4ff;font-size:20px;}
+        .output-actions{display:flex;gap:10px;}
+        .action-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:8px 16px;border-radius:20px;color:white;cursor:pointer;font-size:12px;}
+        .action-btn:hover{background:rgba(0,212,255,0.2);border-color:#00d4ff;}
+        .output-content{background:rgba(0,0,0,0.3);border-radius:15px;padding:20px;min-height:350px;white-space:pre-wrap;line-height:1.6;color:rgba(255,255,255,0.9);}
+        .loading{display:none;text-align:center;padding:20px;}
+        .spinner{width:40px;height:40px;border:3px solid rgba(0,212,255,0.3);border-top-color:#00d4ff;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 10px;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+        .example-chip{display:inline-block;background:rgba(255,255,255,0.1);padding:6px 12px;border-radius:20px;font-size:11px;cursor:pointer;margin:5px;}
+        .example-chip:hover{background:rgba(0,212,255,0.3);color:#00d4ff;}
+        .loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:flex;justify-content:center;align-items:center;z-index:9999;flex-direction:column;}
+        .loading-spinner{width:50px;height:50px;border:3px solid rgba(0,212,255,0.3);border-top-color:#00d4ff;border-radius:50%;animation:spin 1s linear infinite;}
+        @media (max-width:768px){.container{padding:70px 15px 30px;}.header-section h1{font-size:32px;}.career-btn{padding:8px 16px;font-size:12px;}.row-2,.row-3{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay" class="loading-overlay" style="display:none;"><div class="loading-spinner"></div><div style="margin-top:20px;color:#00d4ff;">Checking...</div></div>
+    <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    <div class="container">
+        <div class="header-section"><h1>💼 Career Alerts</h1><p>Get personalized career advice, job search strategies, and professional development tips</p></div>
+        <div class="career-selector">
+            <button class="career-btn active" data-career="tech">💻 Tech</button>
+            <button class="career-btn" data-career="business">📊 Business</button>
+            <button class="career-btn" data-career="creative">🎨 Creative</button>
+            <button class="career-btn" data-career="healthcare">🏥 Healthcare</button>
+            <button class="career-btn" data-career="education">📚 Education</button>
+            <button class="career-btn" data-career="general">🌟 General</button>
+        </div>
+        <div class="input-section">
+            <div class="row-2">
+                <div class="input-group"><label>Your Current Role/Title</label><input type="text" id="role" placeholder="e.g., Software Developer, Marketing Manager, Student"></div>
+                <div class="input-group"><label>Years of Experience</label><select id="experience"><option value="0-1">0-1 year</option><option value="1-3">1-3 years</option><option value="3-5">3-5 years</option><option value="5-10">5-10 years</option><option value="10+">10+ years</option></select></div>
+            </div>
+            <div class="row-2">
+                <div class="input-group"><label>Target Role/Industry</label><input type="text" id="target" placeholder="What role are you aiming for?"></div>
+                <div class="input-group"><label>Location Preference</label><select id="location"><option value="remote">Remote</option><option value="onsite">Onsite</option><option value="hybrid">Hybrid</option><option value="any">Any</option></select></div>
+            </div>
+            <div class="input-group"><label>Key Skills (comma separated)</label><textarea id="skills" placeholder="e.g., Python, Project Management, Data Analysis, Communication"></textarea></div>
+            <div class="input-group"><label>Career Goals / Interests</label><textarea id="goals" placeholder="What are your career aspirations?"></textarea></div>
+            <div class="row-3">
+                <div class="input-group"><label>Alert Type</label><select id="alertType"><option value="jobs">Job Opportunities</option><option value="advice">Career Advice</option><option value="skills">Skills to Learn</option><option value="all">All of the above</option></select></div>
+                <div class="input-group"><label>Resume Ready</label><select id="resume"><option value="no">Not yet</option><option value="yes">Yes, ready</option></select></div>
+                <div class="input-group"><label>Interviewing</label><select id="interviewing"><option value="no">Not started</option><option value="preparing">Preparing</option><option value="active">Actively interviewing</option></select></div>
+            </div>
+            <div><span class="example-chip" onclick="fillExample('tech')">💻 Tech Career</span>
+            <span class="example-chip" onclick="fillExample('business')">📊 Business Career</span>
+            <span class="example-chip" onclick="fillExample('creative')">🎨 Creative Career</span>
+            <span class="example-chip" onclick="fillExample('career-change')">🔄 Career Change</span></div>
+            <button class="generate-btn" id="generateBtn">🎯 Get Career Alerts</button>
+        </div>
+        <div class="output-section">
+            <div class="output-header"><h3><i class="fas fa-bullhorn"></i> Your Career Insights</h3><div class="output-actions"><button class="action-btn" onclick="copyOutput()">Copy</button><button class="action-btn" onclick="downloadOutput()">Download</button><button class="action-btn" onclick="clearOutput()">Clear</button></div></div>
+            <div class="output-content" id="outputContent"><em>Your personalized career guidance will appear here...</em></div>
+            <div class="loading" id="loadingIndicator"><div class="spinner"></div><p>Analyzing career opportunities...</p></div>
+        </div>
+    </div>
+    <script>
+        const token=localStorage.getItem('token'),user=localStorage.getItem('user');
+        if(!token&&!user){document.getElementById('loadingOverlay').style.display='flex';setTimeout(()=>{window.location.href='/login.html';},1000);}
+        else{document.getElementById('loadingOverlay').style.display='none';}
+        const API_URL='https://jai1-sh81.onrender.com';
+        let clientId=localStorage.getItem('klynx_client_id');
+        if(!clientId){clientId='klynx_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);localStorage.setItem('klynx_client_id',clientId);}
+        let currentCareer='tech',currentOutput='';
+        document.querySelectorAll('.career-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.career-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentCareer=btn.dataset.career;});});
+        function fillExample(type){
+            if(type=='tech'){
+                document.getElementById('role').value='Junior Web Developer';document.getElementById('target').value='Senior Full Stack Developer';
+                document.getElementById('skills').value='JavaScript, React, Node.js, Python, AWS';document.getElementById('goals').value='Become a technical lead within 3 years, work on AI projects';
+            }
+            if(type=='business'){
+                document.getElementById('role').value='Marketing Coordinator';document.getElementById('target').value='Marketing Manager';
+                document.getElementById('skills').value='Social Media, SEO, Analytics, Campaign Management';document.getElementById('goals').value='Lead a marketing team, increase brand awareness';
+            }
+            if(type=='creative'){
+                document.getElementById('role').value='Graphic Designer';document.getElementById('target').value='Creative Director';
+                document.getElementById('skills').value='Adobe Suite, Figma, Branding, UI/UX';document.getElementById('goals').value='Build a portfolio, work with major brands';
+            }
+            if(type=='career-change'){
+                document.getElementById('role').value='Teacher';document.getElementById('target').value='Instructional Designer';
+                document.getElementById('skills').value='Curriculum Development, Communication, EdTech';document.getElementById('goals').value='Transition into corporate training and e-learning';
+            }
+        }
+        async function generateAlerts(){
+            const role=document.getElementById('role').value.trim();
+            if(!role){alert('Please enter your current role!');return;}
+            const data={career:currentCareer,role:role,exp:document.getElementById('experience').value,target:document.getElementById('target').value,location:document.getElementById('location').value,skills:document.getElementById('skills').value,goals:document.getElementById('goals').value,alertType:document.getElementById('alertType').value,resume:document.getElementById('resume').value,interviewing:document.getElementById('interviewing').value};
+            const btn=document.getElementById('generateBtn');btn.disabled=true;btn.textContent='Generating...';
+            document.getElementById('loadingIndicator').style.display='block';
+            const prompt=`As a career coach specializing in ${currentCareer} careers, provide personalized career guidance for:
+Current Role: ${data.role}
+Experience: ${data.exp} years
+Target Role: ${data.target||'Not specified'}
+Location Preference: ${data.location}
+Skills: ${data.skills||'Not specified'}
+Career Goals: ${data.goals||'Not specified'}
+
+Alert Type: ${data.alertType}
+Resume Status: ${data.resume}
+Interview Status: ${data.interviewing}
+
+Provide specific, actionable advice including:
+1. Job search strategies and where to find opportunities
+2. Skills to develop or highlight
+3. Resume and interview tips
+4. Networking suggestions
+5. Salary expectations and negotiation tips
+6. Next steps to take this week
+
+Be practical, encouraging, and tailored to their situation.`;
+            try{
+                const res=await fetch(`${API_URL}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:prompt,clientId:clientId,options:{speech:false}})});
+                const result=await res.json();
+                if(res.ok&&result.response){currentOutput=result.response;document.getElementById('outputContent').innerHTML=currentOutput.replace(/\n/g,'<br>');}
+                else throw new Error('Failed');
+            }catch(error){document.getElementById('outputContent').innerHTML='<span style="color:#ff8888;">❌ Career guidance generation failed. Please try again.</span>';}
+            finally{btn.disabled=false;btn.textContent='🎯 Get Career Alerts';document.getElementById('loadingIndicator').style.display='none';}
+        }
+        function copyOutput(){if(!currentOutput){alert('Nothing to copy');return;}navigator.clipboard.writeText(currentOutput);alert('✅ Career insights copied!');}
+        function downloadOutput(){if(!currentOutput){alert('Nothing to download');return;}const blob=new Blob([currentOutput],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Career_${currentCareer}_${Date.now()}.txt`;a.click();URL.revokeObjectURL(a.href);}
+        function clearOutput(){currentOutput='';document.getElementById('outputContent').innerHTML='<em>Your personalized career guidance will appear here...</em>';}
+        document.getElementById('generateBtn').addEventListener('click',generateAlerts);
+    </script>
+</body>
+</html>
