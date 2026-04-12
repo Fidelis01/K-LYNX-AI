@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>K-LYNX AI++ - Voice Call</title>
+    <title>K-LYNX AI++ - AI Voice Call</title>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -11,147 +11,399 @@
         body{font-family:'Open Sans',sans-serif;background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);min-height:100vh;}
         .back-btn{position:fixed;top:20px;left:20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:10px 20px;border-radius:25px;color:white;text-decoration:none;transition:0.3s;z-index:100;font-size:14px;display:flex;align-items:center;gap:8px;}
         .back-btn:hover{background:rgba(0,212,255,0.2);border-color:#00d4ff;}
-        .container{max-width:900px;margin:0 auto;padding:80px 20px 40px;}
-        .mode-selector{display:flex;justify-content:center;gap:15px;margin-bottom:30px;flex-wrap:wrap;}
-        .mode-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:12px 24px;border-radius:40px;color:white;cursor:pointer;transition:0.3s;font-weight:600;}
-        .mode-btn.active,.mode-btn:hover{background:linear-gradient(135deg,#00d4ff,#00ffaa);color:#0F172A;}
+        .container{max-width:800px;margin:0 auto;padding:80px 20px 40px;}
         .call-card{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border-radius:30px;padding:30px;border:1px solid rgba(0,212,255,0.3);text-align:center;}
         .avatar{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#00ffaa);margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:60px;}
-        .avatar.calling{animation:pulse 1.5s infinite;}
+        .avatar.listening{animation:pulse 1.5s infinite;}
+        .avatar.speaking{animation:speakPulse 0.8s infinite;}
         @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(0,212,255,0.7);}70%{box-shadow:0 0 0 15px rgba(0,212,255,0);}100%{box-shadow:0 0 0 0 rgba(0,212,255,0);}}
-        .status{font-size:18px;margin-bottom:10px;}.status.connected{color:#88ff88;}.status.disconnected{color:#ff8888;}.status.waiting{color:#ffaa44;}
+        @keyframes speakPulse{0%{transform:scale(1);}50%{transform:scale(1.05);}100%{transform:scale(1);}}
+        .status{font-size:18px;margin-bottom:10px;}.status.connected{color:#88ff88;}.status.disconnected{color:#ff8888;}.status.listening{color:#ffaa44;}
         .caller-name{font-size:24px;font-weight:700;color:#00d4ff;margin-bottom:20px;}
         .call-controls{display:flex;justify-content:center;gap:25px;margin:20px 0;}
-        .call-btn{width:70px;height:70px;border-radius:50%;border:none;cursor:pointer;transition:0.3s;font-size:28px;}
-        .call-btn.start{background:#00ffaa;color:#0F172A;}.call-btn.end{background:#ff4444;color:white;}
-        .call-btn.mute{background:rgba(255,255,255,0.1);color:white;}.call-btn.mute.active{background:#ffaa00;}
-        .room-input{display:flex;gap:10px;margin-top:20px;}
-        .room-input input{flex:1;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:25px;color:white;}
-        .room-input button{padding:12px 25px;background:linear-gradient(135deg,#00d4ff,#00ffaa);border:none;border-radius:25px;cursor:pointer;font-weight:bold;}
+        .call-btn{width:80px;height:80px;border-radius:50%;border:none;cursor:pointer;transition:0.3s;font-size:32px;}
+        .call-btn.start{background:#00ffaa;color:#0F172A;}
+        .call-btn.end{background:#ff4444;color:white;}
+        .call-btn.mute{background:rgba(255,255,255,0.1);color:white;}
+        .call-btn.mute.active{background:#ffaa00;color:#0F172A;}
+        .call-btn:hover{transform:scale(1.1);}
         .chat-area{background:rgba(0,0,0,0.3);border-radius:20px;padding:20px;margin-top:20px;max-height:300px;overflow-y:auto;}
-        .chat-message{margin-bottom:15px;display:flex;}.chat-message.user{justify-content:flex-end;}.chat-message.ai,.chat-message.friend{justify-content:flex-start;}
+        .chat-message{margin-bottom:15px;display:flex;}
+        .chat-message.user{justify-content:flex-end;}.chat-message.ai{justify-content:flex-start;}
         .chat-bubble{max-width:70%;padding:10px 15px;border-radius:18px;}
         .user .chat-bubble{background:linear-gradient(135deg,#00d4ff,#00ffaa);color:#0F172A;}
-        .ai .chat-bubble,.friend .chat-bubble{background:rgba(255,255,255,0.1);border:1px solid rgba(0,212,255,0.3);}
+        .ai .chat-bubble{background:rgba(255,255,255,0.1);border:1px solid rgba(0,212,255,0.3);}
         .chat-time{font-size:10px;opacity:0.5;margin-top:5px;display:block;}
         .chat-input-area{display:flex;gap:10px;margin-top:15px;}
         .chat-input-area input{flex:1;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:25px;color:white;}
-        .chat-input-area button{padding:12px 20px;background:linear-gradient(135deg,#00d4ff,#00ffaa);border:none;border-radius:25px;cursor:pointer;}
-        .active-calls{background:rgba(255,255,255,0.05);border-radius:20px;padding:20px;margin-top:20px;}
-        .call-item{background:rgba(0,0,0,0.3);padding:15px;border-radius:15px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
-        .join-btn{background:#00d4ff;border:none;padding:8px 20px;border-radius:20px;cursor:pointer;font-weight:bold;}
+        .chat-input-area button{padding:12px 20px;background:linear-gradient(135deg,#00d4ff,#00ffaa);border:none;border-radius:25px;cursor:pointer;font-weight:bold;}
         .typing-indicator{display:inline-flex;gap:4px;padding:8px 12px;background:rgba(255,255,255,0.1);border-radius:18px;}
         .typing-indicator span{width:6px;height:6px;background:#00d4ff;border-radius:50%;animation:typingBounce 1.4s infinite;}
         @keyframes typingBounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-5px);}}
-        .loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:flex;justify-content:center;align-items:center;z-index:9999;flex-direction:column;}
-        .loading-spinner{width:50px;height:50px;border:3px solid rgba(0,212,255,0.3);border-top-color:#00d4ff;border-radius:50%;animation:spin 1s linear infinite;}
-        @keyframes spin{to{transform:rotate(360deg);}}
-        @media (max-width:768px){.container{padding:70px 15px 30px;}.mode-btn{padding:8px 16px;font-size:12px;}.call-btn{width:60px;height:60px;font-size:24px;}}
+        @media (max-width:768px){.container{padding:70px 15px 30px;}.call-btn{width:70px;height:70px;font-size:28px;}}
     </style>
 </head>
 <body>
-    <div id="loadingOverlay" class="loading-overlay" style="display:none;"><div class="loading-spinner"></div><div style="margin-top:20px;color:#00d4ff;">Connecting...</div></div>
     <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
     <div class="container">
-        <div class="mode-selector">
-            <button class="mode-btn active" data-mode="ai">🤖 AI Call</button>
-            <button class="mode-btn" data-mode="friend">👥 Call Friend</button>
-        </div>
         <div class="call-card">
             <div class="avatar" id="avatar">🤖</div>
-            <div class="caller-name" id="callerName">K-LYNX AI</div>
-            <div class="status disconnected" id="status">● Disconnected</div>
-            <div id="aiMode"><div class="call-controls"><button class="call-btn start" id="startAICallBtn"><i class="fas fa-microphone"></i></button><button class="call-btn end" id="endAICallBtn" style="display:none;"><i class="fas fa-phone-slash"></i></button></div></div>
-            <div id="friendMode" style="display:none;">
-                <div id="createSection"><button class="call-btn start" id="createCallBtn" style="width:200px;border-radius:40px;margin:20px auto;"><i class="fas fa-plus-circle"></i> Create Room</button><div class="room-input"><input type="text" id="roomIdInput" placeholder="Room ID"><button id="joinCallBtn">Join</button></div></div>
-                <div id="friendCallSection" style="display:none;"><div id="peerName" style="font-size:18px;"></div><div class="call-controls"><button class="call-btn mute" id="friendMuteBtn"><i class="fas fa-microphone"></i></button><button class="call-btn end" id="endFriendCallBtn"><i class="fas fa-phone-slash"></i></button></div></div>
-                <div id="incomingSection" style="display:none;"><p id="incomingName"></p><div style="display:flex;gap:15px;justify-content:center;"><button class="call-btn start" id="acceptCallBtn" style="width:auto;padding:15px 30px;border-radius:40px;">Accept</button><button class="call-btn end" id="rejectCallBtn" style="width:auto;padding:15px 30px;border-radius:40px;">Reject</button></div></div>
+            <div class="caller-name">K-LYNX AI Voice</div>
+            <div class="status disconnected" id="status">● Tap microphone to start</div>
+            <div class="call-controls">
+                <button class="call-btn start" id="startBtn"><i class="fas fa-microphone"></i></button>
+                <button class="call-btn mute" id="muteBtn" style="display:none;"><i class="fas fa-microphone"></i></button>
+                <button class="call-btn end" id="endBtn" style="display:none;"><i class="fas fa-phone-slash"></i></button>
             </div>
-            <div id="activeCallsSection" class="active-calls" style="display:none;"><h3 style="color:#00d4ff;margin-bottom:15px;">📞 Active Rooms</h3><div id="activeCallsList">Loading...</div></div>
         </div>
-        <div class="chat-area"><div id="chatMessages"><div class="chat-message ai"><div class="chat-bubble">👋 Click microphone to start call or type below.<span class="chat-time">Now</span></div></div></div>
-        <div class="chat-input-area"><input type="text" id="chatInput" placeholder="Type..."><button id="sendChatBtn"><i class="fas fa-paper-plane"></i></button></div></div>
+        <div class="chat-area" id="chatArea">
+            <div id="chatMessages">
+                <div class="chat-message ai">
+                    <div class="chat-bubble">👋 Hi! I'm K-LYNX AI. Tap the microphone and start speaking. I'll listen continuously and respond naturally.<span class="chat-time">Now</span></div>
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Or type your message...">
+                <button id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
     </div>
     <script>
-        const token=localStorage.getItem('token'),user=localStorage.getItem('user');
-        let userName='Anonymous';
-        if(!token&&!user)window.location.href='/login.html';
-        if(user){try{userName=JSON.parse(user).name;}catch(e){}}
-        
-        let mode='ai',ws=null,recog=null,callActive=false,stream=null,pc=null,roomId=null,peerId=null,isMuted=false;
-        const AI_API='https://jai1-sh81.onrender.com',ice={iceServers:[{urls:'stun:stun.l.google.com:19302'}]};
-        
-        const avatar=document.getElementById('avatar'),callerName=document.getElementById('callerName'),statusDiv=document.getElementById('status');
-        const aiDiv=document.getElementById('aiMode'),friendDiv=document.getElementById('friendMode'),activeDiv=document.getElementById('activeCallsSection');
-        const chatDiv=document.getElementById('chatMessages'),chatInput=document.getElementById('chatInput'),sendBtn=document.getElementById('sendChatBtn');
-        
-        document.querySelectorAll('.mode-btn').forEach(btn=>{btn.onclick=()=>{document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');mode=btn.dataset.mode;
-            if(mode==='ai'){aiDiv.style.display='block';friendDiv.style.display='none';activeDiv.style.display='none';avatar.innerHTML='🤖';callerName.innerHTML='K-LYNX AI';endAICall();}
-            else{aiDiv.style.display='none';friendDiv.style.display='block';activeDiv.style.display='block';avatar.innerHTML='👥';callerName.innerHTML='Call Friend';listRooms();}}});
-        
-        function addMsg(t,s){const d=document.createElement('div');d.className=`chat-message ${s}`;const time=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-        d.innerHTML=`<div class="chat-bubble">${escapeHtml(t)}<span class="chat-time">${time}</span></div>`;chatDiv.appendChild(d);chatDiv.scrollTop=chatDiv.scrollHeight;}
-        function escapeHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
-        function showTyping(){const t=document.getElementById('typing');if(t)t.remove();const d=document.createElement('div');d.id='typing';d.className='chat-message ai';d.innerHTML='<div class="typing-indicator"><span></span><span></span><span></span></div>';chatDiv.appendChild(d);chatDiv.scrollTop=chatDiv.scrollHeight;}
-        function hideTyping(){const t=document.getElementById('typing');if(t)t.remove();}
-        
-        // AI Mode
-        if('webkitSpeechRecognition' in window){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;recog=new SR();recog.continuous=false;recog.interimResults=false;
-        recog.onstart=()=>{document.getElementById('startAICallBtn').innerHTML='<i class="fas fa-stop"></i>';addMsg('🎤 Listening...','user');};
-        recog.onresult=e=>{const t=e.results[0][0].transcript;addMsg(t,'user');sendToAI(t);};
-        recog.onerror=()=>{stopRec();addMsg("Couldn't hear you",'ai');};recog.onend=stopRec;}
-        
-        function startRec(){if(!callActive){callActive=true;statusDiv.innerHTML='● Connected';statusDiv.className='status connected';avatar.classList.add('calling');document.getElementById('startAICallBtn').style.display='none';document.getElementById('endAICallBtn').style.display='flex';addMsg("✅ Voice ready! Speak now.",'ai');}
-        if(recog&&!isRecording){try{recog.start();isRecording=true;}catch(e){}}}
-        function stopRec(){if(recog){try{recog.stop();}catch(e){}}isRecording=false;document.getElementById('startAICallBtn').innerHTML='<i class="fas fa-microphone"></i>';}
-        function endAICall(){callActive=false;statusDiv.innerHTML='● Disconnected';statusDiv.className='status disconnected';avatar.classList.remove('calling');document.getElementById('startAICallBtn').style.display='flex';document.getElementById('endAICallBtn').style.display='none';stopRec();}
-        async function sendToAI(msg){if(!callActive&&msg.trim())startRec();showTyping();try{const res=await fetch(`${AI_API}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,clientId:'voice',options:{speech:false}})});const d=await res.json();hideTyping();addMsg(d.response||"Got it!",'ai');}catch(e){hideTyping();addMsg("Error, try again",'ai');}}
-        document.getElementById('startAICallBtn').onclick=startRec;document.getElementById('endAICallBtn').onclick=endAICall;
-        
-        let isRecording=false;
-        
-        // Friend Mode WebSocket
-        function connectWS(){const url=`wss://${window.location.host}`;ws=new WebSocket(url);
-        ws.onopen=()=>{document.getElementById('loadingOverlay').style.display='none';listRooms();setInterval(listRooms,10000);};
-        ws.onmessage=async e=>{const m=JSON.parse(e.data);
-            if(m.type==='call-created'){roomId=m.roomId;statusDiv.innerHTML='● Waiting...';statusDiv.className='status waiting';avatar.classList.add('calling');callerName.innerHTML=`Room: ${m.roomId}<br><span style="font-size:14px;">Share code</span>`;document.getElementById('roomIdInput').value=m.roomId;}
-            if(m.type==='participant-joined'){statusDiv.innerHTML='● Connecting...';await startFriendCall(m.participantId,m.name);}
-            if(m.type==='call-joined'){roomId=m.roomId;await startFriendCallAsJoiner();}
-            if(m.type==='offer'){peerId=m.fromId;document.getElementById('incomingName').innerHTML=`${m.fromName} is calling...`;document.getElementById('incomingSection').style.display='block';document.getElementById('createSection').style.display='none';window.offer=m.offer;window.callerId=m.fromId;window.callerName=m.fromName;}
-            if(m.type==='answer'){await pc.setRemoteDescription(new RTCSessionDescription(m.answer));statusDiv.innerHTML='● Connected';statusDiv.className='status connected';}
-            if(m.type==='ice-candidate'&&pc){await pc.addIceCandidate(new RTCIceCandidate(m.candidate));}
-            if(m.type==='call-ended'||m.type==='peer-disconnected')endFriendCall();
-            if(m.type==='calls-list')displayRooms(m.calls);
-            if(m.type==='call-not-found')alert('Room not found');
-        };ws.onclose=()=>setTimeout(connectWS,3000);}
-        
-        async function startFriendCall(id,name){peerId=id;document.getElementById('peerName').innerHTML=`Calling: ${name}`;
-        try{stream=await navigator.mediaDevices.getUserMedia({audio:true});setupPC();stream.getTracks().forEach(t=>pc.addTrack(t,stream));
-        const offer=await pc.createOffer();await pc.setLocalDescription(offer);ws.send(JSON.stringify({type:'offer',targetId:id,offer:offer}));
-        showFriendUI(true);statusDiv.innerHTML='● Connected';statusDiv.className='status connected';}catch(e){alert('Microphone needed');}}
-        async function startFriendCallAsJoiner(){try{stream=await navigator.mediaDevices.getUserMedia({audio:true});setupPC();stream.getTracks().forEach(t=>pc.addTrack(t,stream));showFriendUI(true);statusDiv.innerHTML='● Connected';statusDiv.className='status connected';}catch(e){}}
-        async function acceptCall(){document.getElementById('incomingSection').style.display='none';
-        try{stream=await navigator.mediaDevices.getUserMedia({audio:true});setupPC();stream.getTracks().forEach(t=>pc.addTrack(t,stream));
-        await pc.setRemoteDescription(new RTCSessionDescription(window.offer));const ans=await pc.createAnswer();await pc.setLocalDescription(ans);
-        ws.send(JSON.stringify({type:'answer',targetId:window.callerId,answer:ans}));showFriendUI(true);statusDiv.innerHTML='● Connected';statusDiv.className='status connected';document.getElementById('peerName').innerHTML=`Calling: ${window.callerName}`;}catch(e){}}
-        function setupPC(){pc=new RTCPeerConnection(ice);pc.ontrack=e=>{const audio=new Audio();audio.srcObject=e.streams[0];audio.play();};pc.onicecandidate=e=>{if(e.candidate&&peerId)ws.send(JSON.stringify({type:'ice-candidate',targetId:peerId,candidate:e.candidate}));};}
-        function showFriendUI(inCall){document.getElementById('createSection').style.display=inCall?'none':'block';document.getElementById('friendCallSection').style.display=inCall?'block':'none';document.getElementById('incomingSection').style.display='none';avatar.classList.toggle('calling',inCall);}
-        function endFriendCall(){if(pc){pc.close();pc=null;}if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}if(ws&&roomId)ws.send(JSON.stringify({type:'end-call'}));showFriendUI(false);statusDiv.innerHTML='● Disconnected';statusDiv.className='status disconnected';callerName.innerHTML='Call Friend';avatar.classList.remove('calling');roomId=null;peerId=null;document.getElementById('roomIdInput').value='';}
-        function toggleMute(){if(stream){const track=stream.getAudioTracks()[0];if(track){isMuted=!isMuted;track.enabled=!isMuted;const btn=document.getElementById('friendMuteBtn');btn.innerHTML=isMuted?'<i class="fas fa-microphone-slash"></i>':'<i class="fas fa-microphone"></i>';btn.classList.toggle('active',isMuted);}}}
-        function createRoom(){ws.send(JSON.stringify({type:'create-call',name:userName}));document.getElementById('createSection').style.display='none';}
-        function joinRoom(){const rid=document.getElementById('roomIdInput').value.trim();if(rid)ws.send(JSON.stringify({type:'join-call',roomId:rid,name:userName}));else alert('Enter room ID');}
-        function listRooms(){if(ws&&ws.readyState===WebSocket.OPEN)ws.send(JSON.stringify({type:'list-calls'}));}
-        function displayRooms(calls){const list=document.getElementById('activeCallsList');if(!list)return;if(!calls.length){list.innerHTML='<p style="color:rgba(255,255,255,0.5);">No active calls</p>';return;}
-        list.innerHTML=calls.map(c=>`<div class="call-item"><div><strong>${c.creatorName}</strong><br><small>${c.roomId}</small></div><button class="join-btn" onclick="joinById('${c.roomId}')">Join</button></div>`).join('');}
-        window.joinById=(rid)=>{document.getElementById('roomIdInput').value=rid;joinRoom();};
-        function rejectCall(){document.getElementById('incomingSection').style.display='none';document.getElementById('createSection').style.display='block';}
-        document.getElementById('createCallBtn').onclick=createRoom;document.getElementById('joinCallBtn').onclick=joinRoom;document.getElementById('endFriendCallBtn').onclick=endFriendCall;document.getElementById('friendMuteBtn').onclick=toggleMute;document.getElementById('acceptCallBtn').onclick=acceptCall;document.getElementById('rejectCallBtn').onclick=rejectCall;
-        
-        // Chat
-        function sendChat(){const t=chatInput.value.trim();if(!t)return;addMsg(t,'user');if(mode==='ai')sendToAI(t);else addMsg("💬 Message sent",'friend');chatInput.value='';}
-        sendBtn.onclick=sendChat;chatInput.onkeypress=e=>{if(e.key==='Enter')sendChat();};
-        
-        connectWS();
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = '/login.html';
+
+        let recognition = null;
+        let isCallActive = false;
+        let isListening = false;
+        let isMuted = false;
+        let speechSynthesis = window.speechSynthesis;
+        let currentUtterance = null;
+        let continuousListening = true;
+        let processingResponse = false;
+
+        const AI_API = 'https://jai1-sh81.onrender.com';
+        let clientId = localStorage.getItem('klynx_client_id');
+        if (!clientId) {
+            clientId = 'voice_' + Date.now();
+            localStorage.setItem('klynx_client_id', clientId);
+        }
+
+        const avatar = document.getElementById('avatar');
+        const statusDiv = document.getElementById('status');
+        const startBtn = document.getElementById('startBtn');
+        const muteBtn = document.getElementById('muteBtn');
+        const endBtn = document.getElementById('endBtn');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+
+        // Initialize speech recognition for continuous listening
+        function initRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SR();
+                recognition.continuous = true;  // Keep listening continuously
+                recognition.interimResults = true;  // Show interim results
+                recognition.lang = 'en-US';
+                recognition.maxAlternatives = 1;
+
+                recognition.onstart = () => {
+                    isListening = true;
+                    statusDiv.innerHTML = '● Listening... Speak now';
+                    statusDiv.className = 'status listening';
+                    avatar.classList.add('listening');
+                    avatar.classList.remove('speaking');
+                    startBtn.style.display = 'none';
+                    muteBtn.style.display = 'flex';
+                    endBtn.style.display = 'flex';
+                };
+
+                recognition.onresult = (event) => {
+                    let finalTranscript = '';
+                    let interimTranscript = '';
+                    
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript;
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+                    
+                    if (finalTranscript) {
+                        // Stop listening temporarily while processing
+                        if (continuousListening && !processingResponse) {
+                            recognition.stop();
+                            processUserMessage(finalTranscript);
+                        }
+                    }
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Recognition error:', event.error);
+                    if (event.error === 'no-speech') {
+                        // Continue listening
+                        if (isCallActive && continuousListening) {
+                            setTimeout(() => {
+                                if (isCallActive && !processingResponse) {
+                                    try { recognition.start(); } catch(e) {}
+                                }
+                            }, 500);
+                        }
+                    } else if (event.error === 'network') {
+                        statusDiv.innerHTML = '● Network error - reconnecting...';
+                        setTimeout(() => {
+                            if (isCallActive) {
+                                try { recognition.start(); } catch(e) {}
+                            }
+                        }, 2000);
+                    }
+                };
+
+                recognition.onend = () => {
+                    if (isCallActive && continuousListening && !processingResponse) {
+                        // Restart listening after a short delay
+                        setTimeout(() => {
+                            if (isCallActive && !processingResponse) {
+                                try { recognition.start(); } catch(e) {}
+                            }
+                        }, 500);
+                    }
+                };
+            } else {
+                statusDiv.innerHTML = '● Voice not supported - use text chat';
+                addMessage("⚠️ Your browser doesn't support voice recognition. Please use the text input instead.", 'ai');
+            }
+        }
+
+        async function processUserMessage(text) {
+            if (processingResponse) return;
+            processingResponse = true;
+            
+            // Stop listening while processing
+            if (recognition) {
+                try { recognition.stop(); } catch(e) {}
+            }
+            
+            // Show what user said
+            addMessage(text, 'user');
+            
+            // Show thinking/typing indicator
+            showTyping();
+            statusDiv.innerHTML = '● Thinking...';
+            avatar.classList.remove('listening');
+            avatar.classList.add('speaking');
+            
+            try {
+                const response = await fetch(`${AI_API}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: text,
+                        clientId: clientId,
+                        options: { speech: false }
+                    })
+                });
+                const data = await response.json();
+                const reply = data.response || "I received your message. How can I help?";
+                
+                hideTyping();
+                addMessage(reply, 'ai');
+                
+                // Speak the response
+                await speakResponse(reply);
+                
+            } catch (err) {
+                hideTyping();
+                addMessage("Sorry, I'm having trouble responding.", 'ai');
+            } finally {
+                processingResponse = false;
+                statusDiv.innerHTML = '● Listening... Speak now';
+                avatar.classList.add('listening');
+                avatar.classList.remove('speaking');
+                
+                // Resume listening
+                if (isCallActive && continuousListening && recognition) {
+                    setTimeout(() => {
+                        if (isCallActive && !processingResponse) {
+                            try { recognition.start(); } catch(e) {}
+                        }
+                    }, 500);
+                }
+            }
+        }
+
+        function speakResponse(text) {
+            return new Promise((resolve) => {
+                if (currentUtterance) {
+                    speechSynthesis.cancel();
+                }
+                currentUtterance = new SpeechSynthesisUtterance(text);
+                currentUtterance.rate = 0.9;
+                currentUtterance.pitch = 1;
+                currentUtterance.volume = 1;
+                currentUtterance.onend = () => {
+                    currentUtterance = null;
+                    resolve();
+                };
+                currentUtterance.onerror = () => {
+                    currentUtterance = null;
+                    resolve();
+                };
+                speechSynthesis.speak(currentUtterance);
+            });
+        }
+
+        function startCall() {
+            if (!recognition) {
+                initRecognition();
+            }
+            isCallActive = true;
+            continuousListening = true;
+            statusDiv.innerHTML = '● Listening... Speak now';
+            statusDiv.className = 'status listening';
+            avatar.classList.add('listening');
+            startBtn.style.display = 'none';
+            muteBtn.style.display = 'flex';
+            endBtn.style.display = 'flex';
+            
+            if (recognition) {
+                try {
+                    recognition.start();
+                } catch(e) {
+                    console.log('Recognition already started');
+                }
+            }
+        }
+
+        function endCall() {
+            isCallActive = false;
+            continuousListening = false;
+            processingResponse = false;
+            
+            if (recognition) {
+                try { recognition.stop(); } catch(e) {}
+            }
+            if (currentUtterance) {
+                speechSynthesis.cancel();
+                currentUtterance = null;
+            }
+            
+            statusDiv.innerHTML = '● Call ended - tap microphone to start';
+            statusDiv.className = 'status disconnected';
+            avatar.classList.remove('listening', 'speaking');
+            startBtn.style.display = 'flex';
+            muteBtn.style.display = 'none';
+            endBtn.style.display = 'none';
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            if (isMuted) {
+                if (recognition) {
+                    try { recognition.stop(); } catch(e) {}
+                }
+                muteBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+                muteBtn.classList.add('active');
+                statusDiv.innerHTML = '● Muted - tap mic to unmute';
+            } else {
+                muteBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                muteBtn.classList.remove('active');
+                statusDiv.innerHTML = '● Listening... Speak now';
+                if (isCallActive && recognition) {
+                    try { recognition.start(); } catch(e) {}
+                }
+            }
+        }
+
+        async function sendTextMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+            chatInput.value = '';
+            
+            if (!isCallActive) {
+                startCall();
+            }
+            
+            processingResponse = true;
+            if (recognition) {
+                try { recognition.stop(); } catch(e) {}
+            }
+            
+            addMessage(text, 'user');
+            showTyping();
+            statusDiv.innerHTML = '● Thinking...';
+            
+            try {
+                const response = await fetch(`${AI_API}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: text,
+                        clientId: clientId,
+                        options: { speech: false }
+                    })
+                });
+                const data = await response.json();
+                const reply = data.response || "Got it!";
+                hideTyping();
+                addMessage(reply, 'ai');
+                await speakResponse(reply);
+            } catch (err) {
+                hideTyping();
+                addMessage("Sorry, error.", 'ai');
+            } finally {
+                processingResponse = false;
+                statusDiv.innerHTML = '● Listening... Speak now';
+                if (isCallActive && recognition && !isMuted) {
+                    setTimeout(() => {
+                        try { recognition.start(); } catch(e) {}
+                    }, 500);
+                }
+            }
+        }
+
+        function addMessage(text, sender) {
+            const div = document.createElement('div');
+            div.className = `chat-message ${sender}`;
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            div.innerHTML = `<div class="chat-bubble">${escapeHtml(text)}<span class="chat-time">${time}</span></div>`;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTyping() {
+            const typing = document.getElementById('typing');
+            if (typing) typing.remove();
+            const div = document.createElement('div');
+            div.id = 'typing';
+            div.className = 'chat-message ai';
+            div.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTyping() {
+            const typing = document.getElementById('typing');
+            if (typing) typing.remove();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Event listeners
+        startBtn.onclick = startCall;
+        endBtn.onclick = endCall;
+        muteBtn.onclick = toggleMute;
+        sendBtn.onclick = sendTextMessage;
+        chatInput.onkeypress = (e) => { if (e.key === 'Enter') sendTextMessage(); };
+
+        // Initialize
+        initRecognition();
     </script>
 </body>
 </html>
