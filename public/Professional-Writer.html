@@ -51,7 +51,7 @@
 <body>
     <div id="loadingOverlay" class="loading-overlay" style="display:none;"><div class="loading-spinner"></div><div style="margin-top:20px;color:#00d4ff;">Checking...</div></div>
     <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
-    <div class="profile-icon" onclick="logout()"><i class="fas fa-sign-out-alt"></i></div>
+  
     <div class="container">
         <div class="header-section"><h1>✍️ Professional Writer</h1><p>Create emails, proposals, reports & more</p></div>
         <div class="doc-selector">
@@ -98,7 +98,7 @@
         let clientId=localStorage.getItem('klynx_client_id');
         if(!clientId){clientId='klynx_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);localStorage.setItem('klynx_client_id',clientId);}
         let currentDoc='email',currentOutput='';
-        function logout(){localStorage.removeItem('token');localStorage.removeItem('user');window.location.href='/login.html';}
+        
         document.querySelectorAll('.doc-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.doc-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentDoc=btn.dataset.doc;
             document.getElementById('emailForm').style.display='none';document.getElementById('proposalForm').style.display='none';document.getElementById('reportForm').style.display='none';document.getElementById('letterForm').style.display='none';
             document.getElementById(`${currentDoc}Form`).style.display='block';});});
