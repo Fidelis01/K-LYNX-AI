@@ -15,10 +15,10 @@
         .call-card{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border-radius:30px;padding:30px;border:1px solid rgba(0,212,255,0.3);text-align:center;}
         .avatar{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#00ffaa);margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:60px;}
         .avatar.listening{animation:pulse 1.5s infinite;}
-        .avatar.speaking{animation:speakPulse 0.8s infinite;}
+        .avatar.speaking{animation:speakPulse 0.5s infinite;}
         @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(0,212,255,0.7);}70%{box-shadow:0 0 0 15px rgba(0,212,255,0);}100%{box-shadow:0 0 0 0 rgba(0,212,255,0);}}
-        @keyframes speakPulse{0%{transform:scale(1);}50%{transform:scale(1.05);}100%{transform:scale(1);}}
-        .status{font-size:18px;margin-bottom:10px;}.status.connected{color:#88ff88;}.status.disconnected{color:#ff8888;}.status.listening{color:#ffaa44;}
+        @keyframes speakPulse{0%{transform:scale(1);}50%{transform:scale(1.08);}100%{transform:scale(1);}}
+        .status{font-size:18px;margin-bottom:10px;}.status.connected{color:#88ff88;}.status.disconnected{color:#ff8888;}.status.listening{color:#ffaa44;}.status.speaking{color:#00d4ff;}
         .caller-name{font-size:24px;font-weight:700;color:#00d4ff;margin-bottom:20px;}
         .call-controls{display:flex;justify-content:center;gap:25px;margin:20px 0;}
         .call-btn{width:80px;height:80px;border-radius:50%;border:none;cursor:pointer;transition:0.3s;font-size:32px;}
@@ -59,7 +59,7 @@
         <div class="chat-area" id="chatArea">
             <div id="chatMessages">
                 <div class="chat-message ai">
-                    <div class="chat-bubble">👋 Hi! I'm K-LYNX AI. Tap the microphone and start speaking. I'll listen continuously and respond naturally.<span class="chat-time">Now</span></div>
+                    <div class="chat-bubble">👋 Hi! I'm K-LYNX AI. Tap the microphone and start speaking. I'll respond instantly.<span class="chat-time">Now</span></div>
                 </div>
             </div>
             <div class="chat-input-area">
@@ -74,12 +74,10 @@
 
         let recognition = null;
         let isCallActive = false;
-        let isListening = false;
         let isMuted = false;
-        let speechSynthesis = window.speechSynthesis;
-        let currentUtterance = null;
-        let continuousListening = true;
         let processingResponse = false;
+        let speechQueue = [];
+        let isSpeaking = false;
 
         const AI_API = 'https://jai1-sh81.onrender.com';
         let clientId = localStorage.getItem('klynx_client_id');
@@ -97,83 +95,119 @@
         const chatInput = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendBtn');
 
-        // Initialize speech recognition for continuous listening
+        // Pre-load voices for faster speech
+        let voicesLoaded = false;
+        let preferredVoice = null;
+        
+        function loadVoices() {
+            const voices = window.speechSynthesis.getVoices();
+            // Prefer a natural sounding voice
+            preferredVoice = voices.find(v => v.lang === 'en-US' && (v.name.includes('Google') || v.name.includes('Natural'))) || voices[0];
+            voicesLoaded = true;
+        }
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+        loadVoices();
+
+        // Fast speech function
+        function speakFast(text) {
+            return new Promise((resolve) => {
+                if (!text || text.trim() === '') {
+                    resolve();
+                    return;
+                }
+                
+                // Cancel any ongoing speech
+                window.speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+                utterance.volume = 1;
+                
+                if (preferredVoice) utterance.voice = preferredVoice;
+                
+                utterance.onstart = () => {
+                    isSpeaking = true;
+                    statusDiv.innerHTML = '● Speaking...';
+                    statusDiv.className = 'status speaking';
+                    avatar.classList.remove('listening');
+                    avatar.classList.add('speaking');
+                };
+                
+                utterance.onend = () => {
+                    isSpeaking = false;
+                    if (isCallActive && !processingResponse) {
+                        statusDiv.innerHTML = '● Listening...';
+                        statusDiv.className = 'status listening';
+                        avatar.classList.add('listening');
+                        avatar.classList.remove('speaking');
+                    }
+                    resolve();
+                };
+                
+                utterance.onerror = () => {
+                    isSpeaking = false;
+                    resolve();
+                };
+                
+                window.speechSynthesis.speak(utterance);
+            });
+        }
+
+        // Initialize speech recognition
         function initRecognition() {
             if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
                 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
                 recognition = new SR();
-                recognition.continuous = true;  // Keep listening continuously
-                recognition.interimResults = true;  // Show interim results
+                recognition.continuous = true;
+                recognition.interimResults = true;
                 recognition.lang = 'en-US';
-                recognition.maxAlternatives = 1;
 
                 recognition.onstart = () => {
-                    isListening = true;
-                    statusDiv.innerHTML = '● Listening... Speak now';
-                    statusDiv.className = 'status listening';
-                    avatar.classList.add('listening');
-                    avatar.classList.remove('speaking');
-                    startBtn.style.display = 'none';
-                    muteBtn.style.display = 'flex';
-                    endBtn.style.display = 'flex';
+                    if (isCallActive && !processingResponse && !isSpeaking) {
+                        statusDiv.innerHTML = '● Listening...';
+                        statusDiv.className = 'status listening';
+                        avatar.classList.add('listening');
+                        avatar.classList.remove('speaking');
+                    }
                 };
 
                 recognition.onresult = (event) => {
-                    let finalTranscript = '';
-                    let interimTranscript = '';
+                    if (processingResponse || isSpeaking) return;
                     
+                    let finalTranscript = '';
                     for (let i = event.resultIndex; i < event.results.length; i++) {
-                        const transcript = event.results[i][0].transcript;
                         if (event.results[i].isFinal) {
-                            finalTranscript += transcript;
-                        } else {
-                            interimTranscript += transcript;
+                            finalTranscript += event.results[i][0].transcript;
                         }
                     }
                     
-                    if (finalTranscript) {
-                        // Stop listening temporarily while processing
-                        if (continuousListening && !processingResponse) {
-                            recognition.stop();
-                            processUserMessage(finalTranscript);
-                        }
+                    if (finalTranscript && isCallActive && !processingResponse && !isSpeaking) {
+                        // Stop listening temporarily
+                        try { recognition.stop(); } catch(e) {}
+                        processUserMessage(finalTranscript);
                     }
                 };
 
                 recognition.onerror = (event) => {
-                    console.error('Recognition error:', event.error);
-                    if (event.error === 'no-speech') {
-                        // Continue listening
-                        if (isCallActive && continuousListening) {
-                            setTimeout(() => {
-                                if (isCallActive && !processingResponse) {
-                                    try { recognition.start(); } catch(e) {}
-                                }
-                            }, 500);
-                        }
-                    } else if (event.error === 'network') {
-                        statusDiv.innerHTML = '● Network error - reconnecting...';
+                    if (event.error === 'no-speech' && isCallActive && !processingResponse && !isSpeaking) {
                         setTimeout(() => {
-                            if (isCallActive) {
+                            if (isCallActive && !processingResponse && !isSpeaking && !isMuted) {
                                 try { recognition.start(); } catch(e) {}
                             }
-                        }, 2000);
+                        }, 300);
                     }
                 };
 
                 recognition.onend = () => {
-                    if (isCallActive && continuousListening && !processingResponse) {
-                        // Restart listening after a short delay
+                    if (isCallActive && !processingResponse && !isSpeaking && !isMuted) {
                         setTimeout(() => {
-                            if (isCallActive && !processingResponse) {
+                            if (isCallActive && !processingResponse && !isSpeaking && !isMuted) {
                                 try { recognition.start(); } catch(e) {}
                             }
-                        }, 500);
+                        }, 200);
                     }
                 };
-            } else {
-                statusDiv.innerHTML = '● Voice not supported - use text chat';
-                addMessage("⚠️ Your browser doesn't support voice recognition. Please use the text input instead.", 'ai');
             }
         }
 
@@ -181,19 +215,19 @@
             if (processingResponse) return;
             processingResponse = true;
             
-            // Stop listening while processing
+            // Stop listening
             if (recognition) {
                 try { recognition.stop(); } catch(e) {}
             }
             
-            // Show what user said
+            // Show user message
             addMessage(text, 'user');
             
-            // Show thinking/typing indicator
-            showTyping();
+            // Show thinking state
             statusDiv.innerHTML = '● Thinking...';
-            avatar.classList.remove('listening');
-            avatar.classList.add('speaking');
+            statusDiv.className = 'status';
+            avatar.classList.remove('listening', 'speaking');
+            showTyping();
             
             try {
                 const response = await fetch(`${AI_API}/api/chat`, {
@@ -206,53 +240,33 @@
                     })
                 });
                 const data = await response.json();
-                const reply = data.response || "I received your message. How can I help?";
+                const reply = data.response || "I received your message.";
                 
                 hideTyping();
                 addMessage(reply, 'ai');
                 
-                // Speak the response
-                await speakResponse(reply);
+                // Speak the response immediately
+                await speakFast(reply);
                 
             } catch (err) {
                 hideTyping();
-                addMessage("Sorry, I'm having trouble responding.", 'ai');
+                addMessage("Sorry, I'm having trouble.", 'ai');
+                await speakFast("Sorry, I'm having trouble responding right now.");
             } finally {
                 processingResponse = false;
-                statusDiv.innerHTML = '● Listening... Speak now';
-                avatar.classList.add('listening');
-                avatar.classList.remove('speaking');
                 
-                // Resume listening
-                if (isCallActive && continuousListening && recognition) {
+                // Resume listening after a short delay
+                if (isCallActive && !isMuted) {
                     setTimeout(() => {
-                        if (isCallActive && !processingResponse) {
+                        if (isCallActive && !processingResponse && !isSpeaking) {
                             try { recognition.start(); } catch(e) {}
+                            statusDiv.innerHTML = '● Listening...';
+                            statusDiv.className = 'status listening';
+                            avatar.classList.add('listening');
                         }
                     }, 500);
                 }
             }
-        }
-
-        function speakResponse(text) {
-            return new Promise((resolve) => {
-                if (currentUtterance) {
-                    speechSynthesis.cancel();
-                }
-                currentUtterance = new SpeechSynthesisUtterance(text);
-                currentUtterance.rate = 0.9;
-                currentUtterance.pitch = 1;
-                currentUtterance.volume = 1;
-                currentUtterance.onend = () => {
-                    currentUtterance = null;
-                    resolve();
-                };
-                currentUtterance.onerror = () => {
-                    currentUtterance = null;
-                    resolve();
-                };
-                speechSynthesis.speak(currentUtterance);
-            });
         }
 
         function startCall() {
@@ -260,8 +274,10 @@
                 initRecognition();
             }
             isCallActive = true;
-            continuousListening = true;
-            statusDiv.innerHTML = '● Listening... Speak now';
+            isMuted = false;
+            muteBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            muteBtn.classList.remove('active');
+            statusDiv.innerHTML = '● Listening...';
             statusDiv.className = 'status listening';
             avatar.classList.add('listening');
             startBtn.style.display = 'none';
@@ -269,28 +285,21 @@
             endBtn.style.display = 'flex';
             
             if (recognition) {
-                try {
-                    recognition.start();
-                } catch(e) {
-                    console.log('Recognition already started');
-                }
+                try { recognition.start(); } catch(e) {}
             }
         }
 
         function endCall() {
             isCallActive = false;
-            continuousListening = false;
             processingResponse = false;
             
             if (recognition) {
                 try { recognition.stop(); } catch(e) {}
             }
-            if (currentUtterance) {
-                speechSynthesis.cancel();
-                currentUtterance = null;
-            }
+            window.speechSynthesis.cancel();
+            isSpeaking = false;
             
-            statusDiv.innerHTML = '● Call ended - tap microphone to start';
+            statusDiv.innerHTML = '● Call ended';
             statusDiv.className = 'status disconnected';
             avatar.classList.remove('listening', 'speaking');
             startBtn.style.display = 'flex';
@@ -306,12 +315,12 @@
                 }
                 muteBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
                 muteBtn.classList.add('active');
-                statusDiv.innerHTML = '● Muted - tap mic to unmute';
+                statusDiv.innerHTML = '● Muted';
             } else {
                 muteBtn.innerHTML = '<i class="fas fa-microphone"></i>';
                 muteBtn.classList.remove('active');
-                statusDiv.innerHTML = '● Listening... Speak now';
-                if (isCallActive && recognition) {
+                statusDiv.innerHTML = '● Listening...';
+                if (isCallActive && !processingResponse && !isSpeaking) {
                     try { recognition.start(); } catch(e) {}
                 }
             }
@@ -326,42 +335,13 @@
                 startCall();
             }
             
-            processingResponse = true;
+            if (processingResponse) return;
+            
             if (recognition) {
                 try { recognition.stop(); } catch(e) {}
             }
             
-            addMessage(text, 'user');
-            showTyping();
-            statusDiv.innerHTML = '● Thinking...';
-            
-            try {
-                const response = await fetch(`${AI_API}/api/chat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        message: text,
-                        clientId: clientId,
-                        options: { speech: false }
-                    })
-                });
-                const data = await response.json();
-                const reply = data.response || "Got it!";
-                hideTyping();
-                addMessage(reply, 'ai');
-                await speakResponse(reply);
-            } catch (err) {
-                hideTyping();
-                addMessage("Sorry, error.", 'ai');
-            } finally {
-                processingResponse = false;
-                statusDiv.innerHTML = '● Listening... Speak now';
-                if (isCallActive && recognition && !isMuted) {
-                    setTimeout(() => {
-                        try { recognition.start(); } catch(e) {}
-                    }, 500);
-                }
-            }
+            await processUserMessage(text);
         }
 
         function addMessage(text, sender) {
