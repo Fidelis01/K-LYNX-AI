@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>K-LYNX AI++ - AI Powered Meetings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Open Sans',sans-serif;background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);min-height:100vh;}
+        .back-btn{position:fixed;top:20px;left:20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:10px 20px;border-radius:25px;color:white;text-decoration:none;transition:0.3s;z-index:100;font-size:14px;display:flex;align-items:center;gap:8px;}
+        .back-btn:hover{background:rgba(0,212,255,0.2);border-color:#00d4ff;}
+        .container{max-width:1000px;margin:0 auto;padding:80px 20px 40px;}
+        .header-section{text-align:center;margin-bottom:30px;}
+        .header-section h1{font-size:48px;background:linear-gradient(135deg,#00d4ff,#00ffaa);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:15px;}
+        .header-section p{color:rgba(255,255,255,0.7);font-size:18px;}
+        
+        .mode-selector{display:flex;justify-content:center;gap:15px;margin-bottom:30px;flex-wrap:wrap;}
+        .mode-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:12px 24px;border-radius:40px;color:white;cursor:pointer;transition:0.3s;font-weight:600;}
+        .mode-btn.active,.mode-btn:hover{background:linear-gradient(135deg,#00d4ff,#00ffaa);color:#0F172A;border-color:transparent;}
+        
+        .meeting-card{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border-radius:30px;padding:30px;border:1px solid rgba(0,212,255,0.3);margin-bottom:20px;}
+        .section-title{color:#00d4ff;font-size:20px;margin-bottom:15px;display:flex;align-items:center;gap:10px;}
+        .input-group{margin-bottom:20px;}
+        .input-group label{display:block;color:rgba(255,255,255,0.9);margin-bottom:8px;font-weight:600;}
+        .input-group input,.input-group textarea,.input-group select{width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:12px;color:white;font-size:14px;font-family:'Open Sans',sans-serif;}
+        .input-group input:focus,.input-group textarea:focus,.input-group select:focus{outline:none;border-color:#00d4ff;}
+        .input-group textarea{min-height:120px;resize:vertical;}
+        .row-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+        
+        .action-btn{background:linear-gradient(135deg,#00d4ff,#00ffaa);color:#0F172A;padding:14px;border:none;border-radius:40px;font-size:16px;font-weight:700;cursor:pointer;transition:0.3s;width:100%;margin-top:10px;}
+        .action-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,212,255,0.3);}
+        .action-btn:disabled{opacity:0.5;cursor:not-allowed;}
+        
+        .output-area{background:rgba(0,0,0,0.3);border-radius:15px;padding:20px;margin-top:20px;max-height:400px;overflow-y:auto;}
+        .output-text{color:rgba(255,255,255,0.9);line-height:1.6;white-space:pre-wrap;}
+        .output-actions{display:flex;gap:10px;margin-top:15px;justify-content:flex-end;}
+        .small-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:8px 16px;border-radius:20px;color:white;cursor:pointer;font-size:12px;}
+        .small-btn:hover{background:rgba(0,212,255,0.2);border-color:#00d4ff;}
+        
+        .loading{display:none;text-align:center;padding:20px;}
+        .spinner{width:40px;height:40px;border:3px solid rgba(0,212,255,0.3);border-top-color:#00d4ff;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 10px;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+        
+        .example-chip{display:inline-block;background:rgba(255,255,255,0.1);padding:6px 12px;border-radius:20px;font-size:11px;cursor:pointer;margin:5px;}
+        .example-chip:hover{background:rgba(0,212,255,0.3);color:#00d4ff;}
+        
+        @media (max-width:768px){.container{padding:70px 15px 30px;}.header-section h1{font-size:32px;}.mode-btn{padding:8px 16px;font-size:12px;}.row-2{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+    <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    <div class="container">
+        <div class="header-section">
+            <h1>🎥 AI Powered Meetings</h1>
+            <p>AI joins your meetings, takes notes, summarizes discussions, and extracts action items</p>
+        </div>
+        
+        <div class="mode-selector">
+            <button class="mode-btn active" data-mode="notes">📝 Meeting Notes</button>
+            <button class="mode-btn" data-mode="summary">📊 Summary</button>
+            <button class="mode-btn" data-mode="action">✅ Action Items</button>
+            <button class="mode-btn" data-mode="transcript">📜 Transcript</button>
+        </div>
+        
+        <div class="meeting-card">
+            <div class="section-title"><i class="fas fa-edit"></i> Meeting Details</div>
+            <div class="row-2">
+                <div class="input-group"><label>📅 Meeting Title</label><input type="text" id="meetingTitle" placeholder="e.g., Weekly Team Sync"></div>
+                <div class="input-group"><label>👥 Attendees</label><input type="text" id="attendees" placeholder="Names, separated by commas"></div>
+            </div>
+            <div class="input-group"><label>📝 Meeting Notes / Transcript</label><textarea id="meetingNotes" placeholder="Paste your meeting notes, transcript, or key discussion points here..."></textarea></div>
+            <div class="input-group"><label>🎯 Meeting Goal / Agenda (optional)</label><textarea id="agenda" placeholder="What was the purpose of this meeting?"></textarea></div>
+            <div><span class="example-chip" onclick="setExample('sales')">📈 Sales Meeting</span>
+            <span class="example-chip" onclick="setExample('tech')">💻 Tech Standup</span>
+            <span class="example-chip" onclick="setExample('project')">🚀 Project Review</span>
+            <span class="example-chip" onclick="setExample('client')">🤝 Client Call</span></div>
+            <button class="action-btn" id="processBtn"><i class="fas fa-magic"></i> Process Meeting</button>
+        </div>
+        
+        <div class="meeting-card" id="outputCard" style="display:none;">
+            <div class="section-title" id="outputTitle"><i class="fas fa-file-alt"></i> Meeting Output</div>
+            <div class="output-area" id="outputArea"><div class="output-text" id="outputText"></div></div>
+            <div class="output-actions">
+                <button class="small-btn" id="copyBtn"><i class="fas fa-copy"></i> Copy</button>
+                <button class="small-btn" id="downloadBtn"><i class="fas fa-download"></i> Download</button>
+                <button class="small-btn" id="clearBtn"><i class="fas fa-trash"></i> Clear</button>
+            </div>
+        </div>
+        
+        <div class="loading" id="loading"><div class="spinner"></div><p>AI is processing the meeting...</p></div>
+    </div>
+    
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = '/login.html';
+        
+        const AI_API = 'https://jai1-sh81.onrender.com';
+        let clientId = localStorage.getItem('klynx_client_id');
+        if (!clientId) {
+            clientId = 'meeting_' + Date.now();
+            localStorage.setItem('klynx_client_id', clientId);
+        }
+        
+        let currentMode = 'notes';
+        let currentOutput = '';
+        
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentMode = btn.dataset.mode;
+                updateOutputTitle();
+            };
+        });
+        
+        function updateOutputTitle() {
+            const titles = {
+                notes: '<i class="fas fa-file-alt"></i> Meeting Notes',
+                summary: '<i class="fas fa-chart-line"></i> Meeting Summary',
+                action: '<i class="fas fa-check-circle"></i> Action Items',
+                transcript: '<i class="fas fa-scroll"></i> Cleaned Transcript'
+            };
+            document.getElementById('outputTitle').innerHTML = titles[currentMode] || titles.notes;
+        }
+        
+        function setExample(type) {
+            if (type === 'sales') {
+                document.getElementById('meetingTitle').value = 'Q4 Sales Strategy Meeting';
+                document.getElementById('attendees').value = 'Sarah (Sales Lead), John (Marketing), Lisa (Product)';
+                document.getElementById('meetingNotes').value = `Discussed Q4 targets and strategies. 
+Sarah reported current sales are at 75% of target. Need to increase by 25% in Q4.
+John suggested a new email campaign targeting existing customers.
+Lisa mentioned the new product launch in October could boost sales.
+Action items: 
+- John to create email campaign by Friday
+- Sarah to reach out to top 20 clients
+- Lisa to prepare product demo for sales team
+Next meeting scheduled for next Monday at 10am.`;
+                document.getElementById('agenda').value = 'Increase Q4 sales by 25%, plan marketing campaign, coordinate product launch';
+            } else if (type === 'tech') {
+                document.getElementById('meetingTitle').value = 'Daily Dev Standup';
+                document.getElementById('attendees').value = 'Alex, Maria, James, David';
+                document.getElementById('meetingNotes').value = `Daily standup - 9/15/2026
+Alex: Completed API integration for user auth. Working on rate limiting today. Blocked by database migration.
+Maria: Finished frontend components for dashboard. Starting testing today. No blockers.
+James: Fixed bugs in payment system. Need code review from Alex.
+David: Researching new deployment options. Will present findings tomorrow.
+Next steps: Alex to review James's code, Maria to continue testing, David to prepare presentation.`;
+                document.getElementById('agenda').value = 'Daily progress updates, blockers, and next steps';
+            } else if (type === 'project') {
+                document.getElementById('meetingTitle').value = 'Website Redesign Project Review';
+                document.getElementById('attendees').value = 'PM, Design Team, Dev Team, QA';
+                document.getElementById('meetingNotes').value = `Project status: 60% complete
+Design: Homepage and product pages ready. Need feedback on mobile layout.
+Development: Backend API 80% done. Frontend integration starting next week.
+QA: Ready to start testing on staging environment next Tuesday.
+Risks: Third-party API might cause delays.
+Decisions: Launch date moved to Nov 15.
+Action items:
+- Design team to finalize mobile layout by Thursday
+- Dev team to complete API by Friday
+- QA to prepare test cases`;
+                document.getElementById('agenda').value = 'Review progress, identify risks, set milestones';
+            } else if (type === 'client') {
+                document.getElementById('meetingTitle').value = 'Client Requirements Gathering';
+                document.getElementById('attendees').value = 'Client: John Smith, Team: Mike, Anna, Tom';
+                document.getElementById('meetingNotes').value = `Client needs: Mobile app with push notifications, user profiles, and payment integration.
+Budget: $50,000 - $70,000
+Timeline: 4 months
+Key requirements:
+- iOS and Android support
+- Real-time chat feature
+- Analytics dashboard
+- Admin panel
+Client will provide design assets by next week.
+Follow-up meeting on Friday to review proposal.`;
+                document.getElementById('agenda').value = 'Gather requirements, define scope, estimate timeline';
+            }
+        }
+        
+        async function processMeeting() {
+            const notes = document.getElementById('meetingNotes').value.trim();
+            const title = document.getElementById('meetingTitle').value.trim();
+            const attendees = document.getElementById('attendees').value.trim();
+            const agenda = document.getElementById('agenda').value.trim();
+            
+            if (!notes) {
+                alert('Please enter meeting notes or transcript!');
+                return;
+            }
+            
+            const btn = document.getElementById('processBtn');
+            const loading = document.getElementById('loading');
+            const outputCard = document.getElementById('outputCard');
+            
+            btn.disabled = true;
+            loading.style.display = 'block';
+            outputCard.style.display = 'none';
+            
+            let prompt = '';
+            
+            if (currentMode === 'notes') {
+                prompt = `You are an AI meeting assistant. Based on the following meeting notes, create a clean, organized set of meeting notes. Include: Meeting Title (${title || 'Untitled'}), Date (today), Attendees (${attendees || 'Not specified'}), Agenda/Goal (${agenda || 'Not specified'}), Key Discussion Points, Decisions Made, and Action Items with owners and deadlines.
+
+Meeting Notes:
+${notes}
+
+Format the notes professionally with clear sections and bullet points.`;
+            } else if (currentMode === 'summary') {
+                prompt = `You are an AI meeting assistant. Based on the following meeting notes, create a concise executive summary (1-2 paragraphs) highlighting the most important outcomes, decisions, and next steps.
+
+Meeting Title: ${title || 'Untitled'}
+Attendees: ${attendees || 'Not specified'}
+Goal: ${agenda || 'Not specified'}
+
+Meeting Notes:
+${notes}
+
+Provide a clear, actionable summary.`;
+            } else if (currentMode === 'action') {
+                prompt = `You are an AI meeting assistant. Extract all action items from the following meeting notes. For each action item, include: Task description, Owner (person responsible), and Deadline if mentioned.
+
+Meeting Title: ${title || 'Untitled'}
+
+Meeting Notes:
+${notes}
+
+Format as a numbered list of action items. Mark high-priority items with [URGENT] or [HIGH PRIORITY].`;
+            } else if (currentMode === 'transcript') {
+                prompt = `You are an AI meeting assistant. Clean and organize the following meeting transcript. Remove filler words, correct grammar, and format as a professional meeting transcript with speaker labels and clear sections.
+
+Meeting Title: ${title || 'Untitled'}
+
+Original Transcript:
+${notes}
+
+Provide a cleaned, organized transcript.`;
+            }
+            
+            try {
+                const response = await fetch(`${AI_API}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: prompt,
+                        clientId: clientId,
+                        options: { speech: false }
+                    })
+                });
+                const data = await response.json();
+                currentOutput = data.response || "Could not process meeting notes.";
+                
+                document.getElementById('outputText').innerHTML = escapeHtml(currentOutput).replace(/\n/g, '<br>');
+                outputCard.style.display = 'block';
+                
+            } catch (err) {
+                alert('Error processing meeting: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+        
+        function copyOutput() {
+            if (!currentOutput) return;
+            navigator.clipboard.writeText(currentOutput);
+            alert('✅ Copied to clipboard!');
+        }
+        
+        function downloadOutput() {
+            if (!currentOutput) return;
+            const title = document.getElementById('meetingTitle').value.trim() || 'meeting';
+            const filename = `${title}_${currentMode}_${Date.now()}.txt`;
+            const blob = new Blob([currentOutput], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function clearOutput() {
+            currentOutput = '';
+            document.getElementById('outputText').innerHTML = '';
+            document.getElementById('outputCard').style.display = 'none';
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        document.getElementById('processBtn').onclick = processMeeting;
+        document.getElementById('copyBtn').onclick = copyOutput;
+        document.getElementById('downloadBtn').onclick = downloadOutput;
+        document.getElementById('clearBtn').onclick = clearOutput;
+    </script>
+</body>
+</html>
