@@ -21,7 +21,6 @@
         position: relative;
     }
 
-    /* Profile Icon - Top Right */
     .profile-icon {
         position: fixed;
         top: 20px;
@@ -49,7 +48,6 @@
         font-size: 20px;
     }
 
-    /* Back Button - Top Left */
     .back-btn {
         position: fixed;
         top: 20px;
@@ -108,6 +106,7 @@
         padding: 12px 18px;
         border-radius: 20px;
         word-wrap: break-word;
+        line-height: 1.5;
     }
 
     .user .message-content {
@@ -255,10 +254,8 @@
 </head>
 <body>
 
-    <!-- Back Button -->
     <a href="/index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
     
-    <!-- Profile Icon -->
     <div class="profile-icon" onclick="logout()">
         <i class="fas fa-sign-out-alt"></i>
     </div>
@@ -290,17 +287,14 @@
     </div>
 
     <script>
-        // JAI API Endpoint
         const JAI_API_URL = 'https://jai1-sh81.onrender.com';
         
-        // Generate or retrieve client ID
         let clientId = localStorage.getItem('klynx_client_id');
         if (!clientId) {
             clientId = 'klynx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             localStorage.setItem('klynx_client_id', clientId);
         }
         
-        // Simple logout function (clears local storage)
         function logout() {
             if (confirm('Are you sure you want to logout?')) {
                 localStorage.removeItem('klynx_client_id');
@@ -357,7 +351,6 @@
                         addMessage(reply, 'ai');
                         return;
                     } else if (response.status === 503 || response.status === 429) {
-                        // Rate limited or server spinning up, wait and retry
                         if (i < retries) {
                             await new Promise(resolve => setTimeout(resolve, delay));
                             delay *= 2;
@@ -430,12 +423,13 @@
             
             const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
-            // Preserve line breaks in the message
-            const formattedText = text.replace(/\n/g, '<br>');
+            // Escape HTML to prevent XSS, then convert newlines to <br> tags
+            let formattedText = escapeHtml(text);
+            formattedText = formattedText.replace(/\n/g, '<br>');
             
             messageDiv.innerHTML = `
                 <div class="message-content">
-                    ${escapeHtml(formattedText)}
+                    ${formattedText}
                     <span class="message-time">${time}</span>
                 </div>
             `;
@@ -446,7 +440,6 @@
 
         function showTypingIndicator() {
             const messagesArea = document.getElementById('messagesArea');
-            // Remove existing typing indicator if any
             hideTypingIndicator();
             const typingDiv = document.createElement('div');
             typingDiv.className = 'message ai';
@@ -473,12 +466,11 @@
             return div.innerHTML;
         }
         
-        // Test connection on load
         async function testConnection() {
             try {
                 const response = await fetch(`${JAI_API_URL}/health`, { method: 'GET' });
                 if (response.ok) {
-                    console.log('JAI API is connected');
+                    console.log('Connected to JAI API');
                 }
             } catch (error) {
                 console.log('JAI API may be spinning up');
