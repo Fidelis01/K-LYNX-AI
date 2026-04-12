@@ -6,6 +6,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const archiver = require('archiver');
 const fs = require('fs');
+const http = require('http');
+const WebSocket = require('ws');
 require('dotenv').config();
 
 const app = express();
@@ -15,6 +17,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
+// Create HTTP server for WebSocket
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+// Store active WebSocket connections
+const wsClients = new Map();
+
 // Simple session storage (in production, use a proper session store)
 const adminSessions = new Map();
 
@@ -23,6 +32,9 @@ const db = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: false
 });
+
+// AI API URL
+const AI_API_URL = process.env.AI_API_URL || 'https://jai1-sh81.onrender.com';
 
 // Create users table
 async function initDB() {
@@ -43,6 +55,91 @@ async function initDB() {
     }
 }
 initDB();
+
+// ============ WEBSOCKET VOICE CALL HANDLER ============
+
+wss.on('connection', (ws, req) => {
+    const clientId = Date.now().toString() + '_' + Math.random().toString(36).substr(2, 9);
+    wsClients.set(clientId, { ws, lastActivity: Date.now(), context: {} });
+    console.log(`🎤 Voice client ${clientId} connected`);
+
+    ws.on('message', async (data) => {
+        try {
+            const message = JSON.parse(data);
+            
+            if (message.type === 'voice') {
+                // Process voice message and get AI response
+                const client = wsClients.get(clientId);
+                const aiResponse = await getAIResponse(message.text, client.context);
+                
+                // Update context for conversation continuity
+                client.context.lastMessage = message.text;
+                client.context.lastResponse = aiResponse;
+                wsClients.set(clientId, client);
+                
+                // Send response back
+                ws.send(JSON.stringify({ 
+                    type: 'response', 
+                    text: aiResponse,
+                    timestamp: Date.now()
+                }));
+            }
+            
+            if (message.type === 'ping') {
+                ws.send(JSON.stringify({ type: 'pong' }));
+                const client = wsClients.get(clientId);
+                if (client) {
+                    client.lastActivity = Date.now();
+                    wsClients.set(clientId, client);
+                }
+            }
+            
+            if (message.type === 'context') {
+                const client = wsClients.get(clientId);
+                client.context = { ...client.context, ...message.data };
+                wsClients.set(clientId, client);
+            }
+            
+        } catch (err) {
+            console.error('WebSocket message error:', err);
+            ws.send(JSON.stringify({ type: 'error', text: 'Failed to process message' }));
+        }
+    });
+
+    ws.on('close', () => {
+        wsClients.delete(clientId);
+        console.log(`🎤 Voice client ${clientId} disconnected`);
+    });
+});
+
+// AI response function for voice calls
+async function getAIResponse(userMessage, context) {
+    try {
+        const response = await fetch(`${AI_API_URL}/api/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: userMessage,
+                clientId: context.clientId || 'voice-call-' + Date.now(),
+                options: { speech: false }
+            })
+        });
+        const data = await response.json();
+        return data.response || "I received your message. How can I help you today?";
+    } catch (error) {
+        console.error('AI API error:', error);
+        return "Sorry, I'm having trouble responding right now. Please try again in a moment.";
+    }
+}
+
+// Health check for WebSocket
+app.get('/api/ws-status', (req, res) => {
+    res.json({ 
+        status: 'online', 
+        clients: wsClients.size,
+        timestamp: new Date().toISOString()
+    });
+});
 
 // ============ ADMIN AUTH ============
 
@@ -249,9 +346,11 @@ app.get('/signup.html', (req, res) => res.sendFile(path.join(__dirname, 'public'
 app.get('/chat.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'chat.html')));
 app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 
-// Start server
+
+// Start server with WebSocket support
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📱 Visit: https://klynxai.onrender.com/signup.html`);
+server.listen(PORT, () => {
+    console.log(`🚀 HTTP Server running on port ${PORT}`);
+    console.log(`🔌 WebSocket Server running on ws://localhost:${PORT}`);
+    console.log(`📱 Visit: https://klynxai.onrender.com`);
 });
