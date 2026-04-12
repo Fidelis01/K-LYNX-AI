@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>K-LYNX AI++ - Private Journal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Open Sans',sans-serif;background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);min-height:100vh;}
+        .back-btn{position:fixed;top:20px;left:20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:10px 20px;border-radius:25px;color:white;text-decoration:none;transition:0.3s;z-index:100;font-size:14px;display:flex;align-items:center;gap:8px;}
+        .back-btn:hover{background:rgba(0,212,255,0.2);border-color:#00d4ff;}
+        .container{max-width:900px;margin:0 auto;padding:80px 20px 40px;}
+        .header-section{text-align:center;margin-bottom:30px;}
+        .header-section h1{font-size:48px;background:linear-gradient(135deg,#00d4ff,#00ffaa);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:15px;}
+        .header-section p{color:rgba(255,255,255,0.7);font-size:18px;}
+        
+        .journal-card{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border-radius:30px;padding:30px;border:1px solid rgba(0,212,255,0.3);margin-bottom:20px;}
+        .section-title{color:#00d4ff;font-size:20px;margin-bottom:15px;display:flex;align-items:center;gap:10px;}
+        .input-group{margin-bottom:20px;}
+        .input-group label{display:block;color:rgba(255,255,255,0.9);margin-bottom:8px;font-weight:600;}
+        .input-group input,.input-group textarea,.input-group select{width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:12px;color:white;font-size:14px;font-family:'Open Sans',sans-serif;}
+        .input-group input:focus,.input-group textarea:focus,.input-group select:focus{outline:none;border-color:#00d4ff;}
+        .input-group textarea{min-height:180px;resize:vertical;}
+        .row-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+        
+        .action-btn{background:linear-gradient(135deg,#00d4ff,#00ffaa);color:#0F172A;padding:14px;border:none;border-radius:40px;font-size:16px;font-weight:700;cursor:pointer;transition:0.3s;width:100%;margin-top:10px;}
+        .action-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,212,255,0.3);}
+        
+        .journal-list{max-height:400px;overflow-y:auto;}
+        .journal-item{background:rgba(0,0,0,0.3);border-radius:15px;padding:15px;margin-bottom:15px;cursor:pointer;transition:0.3s;border-left:3px solid #00d4ff;}
+        .journal-item:hover{background:rgba(0,212,255,0.1);transform:translateX(5px);}
+        .journal-title{font-size:18px;font-weight:600;color:#00d4ff;margin-bottom:5px;}
+        .journal-date{font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:8px;}
+        .journal-preview{font-size:13px;color:rgba(255,255,255,0.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .journal-mood{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;margin-top:5px;}
+        .mood-happy{background:rgba(0,255,100,0.2);color:#88ff88;}
+        .mood-sad{background:rgba(68,68,255,0.2);color:#8888ff;}
+        .mood-angry{background:rgba(255,68,68,0.2);color:#ff8888;}
+        .mood-anxious{background:rgba(255,170,0,0.2);color:#ffaa44;}
+        .mood-grateful{background:rgba(0,212,255,0.2);color:#00d4ff;}
+        
+        .delete-btn{background:rgba(255,68,68,0.2);border:1px solid #ff4444;color:#ff8888;padding:5px 12px;border-radius:8px;cursor:pointer;font-size:12px;}
+        .delete-btn:hover{background:#ff4444;color:white;}
+        .entry-actions{display:flex;gap:10px;margin-top:15px;justify-content:flex-end;}
+        
+        .empty-state{text-align:center;padding:40px;color:rgba(255,255,255,0.5);}
+        .loading{display:none;text-align:center;padding:20px;}
+        .spinner{width:40px;height:40px;border:3px solid rgba(0,212,255,0.3);border-top-color:#00d4ff;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 10px;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+        
+        .mood-selector{display:flex;gap:15px;margin-bottom:20px;flex-wrap:wrap;}
+        .mood-option{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:8px 16px;border-radius:30px;cursor:pointer;transition:0.3s;}
+        .mood-option:hover,.mood-option.selected{background:linear-gradient(135deg,#00d4ff,#00ffaa);color:#0F172A;border-color:transparent;}
+        
+        @media (max-width:768px){.container{padding:70px 15px 30px;}.header-section h1{font-size:32px;}.row-2{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+    <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    <div class="container">
+        <div class="header-section">
+            <h1>📓 Private Journal</h1>
+            <p>A safe, encrypted space for your thoughts, reflections, and personal growth</p>
+        </div>
+        
+        <div class="journal-card">
+            <div class="section-title"><i class="fas fa-feather-alt"></i> Write New Entry</div>
+            <div class="row-2">
+                <div class="input-group"><label>📝 Title</label><input type="text" id="entryTitle" placeholder="What's on your mind?"></div>
+                <div class="input-group"><label>🏷️ Tags (comma separated)</label><input type="text" id="entryTags" placeholder="e.g., work, growth, gratitude"></div>
+            </div>
+            <div class="input-group"><label>💭 Your Thoughts</label><textarea id="entryContent" placeholder="Write freely... No judgment, just honesty."></textarea></div>
+            <div class="input-group"><label>😊 How are you feeling?</label></div>
+            <div class="mood-selector">
+                <div class="mood-option" data-mood="happy">😊 Happy</div>
+                <div class="mood-option" data-mood="sad">😢 Sad</div>
+                <div class="mood-option" data-mood="angry">😠 Angry</div>
+                <div class="mood-option" data-mood="anxious">😰 Anxious</div>
+                <div class="mood-option" data-mood="grateful">🙏 Grateful</div>
+                <div class="mood-option" data-mood="neutral">😐 Neutral</div>
+            </div>
+            <button class="action-btn" id="saveBtn"><i class="fas fa-save"></i> Save Entry</button>
+        </div>
+        
+        <div class="journal-card">
+            <div class="section-title"><i class="fas fa-book-open"></i> Your Journal</div>
+            <div id="journalList" class="journal-list">
+                <div class="empty-state">No entries yet. Write your first journal entry above.</div>
+            </div>
+        </div>
+        
+        <div class="loading" id="loading"><div class="spinner"></div><p>Saving...</p></div>
+    </div>
+    
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = '/login.html';
+        
+        let journals = [];
+        let selectedMood = 'neutral';
+        
+        // Load journals from localStorage
+        function loadJournals() {
+            const saved = localStorage.getItem('klynx_journals');
+            if (saved) {
+                journals = JSON.parse(saved);
+            }
+            displayJournals();
+        }
+        
+        function saveJournals() {
+            localStorage.setItem('klynx_journals', JSON.stringify(journals));
+            displayJournals();
+        }
+        
+        function displayJournals() {
+            const container = document.getElementById('journalList');
+            if (journals.length === 0) {
+                container.innerHTML = '<div class="empty-state">📭 No entries yet. Write your first journal entry above.</div>';
+                return;
+            }
+            
+            // Sort by date (newest first)
+            const sorted = [...journals].reverse();
+            
+            container.innerHTML = sorted.map(journal => {
+                const moodClass = getMoodClass(journal.mood);
+                const moodEmoji = getMoodEmoji(journal.mood);
+                return `
+                    <div class="journal-item" onclick="viewEntry(${journal.id})">
+                        <div class="journal-title">${escapeHtml(journal.title)}</div>
+                        <div class="journal-date">📅 ${journal.date} ${moodEmoji ? `• ${moodEmoji}` : ''}</div>
+                        <div class="journal-preview">${escapeHtml(journal.content.substring(0, 100))}${journal.content.length > 100 ? '...' : ''}</div>
+                        ${journal.tags ? `<div style="font-size:10px;color:#00d4ff;margin-top:5px;">🏷️ ${escapeHtml(journal.tags)}</div>` : ''}
+                        <span class="journal-mood ${moodClass}">${moodEmoji} ${journal.mood}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function getMoodClass(mood) {
+            const classes = {
+                happy: 'mood-happy', sad: 'mood-sad', angry: 'mood-angry',
+                anxious: 'mood-anxious', grateful: 'mood-grateful', neutral: 'mood-neutral'
+            };
+            return classes[mood] || 'mood-neutral';
+        }
+        
+        function getMoodEmoji(mood) {
+            const emojis = {
+                happy: '😊', sad: '😢', angry: '😠', anxious: '😰', grateful: '🙏', neutral: '😐'
+            };
+            return emojis[mood] || '😐';
+        }
+        
+        function saveEntry() {
+            const title = document.getElementById('entryTitle').value.trim();
+            const content = document.getElementById('entryContent').value.trim();
+            const tags = document.getElementById('entryTags').value.trim();
+            
+            if (!title || !content) {
+                alert('Please add a title and content for your journal entry!');
+                return;
+            }
+            
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            
+            const newEntry = {
+                id: Date.now(),
+                title: title,
+                content: content,
+                tags: tags,
+                mood: selectedMood,
+                date: dateStr,
+                time: timeStr,
+                createdAt: now.toISOString()
+            };
+            
+            journals.push(newEntry);
+            saveJournals();
+            
+            // Clear form
+            document.getElementById('entryTitle').value = '';
+            document.getElementById('entryContent').value = '';
+            document.getElementById('entryTags').value = '';
+            document.querySelectorAll('.mood-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelector('.mood-option[data-mood="neutral"]').classList.add('selected');
+            selectedMood = 'neutral';
+            
+            alert('✅ Journal entry saved!');
+        }
+        
+        function viewEntry(id) {
+            const entry = journals.find(j => j.id === id);
+            if (!entry) return;
+            
+            const moodEmoji = getMoodEmoji(entry.mood);
+            const confirmDelete = confirm(`View entry: "${entry.title}"\n\n${entry.content}\n\n---\n📅 ${entry.date} at ${entry.time}\n😊 Mood: ${moodEmoji} ${entry.mood}\n🏷️ Tags: ${entry.tags || 'None'}\n\nDo you want to delete this entry?`);
+            
+            if (confirmDelete) {
+                deleteEntry(id);
+            }
+        }
+        
+        function deleteEntry(id) {
+            if (confirm('Are you sure you want to delete this journal entry? This cannot be undone.')) {
+                journals = journals.filter(j => j.id !== id);
+                saveJournals();
+                alert('✅ Entry deleted.');
+            }
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Mood selector
+        document.querySelectorAll('.mood-option').forEach(opt => {
+            opt.onclick = () => {
+                document.querySelectorAll('.mood-option').forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+                selectedMood = opt.dataset.mood;
+            };
+        });
+        
+        // Set default mood
+        document.querySelector('.mood-option[data-mood="neutral"]').classList.add('selected');
+        
+        // Save button
+        document.getElementById('saveBtn').onclick = saveEntry;
+        
+        // Load journals on page load
+        loadJournals();
+    </script>
+</body>
+</html>
