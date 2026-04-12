@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-LYNX AI++ - Creative Engine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            min-height: 100vh;
+        }
+
+        /* Back Button */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: white;
+            text-decoration: none;
+            transition: 0.3s;
+            z-index: 100;
+            font-size: 14px;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+        }
+
+        /* Profile Icon */
+        .profile-icon {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d4ff, #00ffaa);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.3s;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .profile-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .profile-icon i {
+            color: #0F172A;
+            font-size: 20px;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 20px 40px;
+        }
+
+        /* Header Section */
+        .header-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header-section h1 {
+            font-size: 48px;
+            background: linear-gradient(135deg, #00d4ff, #00ffaa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .header-section p {
+            color: rgba(255,255,255,0.7);
+            font-size: 18px;
+        }
+
+        /* Mode Selector */
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 12px 24px;
+            border-radius: 40px;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: 600;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #00d4ff, #00ffaa);
+            color: #0F172A;
+            border-color: transparent;
+        }
+
+        .mode-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+        }
+
+        /* Input Section */
+        .input-section {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(0,212,255,0.3);
+        }
+
+        .input-section textarea {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            color: white;
+            font-size: 16px;
+            font-family: 'Open Sans', sans-serif;
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .input-section textarea:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 10px rgba(0,212,255,0.3);
+        }
+
+        .input-section textarea::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Generate Button */
+        .generate-btn {
+            background: linear-gradient(135deg, #00d4ff, #00ffaa);
+            color: #0F172A;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,212,255,0.3);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Output Section */
+        .output-section {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(0,212,255,0.3);
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .output-header h3 {
+            color: #00d4ff;
+            font-size: 20px;
+        }
+
+        .output-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 12px;
+        }
+
+        .action-btn:hover {
+            background: rgba(0,212,255,0.2);
+            border-color: #00d4ff;
+        }
+
+        .output-content {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 300px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.9);
+        }
+
+        /* Loading Indicator */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0,212,255,0.3);
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Examples */
+        .examples {
+            margin-top: 20px;
+        }
+
+        .example-chip {
+            display: inline-block;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            margin: 5px;
+            transition: 0.3s;
+        }
+
+        .example-chip:hover {
+            background: rgba(0,212,255,0.3);
+            color: #00d4ff;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(0,212,255,0.3);
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 70px 15px 30px; }
+            .header-section h1 { font-size: 32px; }
+            .mode-btn { padding: 8px 16px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" style="margin-top: 20px; color: #00d4ff;">Checking authentication...</div>
+    </div>
+
+    <!-- Back Button -->
+    <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    
+    <!-- Profile Icon -->
+    <div class="profile-icon" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i>
+    </div>
+
+    <div class="container">
+        <div class="header-section">
+            <h1>🎨 Creative Engine</h1>
+            <p>Unleash your creativity with AI-powered content generation</p>
+        </div>
+
+        <!-- Mode Selector -->
+        <div class="mode-selector">
+            <button class="mode-btn active" data-mode="story">📖 Story Generator</button>
+            <button class="mode-btn" data-mode="poem">📝 Poem Writer</button>
+            <button class="mode-btn" data-mode="script">🎬 Script Writer</button>
+            <button class="mode-btn" data-mode="idea">💡 Idea Generator</button>
+            <button class="mode-btn" data-mode="song">🎵 Song Lyrics</button>
+        </div>
+
+        <!-- Input Section -->
+        <div class="input-section">
+            <textarea id="promptInput" placeholder="Describe what you want to create...&#10;&#10;Example:&#10;- Write a short story about a robot learning to love&#10;- Create a poem about the ocean at sunset&#10;- Generate 10 startup ideas for sustainable energy"></textarea>
+            
+            <div class="examples">
+                <span style="color: rgba(255,255,255,0.6); font-size: 12px;">✨ Try: </span>
+                <span class="example-chip" onclick="setExample('A short story about a cat who discovers a secret door in the attic')">Cat discovers secret door</span>
+                <span class="example-chip" onclick="setExample('A poem about stars and dreams')">Stars and dreams poem</span>
+                <span class="example-chip" onclick="setExample('A sci-fi script scene where two astronauts find alien life')">Sci-fi script scene</span>
+                <span class="example-chip" onclick="setExample('5 creative marketing ideas for a coffee shop')">Coffee shop ideas</span>
+            </div>
+
+            <button class="generate-btn" id="generateBtn">✨ Generate Creative Content</button>
+        </div>
+
+        <!-- Output Section -->
+        <div class="output-section">
+            <div class="output-header">
+                <h3><i class="fas fa-magic"></i> Your Creation</h3>
+                <div class="output-actions">
+                    <button class="action-btn" onclick="copyOutput()"><i class="fas fa-copy"></i> Copy</button>
+                    <button class="action-btn" onclick="downloadOutput()"><i class="fas fa-download"></i> Download</button>
+                    <button class="action-btn" onclick="clearOutput()"><i class="fas fa-trash"></i> Clear</button>
+                </div>
+            </div>
+            <div class="output-content" id="outputContent">
+                <em style="color: rgba(255,255,255,0.5);">Your generated content will appear here. Select a mode and enter a prompt above!</em>
+            </div>
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                <p>Creating something amazing...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ AUTHENTICATION CHECK ============
+        const token = localStorage.getItem('token');
+        const user = localStorage.getItem('user');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        
+        if (!token && !user) {
+            loadingOverlay.style.display = 'flex';
+            setTimeout(() => {
+                window.location.href = '/login.html';
+            }, 1000);
+        } else {
+            loadingOverlay.style.display = 'none';
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    console.log('Logged in as:', userData.name);
+                } catch(e) {}
+            }
+        }
+
+        // ============ JAI API CONFIGURATION ============
+        const API_URL = 'https://jai1-sh81.onrender.com';
+        let clientId = localStorage.getItem('klynx_client_id');
+        if (!clientId) {
+            clientId = 'klynx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('klynx_client_id', clientId);
+        }
+
+        // ============ APP STATE ============
+        let currentMode = 'story';
+        let currentOutput = '';
+
+        // Mode descriptions for the AI
+        const modePrompts = {
+            story: 'Write a creative short story based on this prompt:',
+            poem: 'Write a beautiful poem based on this theme:',
+            script: 'Write a short script or dialogue scene based on this idea:',
+            idea: 'Generate creative ideas based on this prompt. List them with brief explanations:',
+            song: 'Write original song lyrics based on this theme or emotion:'
+        };
+
+        // ============ DOM ELEMENTS ============
+        const promptInput = document.getElementById('promptInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const outputContent = document.getElementById('outputContent');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+
+        // ============ MODE SELECTOR ============
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentMode = btn.dataset.mode;
+                
+                // Update placeholder based on mode
+                const placeholders = {
+                    story: 'Describe the story you want me to write...\n\nExample: "A young wizard discovers a hidden realm beneath the city"',
+                    poem: 'Describe the theme or emotion for your poem...\n\nExample: "A poem about hope after a storm"',
+                    script: 'Describe the scene or characters for your script...\n\nExample: "Two friends reunite after 10 years in a coffee shop"',
+                    idea: 'Describe what kind of ideas you need...\n\nExample: "5 innovative app ideas for students"',
+                    song: 'Describe the theme or mood for your song...\n\nExample: "A love song about long-distance relationships"'
+                };
+                promptInput.placeholder = placeholders[currentMode] || 'Enter your creative prompt here...';
+            });
+        });
+
+        // ============ EXAMPLE HELPER ============
+        function setExample(text) {
+            promptInput.value = text;
+        }
+
+        // ============ GENERATE CONTENT ============
+        async function generateContent() {
+            const prompt = promptInput.value.trim();
+            
+            if (!prompt) {
+                alert('Please enter a prompt first!');
+                return;
+            }
+
+            // Show loading
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Creating...';
+            loadingIndicator.style.display = 'block';
+            outputContent.innerHTML = '';
+
+            try {
+                const fullPrompt = `${modePrompts[currentMode]} ${prompt}`;
+                
+                const response = await fetch(`${API_URL}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: fullPrompt,
+                        clientId: clientId,
+                        options: { speech: false }
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.response) {
+                    currentOutput = data.response;
+                    outputContent.innerHTML = formatOutput(currentOutput);
+                } else {
+                    throw new Error('Failed to generate content');
+                }
+            } catch (error) {
+                console.error('Generation error:', error);
+                outputContent.innerHTML = `<span style="color: #ff8888;">❌ Sorry, I couldn't generate content right now. Please try again.</span>`;
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = '✨ Generate Creative Content';
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        function formatOutput(text) {
+            // Convert line breaks to <br> and preserve formatting
+            return text.replace(/\n/g, '<br>');
+        }
+
+        // ============ OUTPUT ACTIONS ============
+        function copyOutput() {
+            if (!currentOutput) {
+                alert('Nothing to copy. Generate some content first!');
+                return;
+            }
+            
+            navigator.clipboard.writeText(currentOutput);
+            alert('✅ Content copied to clipboard!');
+        }
+
+        function downloadOutput() {
+            if (!currentOutput) {
+                alert('Nothing to download. Generate some content first!');
+                return;
+            }
+            
+            const modeNames = {
+                story: 'Story',
+                poem: 'Poem',
+                script: 'Script',
+                idea: 'Ideas',
+                song: 'SongLyrics'
+            };
+            
+            const filename = `K-LYNX_${modeNames[currentMode]}_${Date.now()}.txt`;
+            const blob = new Blob([currentOutput], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function clearOutput() {
+            currentOutput = '';
+            outputContent.innerHTML = '<em style="color: rgba(255,255,255,0.5);">Your generated content will appear here. Select a mode and enter a prompt above!</em>';
+        }
+
+        // ============ LOGOUT ============
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login.html';
+        }
+
+        // ============ EVENT LISTENERS ============
+        generateBtn.addEventListener('click', generateContent);
+        
+        // Enter key shortcut (Ctrl+Enter)
+        promptInput.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                generateContent();
+            }
+        });
+
+        // ============ WELCOME MESSAGE ============
+        if (user) {
+            try {
+                const userData = JSON.parse(user);
+                console.log(`Welcome to Creative Engine, ${userData.name}!`);
+            } catch(e) {}
+        }
+    </script>
+</body>
+</html>
