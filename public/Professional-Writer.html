@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K-LYNX AI++ - Professional Writer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'Open Sans',sans-serif;background:linear-gradient(135deg,#0F172A 0%,#1E293B 100%);min-height:100vh;}
+        .back-btn{position:fixed;top:20px;left:20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:10px 20px;border-radius:25px;color:white;text-decoration:none;transition:0.3s;z-index:100;font-size:14px;display:flex;align-items:center;gap:8px;}
+        .back-btn:hover{background:rgba(0,212,255,0.2);border-color:#00d4ff;}
+        .profile-icon{position:fixed;top:20px;right:20px;width:45px;height:45px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#00ffaa);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:0.3s;z-index:100;box-shadow:0 4px 15px rgba(0,0,0,0.3);}
+        .profile-icon:hover{transform:scale(1.1);}
+        .profile-icon i{color:#0F172A;font-size:20px;}
+        .container{max-width:1000px;margin:0 auto;padding:80px 20px 40px;}
+        .header-section{text-align:center;margin-bottom:40px;}
+        .header-section h1{font-size:48px;background:linear-gradient(135deg,#00d4ff,#00ffaa);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:15px;}
+        .header-section p{color:rgba(255,255,255,0.7);font-size:18px;}
+        .doc-selector{display:flex;justify-content:center;gap:15px;margin-bottom:30px;flex-wrap:wrap;}
+        .doc-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:12px 24px;border-radius:40px;color:white;cursor:pointer;transition:0.3s;font-weight:600;}
+        .doc-btn.active,.doc-btn:hover{background:linear-gradient(135deg,#00d4ff,#00ffaa);color:#0F172A;border-color:transparent;}
+        .input-section{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border-radius:20px;padding:30px;margin-bottom:30px;border:1px solid rgba(0,212,255,0.3);}
+        .input-group{margin-bottom:20px;}
+        .input-group label{display:block;color:rgba(255,255,255,0.9);margin-bottom:8px;font-weight:600;}
+        .input-group input,.input-group textarea{width:100%;padding:12px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);border-radius:12px;color:white;font-size:14px;font-family:'Open Sans',sans-serif;}
+        .input-group input:focus,.input-group textarea:focus{outline:none;border-color:#00d4ff;}
+        .input-group textarea{min-height:80px;resize:vertical;}
+        .row-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+        .generate-btn{background:linear-gradient(135deg,#00d4ff,#00ffaa);color:#0F172A;padding:14px;border:none;border-radius:40px;font-size:16px;font-weight:700;cursor:pointer;transition:0.3s;width:100%;margin-top:10px;}
+        .generate-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,212,255,0.3);}
+        .generate-btn:disabled{opacity:0.5;cursor:not-allowed;}
+        .output-section{background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border-radius:20px;padding:30px;border:1px solid rgba(0,212,255,0.3);}
+        .output-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+        .output-header h3{color:#00d4ff;font-size:20px;}
+        .output-actions{display:flex;gap:10px;}
+        .action-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);padding:8px 16px;border-radius:20px;color:white;cursor:pointer;font-size:12px;}
+        .action-btn:hover{background:rgba(0,212,255,0.2);border-color:#00d4ff;}
+        .output-content{background:rgba(0,0,0,0.3);border-radius:15px;padding:20px;min-height:250px;white-space:pre-wrap;line-height:1.6;color:rgba(255,255,255,0.9);}
+        .loading{display:none;text-align:center;padding:20px;}
+        .spinner{width:40px;height:40px;border:3px solid rgba(0,212,255,0.3);border-top-color:#00d4ff;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 10px;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+        .example-chip{display:inline-block;background:rgba(255,255,255,0.1);padding:6px 12px;border-radius:20px;font-size:11px;cursor:pointer;margin:5px;}
+        .example-chip:hover{background:rgba(0,212,255,0.3);color:#00d4ff;}
+        .loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:flex;justify-content:center;align-items:center;z-index:9999;flex-direction:column;}
+        .loading-spinner{width:50px;height:50px;border:3px solid rgba(0,212,255,0.3);border-top-color:#00d4ff;border-radius:50%;animation:spin 1s linear infinite;}
+        @media (max-width:768px){.container{padding:70px 15px 30px;}.header-section h1{font-size:32px;}.doc-btn{padding:8px 16px;font-size:12px;}.row-2{grid-template-columns:1fr;}}
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay" class="loading-overlay" style="display:none;"><div class="loading-spinner"></div><div style="margin-top:20px;color:#00d4ff;">Checking...</div></div>
+    <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    <div class="profile-icon" onclick="logout()"><i class="fas fa-sign-out-alt"></i></div>
+    <div class="container">
+        <div class="header-section"><h1>✍️ Professional Writer</h1><p>Create emails, proposals, reports & more</p></div>
+        <div class="doc-selector">
+            <button class="doc-btn active" data-doc="email">📧 Email</button>
+            <button class="doc-btn" data-doc="proposal">📄 Proposal</button>
+            <button class="doc-btn" data-doc="report">📊 Report</button>
+            <button class="doc-btn" data-doc="letter">✉️ Letter</button>
+        </div>
+        <div class="input-section">
+            <div id="emailForm">
+                <div class="row-2"><div class="input-group"><label>Recipient</label><input type="text" id="recipient" placeholder="Name"></div><div class="input-group"><label>Sender</label><input type="text" id="sender" placeholder="Your name"></div></div>
+                <div class="input-group"><label>Subject</label><input type="text" id="subject" placeholder="Email subject"></div>
+                <div class="input-group"><label>What should it say?</label><textarea id="details" placeholder="Describe what you want to communicate..."></textarea></div>
+                <div class="input-group"><label>Tone</label><input type="text" id="tone" placeholder="Professional, Friendly, Urgent"></div>
+            </div>
+            <div id="proposalForm" style="display:none">
+                <div class="row-2"><div class="input-group"><label>Client</label><input type="text" id="client" placeholder="Company name"></div><div class="input-group"><label>Project</label><input type="text" id="project" placeholder="Project name"></div></div>
+                <div class="input-group"><label>Description</label><textarea id="proposalDesc" placeholder="Project scope and goals..."></textarea></div>
+                <div class="row-2"><div class="input-group"><label>Budget</label><input type="text" id="budget" placeholder="Optional"></div><div class="input-group"><label>Timeline</label><input type="text" id="timeline" placeholder="Optional"></div></div>
+            </div>
+            <div id="reportForm" style="display:none">
+                <div class="input-group"><label>Title</label><input type="text" id="title" placeholder="Report title"></div>
+                <div class="input-group"><label>Topics</label><textarea id="topics" placeholder="Key points to cover..."></textarea></div>
+            </div>
+            <div id="letterForm" style="display:none">
+                <div class="row-2"><div class="input-group"><label>Recipient</label><input type="text" id="letterRecipient" placeholder="Name"></div><div class="input-group"><label>Company</label><input type="text" id="company" placeholder="Optional"></div></div>
+                <div class="input-group"><label>Purpose</label><textarea id="purpose" placeholder="What should the letter accomplish?"></textarea></div>
+                <div class="input-group"><label>Tone</label><input type="text" id="letterTone" placeholder="Formal, Appreciative"></div>
+            </div>
+            <div><span class="example-chip" onclick="fillExample('email')">📧 Follow-up</span><span class="example-chip" onclick="fillExample('proposal')">📄 Proposal</span><span class="example-chip" onclick="fillExample('report')">📊 Report</span><span class="example-chip" onclick="fillExample('letter')">✉️ Cover letter</span></div>
+            <button class="generate-btn" id="generateBtn">✍️ Generate</button>
+        </div>
+        <div class="output-section">
+            <div class="output-header"><h3><i class="fas fa-file-alt"></i> Your Document</h3><div class="output-actions"><button class="action-btn" onclick="copyOutput()">Copy</button><button class="action-btn" onclick="downloadOutput()">Download</button><button class="action-btn" onclick="clearOutput()">Clear</button></div></div>
+            <div class="output-content" id="outputContent"><em>Your document will appear here...</em></div>
+            <div class="loading" id="loadingIndicator"><div class="spinner"></div><p>Writing...</p></div>
+        </div>
+    </div>
+    <script>
+        const token=localStorage.getItem('token'),user=localStorage.getItem('user');
+        if(!token&&!user){document.getElementById('loadingOverlay').style.display='flex';setTimeout(()=>{window.location.href='/login.html';},1000);}
+        else{document.getElementById('loadingOverlay').style.display='none';}
+        const API_URL='https://jai1-sh81.onrender.com';
+        let clientId=localStorage.getItem('klynx_client_id');
+        if(!clientId){clientId='klynx_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);localStorage.setItem('klynx_client_id',clientId);}
+        let currentDoc='email',currentOutput='';
+        function logout(){localStorage.removeItem('token');localStorage.removeItem('user');window.location.href='/login.html';}
+        document.querySelectorAll('.doc-btn').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.doc-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentDoc=btn.dataset.doc;
+            document.getElementById('emailForm').style.display='none';document.getElementById('proposalForm').style.display='none';document.getElementById('reportForm').style.display='none';document.getElementById('letterForm').style.display='none';
+            document.getElementById(`${currentDoc}Form`).style.display='block';});});
+        function fillExample(type){
+            if(type=='email'){document.getElementById('recipient').value='John Smith';document.getElementById('sender').value='Jane Doe';document.getElementById('subject').value='Project Update';document.getElementById('details').value='Following up on our meeting about the website redesign.';document.getElementById('tone').value='Professional';}
+            if(type=='proposal'){document.getElementById('client').value='ABC Corp';document.getElementById('project').value='Marketing Campaign';document.getElementById('proposalDesc').value='Social media campaign to increase brand awareness';document.getElementById('budget').value='$5,000';document.getElementById('timeline').value='2 months';}
+            if(type=='report'){document.getElementById('title').value='Q4 Sales Report';document.getElementById('topics').value='Sales by region, Top products, Year-over-year growth';}
+            if(type=='letter'){document.getElementById('letterRecipient').value='Hiring Manager';document.getElementById('company').value='Tech Corp';document.getElementById('purpose').value='Apply for Senior Developer position';document.getElementById('letterTone').value='Professional';}
+        }
+        async function generateDocument(){
+            let data;
+            if(currentDoc=='email')data={recipient:document.getElementById('recipient').value,sender:document.getElementById('sender').value,subject:document.getElementById('subject').value,details:document.getElementById('details').value,tone:document.getElementById('tone').value};
+            if(currentDoc=='proposal')data={client:document.getElementById('client').value,project:document.getElementById('project').value,desc:document.getElementById('proposalDesc').value,budget:document.getElementById('budget').value,timeline:document.getElementById('timeline').value};
+            if(currentDoc=='report')data={title:document.getElementById('title').value,topics:document.getElementById('topics').value};
+            if(currentDoc=='letter')data={recipient:document.getElementById('letterRecipient').value,company:document.getElementById('company').value,purpose:document.getElementById('purpose').value,tone:document.getElementById('letterTone').value};
+            const hasData=Object.values(data).some(v=>v&&v.trim()!='');
+            if(!hasData){alert('Please fill in some details!');return;}
+            const btn=document.getElementById('generateBtn');btn.disabled=true;btn.textContent='Writing...';
+            document.getElementById('loadingIndicator').style.display='block';
+            let prompt='';
+            if(currentDoc=='email')prompt=`Write a professional email. Recipient:${data.recipient}. Sender:${data.sender}. Subject:${data.subject}. Details:${data.details}. Tone:${data.tone||'Professional'}. Format properly.`;
+            if(currentDoc=='proposal')prompt=`Write a business proposal. Client:${data.client}. Project:${data.project}. Description:${data.desc}. Budget:${data.budget||'TBD'}. Timeline:${data.timeline||'TBD'}. Include Executive Summary, Scope, Timeline, Budget.`;
+            if(currentDoc=='report')prompt=`Write a report titled "${data.title}". Cover these topics:${data.topics}. Include introduction, analysis, and conclusion.`;
+            if(currentDoc=='letter')prompt=`Write a professional letter. Recipient:${data.recipient}. Company:${data.company}. Purpose:${data.purpose}. Tone:${data.tone||'Formal'}. Format properly.`;
+            try{
+                const res=await fetch(`${API_URL}/api/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:prompt,clientId:clientId,options:{speech:false}})});
+                const result=await res.json();
+                if(res.ok&&result.response){currentOutput=result.response;document.getElementById('outputContent').innerHTML=currentOutput.replace(/\n/g,'<br>');}
+                else throw new Error('Failed');
+            }catch(error){document.getElementById('outputContent').innerHTML='<span style="color:#ff8888;">❌ Generation failed. Please try again.</span>';}
+            finally{btn.disabled=false;btn.textContent='✍️ Generate';document.getElementById('loadingIndicator').style.display='none';}
+        }
+        function copyOutput(){if(!currentOutput){alert('Nothing to copy');return;}navigator.clipboard.writeText(currentOutput);alert('✅ Copied!');}
+        function downloadOutput(){if(!currentOutput){alert('Nothing to download');return;}const blob=new Blob([currentOutput],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`K-LYNX_${currentDoc}_${Date.now()}.txt`;a.click();URL.revokeObjectURL(a.href);}
+        function clearOutput(){currentOutput='';document.getElementById('outputContent').innerHTML='<em>Your document will appear here...</em>';}
+        document.getElementById('generateBtn').addEventListener('click',generateDocument);
+    </script>
+</body>
+</html>
