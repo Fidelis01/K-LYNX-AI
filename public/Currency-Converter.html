@@ -117,6 +117,9 @@
         #result {
             cursor: not-allowed;
             background: rgba(0, 0, 0, 0.5);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            min-height: 80px;
         }
         
         ::placeholder {
@@ -232,6 +235,13 @@
             color: #00d4ff;
         }
         
+        .rate-info {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 10px;
+            text-align: center;
+        }
+        
         @media (max-width: 768px) {
             .glass-panel { padding: 20px; }
             h1 { font-size: 24px; }
@@ -258,19 +268,19 @@
             <select id="from-currency" class="glass-input">
                 <option value="USD">USD - US Dollar</option>
                 <option value="EUR">EUR - Euro</option>
-                <option value="ZAR">ZAR - South African Rand</option>
                 <option value="GBP">GBP - British Pound</option>
                 <option value="JPY">JPY - Japanese Yen</option>
                 <option value="CNY">CNY - Chinese Renminbi</option>
                 <option value="INR">INR - Indian Rupee</option>
-                <option value="EGP">EGP - Egyptian Pound</option>
-                <option value="NGN">NGN - Nigerian Naira</option>
-                <option value="KES">KES - Kenyan Shilling</option>
-                <option value="BWP">BWP - Botswana Pula</option>
                 <option value="RUB">RUB - Russian Ruble</option>
                 <option value="CHF">CHF - Swiss Franc</option>
                 <option value="CAD">CAD - Canadian Dollar</option>
                 <option value="AUD">AUD - Australian Dollar</option>
+                <option value="ZAR" selected>ZAR - South African Rand</option>
+                <option value="EGP">EGP - Egyptian Pound</option>
+                <option value="NGN">NGN - Nigerian Naira</option>
+                <option value="KES">KES - Kenyan Shilling</option>
+                <option value="BWP">BWP - Botswana Pula</option>
             </select>
         </div>
         <div class="input-group">
@@ -278,19 +288,19 @@
             <select id="to-currency" class="glass-input">
                 <option value="USD">USD - US Dollar</option>
                 <option value="EUR">EUR - Euro</option>
-                <option value="ZAR" selected>ZAR - South African Rand</option>
                 <option value="GBP">GBP - British Pound</option>
                 <option value="JPY">JPY - Japanese Yen</option>
                 <option value="CNY">CNY - Chinese Renminbi</option>
                 <option value="INR">INR - Indian Rupee</option>
-                <option value="EGP">EGP - Egyptian Pound</option>
-                <option value="NGN">NGN - Nigerian Naira</option>
-                <option value="KES">KES - Kenyan Shilling</option>
-                <option value="BWP">BWP - Botswana Pula</option>
                 <option value="RUB">RUB - Russian Ruble</option>
                 <option value="CHF">CHF - Swiss Franc</option>
                 <option value="CAD">CAD - Canadian Dollar</option>
                 <option value="AUD">AUD - Australian Dollar</option>
+                <option value="ZAR">ZAR - South African Rand</option>
+                <option value="EGP" selected>EGP - Egyptian Pound</option>
+                <option value="NGN">NGN - Nigerian Naira</option>
+                <option value="KES">KES - Kenyan Shilling</option>
+                <option value="BWP">BWP - Botswana Pula</option>
             </select>
         </div>
         <div class="input-group">
@@ -300,6 +310,7 @@
             <label>💵 Converted Amount</label>
             <input type="text" id="result" class="glass-input" placeholder="Converted amount will appear here" readonly>
         </div>
+        <div class="rate-info" id="rateInfo"></div>
     </div>
     
     <div class="glass-panel">
@@ -373,31 +384,25 @@
         const toCurrencySelect = document.getElementById('to-currency');
         const convertBtn = document.getElementById('convert-btn');
         const resultInput = document.getElementById('result');
+        const rateInfo = document.getElementById('rateInfo');
         
-        async function getExchangeRate(fromCurrency, toCurrency) {
+        async function convertCurrency(amount, fromCurrency, toCurrency) {
             try {
+                // Use the exact format that JAI's currency converter expects
                 const response = await fetch(`${API_URL}/api/chat`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        message: `What is the current exchange rate from ${fromCurrency} to ${toCurrency}? Give me just the numeric rate, nothing else.`,
+                        message: `${amount} ${fromCurrency} to ${toCurrency}`,
                         clientId: clientId,
                         options: { speech: false }
                     })
                 });
                 
                 const data = await response.json();
-                
-                if (data.response) {
-                    // Extract numeric value from response
-                    const rateMatch = data.response.match(/[\d.]+/);
-                    if (rateMatch) {
-                        return parseFloat(rateMatch[0]);
-                    }
-                }
-                return null;
+                return data.response || null;
             } catch (error) {
                 console.error('API Error:', error);
                 return null;
@@ -414,7 +419,7 @@
                 return;
             }
             
-            // Parse amount (remove currency symbols if present)
+            // Parse amount
             const amountValue = parseFloat(amountRaw.replace(/[^0-9.-]/g, ''));
             
             if (isNaN(amountValue) || amountValue <= 0) {
@@ -424,28 +429,31 @@
             
             // Show loading state
             const originalText = convertBtn.innerText;
-            convertBtn.innerText = 'Getting exchange rate...';
+            convertBtn.innerText = 'Converting...';
             convertBtn.disabled = true;
-            resultInput.value = '⏳ Fetching exchange rate...';
+            resultInput.value = '⏳ Converting currency...';
+            rateInfo.innerHTML = '';
             
             try {
-                const rate = await getExchangeRate(fromCurrency, toCurrency);
+                const result = await convertCurrency(amountValue, fromCurrency, toCurrency);
                 
-                if (rate && !isNaN(rate)) {
-                    const convertedAmount = amountValue * rate;
-                    resultInput.value = `${amountValue.toFixed(2)} ${fromCurrency} = ${convertedAmount.toFixed(2)} ${toCurrency} (Rate: 1 ${fromCurrency} = ${rate.toFixed(4)} ${toCurrency})`;
+                if (result) {
+                    resultInput.value = result;
+                    rateInfo.innerHTML = '✅ Conversion completed using live exchange rates';
                     
-                    // Add a success style briefly
+                    // Add success style
                     resultInput.style.borderColor = '#00ffaa';
                     setTimeout(() => {
                         resultInput.style.borderColor = 'rgba(255, 255, 255, 0.2)';
                     }, 2000);
                 } else {
                     resultInput.value = '❌ Could not fetch exchange rate. Please try again.';
+                    rateInfo.innerHTML = '⚠️ Using fallback rates. Try again later.';
                 }
             } catch (error) {
                 console.error('Conversion error:', error);
                 resultInput.value = '❌ Error fetching exchange rate. Please try again.';
+                rateInfo.innerHTML = '⚠️ Connection error. Check your internet.';
             } finally {
                 convertBtn.innerText = originalText;
                 convertBtn.disabled = false;
@@ -458,6 +466,9 @@
                 convertBtn.click();
             }
         });
+        
+        // Pre-fill a default amount
+        amountInput.value = '100';
         
         // ============ FAQ TOGGLE ============
         const faqContainer = document.querySelector('.faq');
@@ -476,6 +487,22 @@
                 }
             }
         });
+        
+        // Silently notify JAI about page view
+        async function notifyPageView() {
+            try {
+                await fetch(`${API_URL}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: 'Entering Currency Converter',
+                        clientId: clientId,
+                        options: { speech: false }
+                    })
+                });
+            } catch(e) {}
+        }
+        notifyPageView();
     </script>
 </body>
 </html>
