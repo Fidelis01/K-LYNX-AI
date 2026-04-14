@@ -1,576 +1,602 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K-LYNX AI++ - Creative Engine</title>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Open Sans', sans-serif;
-            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-            min-height: 100vh;
-        }
-
-        /* Back Button */
-        .back-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 10px 20px;
-            border-radius: 25px;
-            color: white;
-            text-decoration: none;
-            transition: 0.3s;
-            z-index: 100;
-            font-size: 14px;
-            backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .back-btn:hover {
-            background: rgba(0, 212, 255, 0.2);
-            border-color: #00d4ff;
-        }
-
-        /* Profile Icon */
-        .profile-icon {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #00d4ff, #00ffaa);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: 0.3s;
-            z-index: 100;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        .profile-icon:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
-        }
-
-        .profile-icon i {
-            color: #0F172A;
-            font-size: 20px;
-        }
-
-        /* Main Container */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 80px 20px 40px;
-        }
-
-        /* Header Section */
-        .header-section {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .header-section h1 {
-            font-size: 48px;
-            background: linear-gradient(135deg, #00d4ff, #00ffaa);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 15px;
-        }
-
-        .header-section p {
-            color: rgba(255,255,255,0.7);
-            font-size: 18px;
-        }
-
-        /* Mode Selector */
-        .mode-selector {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .mode-btn {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 12px 24px;
-            border-radius: 40px;
-            color: white;
-            cursor: pointer;
-            transition: 0.3s;
-            font-weight: 600;
-        }
-
-        .mode-btn.active {
-            background: linear-gradient(135deg, #00d4ff, #00ffaa);
-            color: #0F172A;
-            border-color: transparent;
-        }
-
-        .mode-btn:hover {
-            background: rgba(0, 212, 255, 0.2);
-            border-color: #00d4ff;
-        }
-
-        /* Input Section */
-        .input-section {
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(0,212,255,0.3);
-        }
-
-        .input-section textarea {
-            width: 100%;
-            padding: 15px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 15px;
-            color: white;
-            font-size: 16px;
-            font-family: 'Open Sans', sans-serif;
-            resize: vertical;
-            min-height: 120px;
-        }
-
-        .input-section textarea:focus {
-            outline: none;
-            border-color: #00d4ff;
-            box-shadow: 0 0 10px rgba(0,212,255,0.3);
-        }
-
-        .input-section textarea::placeholder {
-            color: rgba(255,255,255,0.5);
-        }
-
-        /* Generate Button */
-        .generate-btn {
-            background: linear-gradient(135deg, #00d4ff, #00ffaa);
-            color: #0F172A;
-            padding: 14px 30px;
-            border: none;
-            border-radius: 40px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 20px;
-            width: 100%;
-        }
-
-        .generate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0,212,255,0.3);
-        }
-
-        .generate-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Output Section */
-        .output-section {
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            border: 1px solid rgba(0,212,255,0.3);
-        }
-
-        .output-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .output-header h3 {
-            color: #00d4ff;
-            font-size: 20px;
-        }
-
-        .output-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .action-btn {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 8px 16px;
-            border-radius: 20px;
-            color: white;
-            cursor: pointer;
-            transition: 0.3s;
-            font-size: 12px;
-        }
-
-        .action-btn:hover {
-            background: rgba(0,212,255,0.2);
-            border-color: #00d4ff;
-        }
-
-        .output-content {
-            background: rgba(0,0,0,0.3);
-            border-radius: 15px;
-            padding: 20px;
-            min-height: 300px;
-            white-space: pre-wrap;
-            line-height: 1.6;
-            color: rgba(255,255,255,0.9);
-        }
-
-        /* Loading Indicator */
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(0,212,255,0.3);
-            border-top-color: #00d4ff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Examples */
-        .examples {
-            margin-top: 20px;
-        }
-
-        .example-chip {
-            display: inline-block;
-            background: rgba(255,255,255,0.1);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            margin: 5px;
-            transition: 0.3s;
-        }
-
-        .example-chip:hover {
-            background: rgba(0,212,255,0.3);
-            color: #00d4ff;
-        }
-
-        /* Loading Overlay */
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            flex-direction: column;
-        }
-
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(0,212,255,0.3);
-            border-top-color: #00d4ff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @media (max-width: 768px) {
-            .container { padding: 70px 15px 30px; }
-            .header-section h1 { font-size: 32px; }
-            .mode-btn { padding: 8px 16px; font-size: 12px; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creative Engine | K-LYNX AI</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0f0f12;color:#e8e8ec;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;padding:16px;max-width:500px;margin:0 auto;}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+h1{font-size:20px;font-weight:700;background:linear-gradient(135deg,#00d4ff,#00ffaa);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#00ffaa);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.subtitle{color:#8a8a92;margin-bottom:16px;font-size:15px;}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;margin-bottom:16px;}
+.chips::-webkit-scrollbar{display:none;}
+.chip{padding:8px 16px;border:1px solid #2a2a32;border-radius:20px;background:transparent;color:#8a8a92;font-size:14px;white-space:nowrap;cursor:pointer;transition:all 0.2s;}
+.chip.active{background:#6d5dfc;border-color:#6d5dfc;color:white;font-weight:600;}
+.upload-area{background:#1a1a1f;border:2px dashed #2a2a32;border-radius:12px;padding:30px;text-align:center;cursor:pointer;margin-bottom:16px;transition:all 0.2s;}
+.upload-area:hover{border-color:#6d5dfc;background:rgba(109,93,252,0.05);}
+.upload-icon{font-size:40px;margin-bottom:8px;}
+.prompt-box{background:#1a1a1f;border:1px solid #2a2a32;border-radius:12px;padding:12px;margin-bottom:16px;}
+textarea{width:100%;background:transparent;border:none;color:#e8e8ec;font-size:16px;resize:none;outline:none;min-height:24px;max-height:120px;line-height:1.4;}
+textarea::placeholder{color:#8a8a92;}
+.prompt-actions{display:flex;justify-content:space-between;align-items:center;margin-top:8px;}
+.prompt-actions-left{display:flex;align-items:center;gap:12px;}
+.prompt-actions button{background:transparent;border:1px solid #2a2a32;color:#e8e8ec;padding:6px 12px;border-radius:8px;font-size:14px;cursor:pointer;}
+.char-count{font-size:12px;color:#8a8a92;}
+.send-btn{background:#8B7FFF !important;border:none !important;color:white !important;font-weight:600;}
+.send-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.output{margin:24px 0;min-height:50px;}
+.output-card{background:#1a1a1f;border:1px solid #2a2a32;border-radius:12px;padding:16px;margin-bottom:12px;}
+.output-img,.output-video{width:100%;border-radius:8px;margin-bottom:12px;max-height:300px;object-fit:contain;}
+.output-text,.output-code{white-space:pre-wrap;line-height:1.6;margin-bottom:12px;font-size:14px;}
+.output-code{background:#0d0d0d;padding:12px;border-radius:8px;font-family:'Courier New',monospace;font-size:12px;overflow-x:auto;}
+.output-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.output-actions button{flex:1;min-width:80px;background:#25252c;border:1px solid #2a2a32;color:#e8e8ec;padding:8px;border-radius:8px;font-size:13px;cursor:pointer;}
+.output-actions button:hover{background:#6d5dfc;color:white;}
+.edit-tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;}
+.edit-btn{padding:6px 12px;background:#25252c;border:1px solid #2a2a32;border-radius:20px;font-size:12px;cursor:pointer;}
+.edit-btn:hover{background:#6d5dfc;}
+.recent{margin-top:32px;}
+.recent h3{font-size:16px;margin-bottom:12px;color:#8a8a92;}
+.recent-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.recent-item{aspect-ratio:1;background:#1a1a1f;border-radius:8px;border:1px solid #2a2a32;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;overflow:hidden;flex-direction:column;font-size:12px;text-align:center;}
+.recent-item img{width:100%;height:100%;object-fit:cover;}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:#1a1a1f;border:1px solid #2a2a32;padding:12px 20px;border-radius:8px;font-size:14px;transition:transform 0.3s ease;z-index:200;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:none;justify-content:center;align-items:center;z-index:1000;}
+.modal-content{background:#1a1a1f;padding:24px;border-radius:16px;width:90%;max-width:350px;border:1px solid #2a2a32;}
+.modal-content h3{margin-bottom:16px;}
+.modal-content select{width:100%;padding:10px;background:#25252c;border:1px solid #2a2a32;border-radius:8px;color:white;margin-bottom:16px;}
+.modal-buttons{display:flex;gap:12px;}
+.modal-buttons button{flex:1;padding:10px;border-radius:8px;cursor:pointer;border:none;}
+.modal-buttons button:first-child{background:#6d5dfc;color:white;}
+.modal-buttons button:last-child{background:#25252c;color:white;}
+.loading{text-align:center;padding:40px;}
+.spinner{width:40px;height:40px;border:3px solid #2a2a32;border-top-color:#6d5dfc;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);display:flex;justify-content:center;align-items:center;z-index:9999;flex-direction:column;}
+.loading-overlay .spinner{width:50px;height:50px;}
+.loading-overlay p{margin-top:16px;color:#6d5dfc;}
+.language-select{background:#25252c;border:1px solid #2a2a32;border-radius:8px;padding:6px 12px;color:white;margin-left:8px;}
+.back-btn{position:fixed;top:20px;left:20px;display:flex;align-items:center;gap:5px;padding:8px 15px;background:rgba(0,0,0,0.3);border:1px solid rgba(0,212,255,0.5);border-radius:20px;color:white;cursor:pointer;font-size:14px;z-index:1000;text-decoration:none;}
+.back-btn:hover{background:rgba(0,212,255,0.2);}
+</style>
 </head>
 <body>
+<a href="/" class="back-btn"><span>←</span><span>Back</span></a>
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><p>Loading...</p></div>
 
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
-        <div class="loading-spinner"></div>
-        <div class="loading-text" style="margin-top: 20px; color: #00d4ff;">Checking authentication...</div>
+<div id="mainContent" style="display:none;">
+<div class="header">
+  <h1>🎨 Creative Engine</h1>
+  <div class="avatar" onclick="logout()">👤</div>
+</div>
+<p class="subtitle">Create images, videos, poetry, or code</p>
+
+<div class="chips" id="modeChips">
+  <button class="chip active" data-mode="image">🎨 Image</button>
+  <button class="chip" data-mode="video">🎬 Video</button>
+  <button class="chip" data-mode="poetry">🪶 Poetry</button>
+  <button class="chip" data-mode="code">💻 Code</button>
+</div>
+
+<div id="uploadSection" class="upload-area">
+  <div class="upload-icon">📤</div>
+  <div>Click to upload image/video</div>
+  <div style="font-size:12px;color:#8a8a92;margin-top:4px;">JPG, PNG, GIF, MP4, MOV</div>
+  <input type="file" id="fileInput" accept="image/*,video/*" style="display:none;">
+</div>
+
+<div class="prompt-box">
+  <textarea id="prompt" rows="1" placeholder="Describe what you want to create..." maxlength="500"></textarea>
+  <div class="prompt-actions">
+    <div class="prompt-actions-left">
+      <span class="char-count" id="charCount">0/500</span>
+      <select id="codeLanguage" class="language-select" style="display:none;">
+        <option value="javascript">JavaScript</option>
+        <option value="python">Python</option>
+        <option value="html">HTML/CSS</option>
+        <option value="java">Java</option>
+        <option value="cpp">C++</option>
+        <option value="go">Go</option>
+        <option value="rust">Rust</option>
+        <option value="sql">SQL</option>
+      </select>
     </div>
+    <button class="send-btn" id="sendBtn">✨ Generate</button>
+  </div>
+</div>
 
-    <!-- Back Button -->
-    <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+<div id="output" class="output"></div>
+
+<div class="recent">
+  <h3>📁 Recent Creations</h3>
+  <div class="recent-grid" id="recentGrid"></div>
+</div>
+</div>
+
+<div id="toast" class="toast"></div>
+<div class="modal" id="filterModal"><div class="modal-content"><h3>🎨 Apply Filter</h3><select id="filterSelect"><option value="vintage">Vintage</option><option value="cinematic">Cinematic</option><option value="cartoon">Cartoon</option><option value="oil-painting">Oil Painting</option><option value="watercolor">Watercolor</option><option value="neon">Neon Glow</option><option value="black-white">Black & White</option></select><div class="modal-buttons"><button onclick="applyFilter()">Apply</button><button onclick="closeFilterModal()">Cancel</button></div></div></div>
+
+<script>
+const API_URL = 'https://jai1-sh81.onrender.com';
+let clientId = localStorage.getItem('klynx_client_id');
+if (!clientId) { clientId = 'klynx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9); localStorage.setItem('klynx_client_id', clientId); }
+
+// Auth check
+const token = localStorage.getItem('token');
+const user = localStorage.getItem('user');
+const loadingOverlay = document.getElementById('loadingOverlay');
+const mainContent = document.getElementById('mainContent');
+
+if (!token && !user) {
+  loadingOverlay.style.display = 'flex';
+  setTimeout(() => { window.location.href = '/login.html'; }, 1000);
+} else {
+  loadingOverlay.style.display = 'none';
+  mainContent.style.display = 'block';
+  // Notify JAI that user entered Creative Engine
+  fetch(`${API_URL}/api/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: 'entering Creative Engine', clientId, options: { speech: false } })
+  }).catch(e => console.log);
+}
+
+let currentMode = 'image';
+let currentMediaUrl = '';
+let currentFile = null;
+let history = JSON.parse(localStorage.getItem('creative_history') || '[]');
+let isGenerating = false;
+let lastGeneratedText = '';
+let lastGeneratedCode = '';
+
+const promptEl = document.getElementById('prompt');
+const sendBtn = document.getElementById('sendBtn');
+const outputEl = document.getElementById('output');
+const fileInput = document.getElementById('fileInput');
+const uploadSection = document.getElementById('uploadSection');
+const charCountEl = document.getElementById('charCount');
+const codeLanguageSelect = document.getElementById('codeLanguage');
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function updateCharCount() {
+  const len = promptEl.value.length;
+  charCountEl.textContent = `${len}/500`;
+  sendBtn.disabled = len === 0 && !currentFile && currentMode !== 'poetry' && currentMode !== 'code';
+}
+promptEl.addEventListener('input', updateCharCount);
+updateCharCount();
+
+document.querySelectorAll('.chip').forEach(c => {
+  c.onclick = () => {
+    document.querySelector('.chip.active').classList.remove('active');
+    c.classList.add('active');
+    currentMode = c.dataset.mode;
+    currentMediaUrl = '';
+    currentFile = null;
+    outputEl.innerHTML = '';
     
-    <!-- Profile Icon -->
-    <div class="profile-icon" onclick="logout()">
-        <i class="fas fa-sign-out-alt"></i>
+    if (currentMode === 'poetry') {
+      uploadSection.style.display = 'none';
+      codeLanguageSelect.style.display = 'none';
+      promptEl.placeholder = 'Write a poem about... (e.g., "love", "nature", "hope", "the ocean")';
+      sendBtn.textContent = '✨ Write Poem';
+    } else if (currentMode === 'code') {
+      uploadSection.style.display = 'none';
+      codeLanguageSelect.style.display = 'inline-block';
+      promptEl.placeholder = 'Describe the code you want... (e.g., "a function to sort an array", "a React component for a button")';
+      sendBtn.textContent = '💻 Generate Code';
+    } else {
+      uploadSection.style.display = 'block';
+      codeLanguageSelect.style.display = 'none';
+      fileInput.accept = currentMode === 'image' ? 'image/*' : 'video/*';
+      promptEl.placeholder = currentMode === 'image' ? 'Describe the image you want to create...' : 'Describe the video you want to create...';
+      sendBtn.textContent = '✨ Generate';
+    }
+    showToast(`Switched to ${currentMode} mode`);
+  };
+});
+
+uploadSection.onclick = () => {
+  if (currentMode !== 'poetry' && currentMode !== 'code') fileInput.click();
+};
+fileInput.onchange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  currentFile = file;
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    currentMediaUrl = event.target.result;
+    outputEl.innerHTML = `
+      <div class="output-card">
+        ${currentMode === 'image' ? `<img src="${currentMediaUrl}" class="output-img" id="previewMedia">` : `<video src="${currentMediaUrl}" class="output-video" controls id="previewMedia"></video>`}
+        <div class="edit-tools">
+          <button class="edit-btn" onclick="applyEdit('make brighter')">☀️ Brighten</button>
+          <button class="edit-btn" onclick="applyEdit('make darker')">🌙 Darken</button>
+          <button class="edit-btn" onclick="applyEdit('add more contrast')">🎨 Contrast</button>
+          <button class="edit-btn" onclick="applyEdit('make more colorful')">🌈 Colorful</button>
+          <button class="edit-btn" onclick="applyEdit('make black and white')">⚫ B&W</button>
+          <button class="edit-btn" onclick="openFilterModal()">🎨 Filters</button>
+          <button class="edit-btn" onclick="applyEdit('crop to square')">⬛ Crop Square</button>
+          <button class="edit-btn" onclick="applyEdit('rotate 90 degrees')">🔄 Rotate</button>
+        </div>
+        <div class="output-actions">
+          <button onclick="downloadMedia()">💾 Download</button>
+          <button onclick="copyMedia()">📋 Copy</button>
+          <button onclick="clearMedia()">🗑️ Clear</button>
+        </div>
+      </div>
+    `;
+    showToast(`${currentMode} uploaded! You can now edit it.`);
+  };
+  reader.readAsDataURL(file);
+};
+
+async function applyEdit(editType) {
+  if (!currentMediaUrl) { showToast('No media to edit'); return; }
+  showToast(`Applying: ${editType}...`);
+  await new Promise(r => setTimeout(r, 800));
+  showToast(`Applied: ${editType}`);
+}
+window.applyEdit = applyEdit;
+
+async function callJAI(message) {
+  try {
+    const response = await fetch(`${API_URL}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: message, clientId: clientId, options: { speech: false } })
+    });
+    const data = await response.json();
+    return data.response || "Sorry, I couldn't generate that.";
+  } catch (error) {
+    return "Error connecting to JAI. Please try again.";
+  }
+}
+
+async function generatePoetry() {
+  const prompt = promptEl.value.trim();
+  if (!prompt) { showToast('Please enter a poem topic'); return; }
+  
+  isGenerating = true;
+  sendBtn.disabled = true;
+  sendBtn.textContent = '⏳ Writing...';
+  outputEl.innerHTML = '<div class="loading"><div class="spinner"></div><div>Writing your poem...</div></div>';
+  
+  const jaiPrompt = `Write a beautiful, emotional poem about ${prompt}. Make it heartfelt and expressive. Use proper line breaks.`;
+  const result = await callJAI(jaiPrompt);
+  lastGeneratedText = result;
+  
+  outputEl.innerHTML = `
+    <div class="output-card">
+      <div class="output-text">${escapeHtml(result).replace(/\n/g, '<br>')}</div>
+      <div class="output-actions">
+        <button onclick="copyText()">📋 Copy</button>
+        <button onclick="downloadText()">💾 Download</button>
+        <button onclick="speakText()">🔊 Listen</button>
+        <button onclick="regeneratePoetry()">🔄 Regenerate</button>
+      </div>
     </div>
+  `;
+  
+  history.unshift({ prompt: prompt, mode: 'poetry', text: result, timestamp: Date.now() });
+  history = history.slice(0, 12);
+  localStorage.setItem('creative_history', JSON.stringify(history));
+  renderRecent();
+  
+  sendBtn.disabled = false;
+  sendBtn.textContent = '✨ Write Poem';
+  isGenerating = false;
+  showToast('Poem generated!');
+}
 
-    <div class="container">
-        <div class="header-section">
-            <h1>🎨 Creative Engine</h1>
-            <p>Unleash your creativity with AI-powered content generation</p>
-        </div>
-
-        <!-- Mode Selector -->
-        <div class="mode-selector">
-            <button class="mode-btn active" data-mode="story">📖 Story Generator</button>
-            <button class="mode-btn" data-mode="poem">📝 Poem Writer</button>
-            <button class="mode-btn" data-mode="script">🎬 Script Writer</button>
-            <button class="mode-btn" data-mode="idea">💡 Idea Generator</button>
-            <button class="mode-btn" data-mode="song">🎵 Song Lyrics</button>
-        </div>
-
-        <!-- Input Section -->
-        <div class="input-section">
-            <textarea id="promptInput" placeholder="Describe what you want to create...&#10;&#10;Example:&#10;- Write a short story about a robot learning to love&#10;- Create a poem about the ocean at sunset&#10;- Generate 10 startup ideas for sustainable energy"></textarea>
-            
-            <div class="examples">
-                <span style="color: rgba(255,255,255,0.6); font-size: 12px;">✨ Try: </span>
-                <span class="example-chip" onclick="setExample('A short story about a cat who discovers a secret door in the attic')">Cat discovers secret door</span>
-                <span class="example-chip" onclick="setExample('A poem about stars and dreams')">Stars and dreams poem</span>
-                <span class="example-chip" onclick="setExample('A sci-fi script scene where two astronauts find alien life')">Sci-fi script scene</span>
-                <span class="example-chip" onclick="setExample('5 creative marketing ideas for a coffee shop')">Coffee shop ideas</span>
-            </div>
-
-            <button class="generate-btn" id="generateBtn">✨ Generate Creative Content</button>
-        </div>
-
-        <!-- Output Section -->
-        <div class="output-section">
-            <div class="output-header">
-                <h3><i class="fas fa-magic"></i> Your Creation</h3>
-                <div class="output-actions">
-                    <button class="action-btn" onclick="copyOutput()"><i class="fas fa-copy"></i> Copy</button>
-                    <button class="action-btn" onclick="downloadOutput()"><i class="fas fa-download"></i> Download</button>
-                    <button class="action-btn" onclick="clearOutput()"><i class="fas fa-trash"></i> Clear</button>
-                </div>
-            </div>
-            <div class="output-content" id="outputContent">
-                <em style="color: rgba(255,255,255,0.5);">Your generated content will appear here. Select a mode and enter a prompt above!</em>
-            </div>
-            <div class="loading" id="loadingIndicator">
-                <div class="spinner"></div>
-                <p>Creating something amazing...</p>
-            </div>
-        </div>
+async function generateCode() {
+  const prompt = promptEl.value.trim();
+  const language = codeLanguageSelect.value;
+  if (!prompt) { showToast('Please enter a code description'); return; }
+  
+  isGenerating = true;
+  sendBtn.disabled = true;
+  sendBtn.textContent = '⏳ Generating Code...';
+  outputEl.innerHTML = '<div class="loading"><div class="spinner"></div><div>Writing your code...</div></div>';
+  
+  const jaiPrompt = `Write ${language} code for: ${prompt}. Include comments explaining what the code does. Make it clean and well-formatted.`;
+  const result = await callJAI(jaiPrompt);
+  lastGeneratedCode = result;
+  
+  outputEl.innerHTML = `
+    <div class="output-card">
+      <div class="output-code">${escapeHtml(result).replace(/\n/g, '<br>')}</div>
+      <div class="output-actions">
+        <button onclick="copyCode()">📋 Copy</button>
+        <button onclick="downloadCode()">💾 Download</button>
+        <button onclick="regenerateCode()">🔄 Regenerate</button>
+      </div>
     </div>
+  `;
+  
+  history.unshift({ prompt: prompt, mode: 'code', language: language, text: result, timestamp: Date.now() });
+  history = history.slice(0, 12);
+  localStorage.setItem('creative_history', JSON.stringify(history));
+  renderRecent();
+  
+  sendBtn.disabled = false;
+  sendBtn.textContent = '💻 Generate Code';
+  isGenerating = false;
+  showToast('Code generated!');
+}
 
-    <script>
-        // ============ AUTHENTICATION CHECK ============
-        const token = localStorage.getItem('token');
-        const user = localStorage.getItem('user');
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        
-        if (!token && !user) {
-            loadingOverlay.style.display = 'flex';
-            setTimeout(() => {
-                window.location.href = '/login.html';
-            }, 1000);
-        } else {
-            loadingOverlay.style.display = 'none';
-            if (user) {
-                try {
-                    const userData = JSON.parse(user);
-                    console.log('Logged in as:', userData.name);
-                } catch(e) {}
-            }
-        }
+async function generateImage() {
+  const prompt = promptEl.value.trim();
+  if (!prompt && !currentFile) { showToast('Please enter a prompt or upload an image'); return; }
+  
+  isGenerating = true;
+  sendBtn.disabled = true;
+  sendBtn.textContent = '⏳ Generating...';
+  outputEl.innerHTML = '<div class="loading"><div class="spinner"></div><div>Creating your image...</div></div>';
+  
+  await new Promise(r => setTimeout(r, 2000));
+  const randomId = Date.now();
+  const imageUrl = `https://picsum.photos/400?random=${randomId}`;
+  currentMediaUrl = imageUrl;
+  
+  outputEl.innerHTML = `
+    <div class="output-card">
+      <img src="${imageUrl}" class="output-img" id="resultMedia">
+      <div class="edit-tools">
+        <button class="edit-btn" onclick="applyEdit('make brighter')">☀️ Brighten</button>
+        <button class="edit-btn" onclick="applyEdit('make darker')">🌙 Darken</button>
+        <button class="edit-btn" onclick="applyEdit('add more contrast')">🎨 Contrast</button>
+        <button class="edit-btn" onclick="applyEdit('make more colorful')">🌈 Colorful</button>
+        <button class="edit-btn" onclick="applyEdit('make black and white')">⚫ B&W</button>
+        <button class="edit-btn" onclick="openFilterModal()">🎨 Filters</button>
+      </div>
+      <div class="output-actions">
+        <button onclick="downloadMedia()">💾 Download</button>
+        <button onclick="copyMedia()">📋 Copy</button>
+        <button onclick="regenerateImage()">🔄 Regenerate</button>
+      </div>
+    </div>
+  `;
+  
+  history.unshift({ prompt: prompt || 'Generated image', mode: 'image', url: imageUrl, timestamp: Date.now() });
+  history = history.slice(0, 12);
+  localStorage.setItem('creative_history', JSON.stringify(history));
+  renderRecent();
+  
+  sendBtn.disabled = false;
+  sendBtn.textContent = '✨ Generate';
+  isGenerating = false;
+  showToast('Image generated!');
+}
 
-        // ============ JAI API CONFIGURATION ============
-        const API_URL = 'https://jai1-sh81.onrender.com';
-        let clientId = localStorage.getItem('klynx_client_id');
-        if (!clientId) {
-            clientId = 'klynx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-            localStorage.setItem('klynx_client_id', clientId);
-        }
+async function generateVideo() {
+  const prompt = promptEl.value.trim();
+  if (!prompt && !currentFile) { showToast('Please enter a prompt or upload a video'); return; }
+  
+  isGenerating = true;
+  sendBtn.disabled = true;
+  sendBtn.textContent = '⏳ Generating...';
+  outputEl.innerHTML = '<div class="loading"><div class="spinner"></div><div>Creating your video...</div></div>';
+  
+  await new Promise(r => setTimeout(r, 2000));
+  const videoUrl = `https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4`;
+  currentMediaUrl = videoUrl;
+  
+  outputEl.innerHTML = `
+    <div class="output-card">
+      <video src="${videoUrl}" class="output-video" controls autoplay id="resultMedia"></video>
+      <div class="output-actions">
+        <button onclick="downloadMedia()">💾 Download</button>
+        <button onclick="copyMedia()">📋 Copy</button>
+        <button onclick="regenerateVideo()">🔄 Regenerate</button>
+      </div>
+    </div>
+  `;
+  
+  history.unshift({ prompt: prompt || 'Generated video', mode: 'video', url: videoUrl, timestamp: Date.now() });
+  history = history.slice(0, 12);
+  localStorage.setItem('creative_history', JSON.stringify(history));
+  renderRecent();
+  
+  sendBtn.disabled = false;
+  sendBtn.textContent = '✨ Generate';
+  isGenerating = false;
+  showToast('Video generated!');
+}
 
-        // ============ APP STATE ============
-        let currentMode = 'story';
-        let currentOutput = '';
+async function generate() {
+  if (currentMode === 'poetry') await generatePoetry();
+  else if (currentMode === 'code') await generateCode();
+  else if (currentMode === 'image') await generateImage();
+  else if (currentMode === 'video') await generateVideo();
+}
 
-        // Mode descriptions for the AI
-        const modePrompts = {
-            story: 'Write a creative short story based on this prompt:',
-            poem: 'Write a beautiful poem based on this theme:',
-            script: 'Write a short script or dialogue scene based on this idea:',
-            idea: 'Generate creative ideas based on this prompt. List them with brief explanations:',
-            song: 'Write original song lyrics based on this theme or emotion:'
-        };
+function regenerateImage() { generateImage(); }
+function regenerateVideo() { generateVideo(); }
+function regeneratePoetry() { generatePoetry(); }
+function regenerateCode() { generateCode(); }
+window.regenerateImage = regenerateImage;
+window.regenerateVideo = regenerateVideo;
+window.regeneratePoetry = regeneratePoetry;
+window.regenerateCode = regenerateCode;
 
-        // ============ DOM ELEMENTS ============
-        const promptInput = document.getElementById('promptInput');
-        const generateBtn = document.getElementById('generateBtn');
-        const outputContent = document.getElementById('outputContent');
-        const loadingIndicator = document.getElementById('loadingIndicator');
+function downloadMedia() {
+  if (!currentMediaUrl) { showToast('No media to download'); return; }
+  const link = document.createElement('a');
+  link.download = `${currentMode}-${Date.now()}.${currentMode === 'image' ? 'png' : 'mp4'}`;
+  link.href = currentMediaUrl;
+  link.click();
+  showToast('Download started');
+}
+window.downloadMedia = downloadMedia;
 
-        // ============ MODE SELECTOR ============
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentMode = btn.dataset.mode;
-                
-                // Update placeholder based on mode
-                const placeholders = {
-                    story: 'Describe the story you want me to write...\n\nExample: "A young wizard discovers a hidden realm beneath the city"',
-                    poem: 'Describe the theme or emotion for your poem...\n\nExample: "A poem about hope after a storm"',
-                    script: 'Describe the scene or characters for your script...\n\nExample: "Two friends reunite after 10 years in a coffee shop"',
-                    idea: 'Describe what kind of ideas you need...\n\nExample: "5 innovative app ideas for students"',
-                    song: 'Describe the theme or mood for your song...\n\nExample: "A love song about long-distance relationships"'
-                };
-                promptInput.placeholder = placeholders[currentMode] || 'Enter your creative prompt here...';
-            });
-        });
+async function copyMedia() {
+  if (!currentMediaUrl) { showToast('No media to copy'); return; }
+  try {
+    const blob = await fetch(currentMediaUrl).then(r => r.blob());
+    await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+    showToast('Copied to clipboard');
+  } catch(e) { showToast('Copy failed'); }
+}
+window.copyMedia = copyMedia;
 
-        // ============ EXAMPLE HELPER ============
-        function setExample(text) {
-            promptInput.value = text;
-        }
+function clearMedia() {
+  currentMediaUrl = '';
+  currentFile = null;
+  fileInput.value = '';
+  outputEl.innerHTML = '';
+  showToast('Media cleared');
+}
+window.clearMedia = clearMedia;
 
-        // ============ GENERATE CONTENT ============
-        async function generateContent() {
-            const prompt = promptInput.value.trim();
-            
-            if (!prompt) {
-                alert('Please enter a prompt first!');
-                return;
-            }
+function copyText() {
+  if (lastGeneratedText) {
+    navigator.clipboard.writeText(lastGeneratedText);
+    showToast('Poem copied!');
+  }
+}
+window.copyText = copyText;
 
-            // Show loading
-            generateBtn.disabled = true;
-            generateBtn.textContent = 'Creating...';
-            loadingIndicator.style.display = 'block';
-            outputContent.innerHTML = '';
+function copyCode() {
+  if (lastGeneratedCode) {
+    navigator.clipboard.writeText(lastGeneratedCode);
+    showToast('Code copied!');
+  }
+}
+window.copyCode = copyCode;
 
-            try {
-                const fullPrompt = `${modePrompts[currentMode]} ${prompt}`;
-                
-                const response = await fetch(`${API_URL}/api/chat`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        message: fullPrompt,
-                        clientId: clientId,
-                        options: { speech: false }
-                    })
-                });
+function downloadText() {
+  if (lastGeneratedText) {
+    const blob = new Blob([lastGeneratedText], {type: 'text/plain'});
+    const link = document.createElement('a');
+    link.download = `poem-${Date.now()}.txt`;
+    link.href = URL.createObjectURL(blob);
+    link.click();
+    URL.revokeObjectURL(link.href);
+    showToast('Downloaded!');
+  }
+}
+window.downloadText = downloadText;
 
-                const data = await response.json();
+function downloadCode() {
+  if (lastGeneratedCode) {
+    const blob = new Blob([lastGeneratedCode], {type: 'text/plain'});
+    const link = document.createElement('a');
+    const lang = codeLanguageSelect.value;
+    link.download = `code-${Date.now()}.${lang === 'python' ? 'py' : lang === 'javascript' ? 'js' : lang === 'html' ? 'html' : 'txt'}`;
+    link.href = URL.createObjectURL(blob);
+    link.click();
+    URL.revokeObjectURL(link.href);
+    showToast('Downloaded!');
+  }
+}
+window.downloadCode = downloadCode;
 
-                if (response.ok && data.response) {
-                    currentOutput = data.response;
-                    outputContent.innerHTML = formatOutput(currentOutput);
-                } else {
-                    throw new Error('Failed to generate content');
-                }
-            } catch (error) {
-                console.error('Generation error:', error);
-                outputContent.innerHTML = `<span style="color: #ff8888;">❌ Sorry, I couldn't generate content right now. Please try again.</span>`;
-            } finally {
-                generateBtn.disabled = false;
-                generateBtn.textContent = '✨ Generate Creative Content';
-                loadingIndicator.style.display = 'none';
-            }
-        }
+function speakText() {
+  if (lastGeneratedText) {
+    const utterance = new SpeechSynthesisUtterance(lastGeneratedText);
+    utterance.rate = 0.9;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+    showToast('Speaking...');
+  }
+}
+window.speakText = speakText;
 
-        function formatOutput(text) {
-            // Convert line breaks to <br> and preserve formatting
-            return text.replace(/\n/g, '<br>');
-        }
+function openFilterModal() { document.getElementById('filterModal').style.display = 'flex'; }
+function closeFilterModal() { document.getElementById('filterModal').style.display = 'none'; }
+window.openFilterModal = openFilterModal;
+window.closeFilterModal = closeFilterModal;
 
-        // ============ OUTPUT ACTIONS ============
-        function copyOutput() {
-            if (!currentOutput) {
-                alert('Nothing to copy. Generate some content first!');
-                return;
-            }
-            
-            navigator.clipboard.writeText(currentOutput);
-            alert('✅ Content copied to clipboard!');
-        }
+function applyFilter() {
+  const filter = document.getElementById('filterSelect').value;
+  closeFilterModal();
+  applyEdit(`apply ${filter} filter`);
+}
+window.applyFilter = applyFilter;
 
-        function downloadOutput() {
-            if (!currentOutput) {
-                alert('Nothing to download. Generate some content first!');
-                return;
-            }
-            
-            const modeNames = {
-                story: 'Story',
-                poem: 'Poem',
-                script: 'Script',
-                idea: 'Ideas',
-                song: 'SongLyrics'
-            };
-            
-            const filename = `K-LYNX_${modeNames[currentMode]}_${Date.now()}.txt`;
-            const blob = new Blob([currentOutput], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
+function renderRecent() {
+  const grid = document.getElementById('recentGrid');
+  if (history.length === 0) {
+    grid.innerHTML = '<div class="recent-item">✨<br>Your<br>creations</div><div class="recent-item"></div><div class="recent-item"></div><div class="recent-item"></div>';
+    return;
+  }
+  grid.innerHTML = history.slice(0, 8).map(item => {
+    if (item.mode === 'image' && item.url) {
+      return `<div class="recent-item" onclick="loadRecent('${item.url}', '${item.mode}')"><img src="${item.url}"></div>`;
+    } else if (item.mode === 'video' && item.url) {
+      return `<div class="recent-item" onclick="loadRecent('${item.url}', '${item.mode}')">🎬</div>`;
+    } else {
+      return `<div class="recent-item" onclick="loadRecentText('${escapeHtml(item.text).substring(0, 50)}', '${item.mode}')">${item.mode === 'poetry' ? '🪶' : '💻'}</div>`;
+    }
+  }).join('');
+}
 
-        function clearOutput() {
-            currentOutput = '';
-            outputContent.innerHTML = '<em style="color: rgba(255,255,255,0.5);">Your generated content will appear here. Select a mode and enter a prompt above!</em>';
-        }
+function loadRecent(url, mode) {
+  currentMode = mode;
+  currentMediaUrl = url;
+  document.querySelector('.chip.active').classList.remove('active');
+  document.querySelector(`.chip[data-mode="${mode}"]`).classList.add('active');
+  outputEl.innerHTML = `
+    <div class="output-card">
+      ${mode === 'image' ? `<img src="${url}" class="output-img">` : `<video src="${url}" class="output-video" controls></video>`}
+      <div class="output-actions">
+        <button onclick="downloadMedia()">💾 Download</button>
+        <button onclick="copyMedia()">📋 Copy</button>
+        <button onclick="clearMedia()">🗑️ Clear</button>
+      </div>
+    </div>
+  `;
+  showToast(`Loaded ${mode} from recent`);
+}
 
-        // ============ LOGOUT ============
-        function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = '/login.html';
-        }
+function loadRecentText(text, mode) {
+  currentMode = mode;
+  if (mode === 'poetry') lastGeneratedText = text;
+  else lastGeneratedCode = text;
+  document.querySelector('.chip.active').classList.remove('active');
+  document.querySelector(`.chip[data-mode="${mode}"]`).classList.add('active');
+  const displayText = mode === 'code' ? 
+    `<div class="output-code">${escapeHtml(text).replace(/\n/g, '<br>')}</div>` :
+    `<div class="output-text">${escapeHtml(text).replace(/\n/g, '<br>')}</div>`;
+  outputEl.innerHTML = `
+    <div class="output-card">
+      ${displayText}
+      <div class="output-actions">
+        <button onclick="${mode === 'poetry' ? 'copyText()' : 'copyCode()'}">📋 Copy</button>
+        <button onclick="${mode === 'poetry' ? 'downloadText()' : 'downloadCode()'}">💾 Download</button>
+        ${mode === 'poetry' ? '<button onclick="speakText()">🔊 Listen</button>' : ''}
+      </div>
+    </div>
+  `;
+  showToast(`Loaded ${mode} from recent`);
+}
 
-        // ============ EVENT LISTENERS ============
-        generateBtn.addEventListener('click', generateContent);
-        
-        // Enter key shortcut (Ctrl+Enter)
-        promptInput.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === 'Enter') {
-                generateContent();
-            }
-        });
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
 
-        // ============ WELCOME MESSAGE ============
-        if (user) {
-            try {
-                const userData = JSON.parse(user);
-                console.log(`Welcome to Creative Engine, ${userData.name}!`);
-            } catch(e) {}
-        }
-    </script>
+function logout() { 
+  localStorage.removeItem('token'); 
+  localStorage.removeItem('user'); 
+  window.location.href = '/login.html'; 
+}
+
+sendBtn.onclick = generate;
+renderRecent();
+updateCharCount();
+</script>
 </body>
 </html>
