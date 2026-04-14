@@ -312,6 +312,52 @@
     color: rgba(255,255,255,0.5);
    }
 
+   .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.95);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    flex-direction: column;
+   }
+
+   .spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(0,212,255,0.3);
+    border-top-color: #00d4ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+   }
+
+   @keyframes spin { to { transform: rotate(360deg); } }
+   
+   .toast { 
+    position: fixed; 
+    bottom: 30px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    background: #1E293B; 
+    padding: 12px 28px; 
+    border-radius: 50px; 
+    border-left: 4px solid #00ffaa; 
+    display: none; 
+    z-index: 1000; 
+    font-size: 14px; 
+   }
+   
+   .toast.show { display: block; animation: slideUp 0.3s ease; }
+   
+   @keyframes slideUp { 
+    from { opacity: 0; transform: translateX(-50%) translateY(20px); } 
+    to { opacity: 1; transform: translateX(-50%) translateY(0); } 
+   }
+
    @media (max-width: 768px) {
     .hero h1 { font-size: 36px; }
     .header { padding: 15px 20px; }
@@ -321,6 +367,9 @@
 </style>
 </head>
 <body>
+
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><p>Checking authentication...</p></div>
+<div id="toast" class="toast"></div>
 
 <div class="header">
     <div class="logo">K-LYNX AI++ <span style="font-size:12px;">beta</span></div>
@@ -347,20 +396,20 @@
 <div class="features-section" id="features">
     <h2 class="section-title">🌟 Powerful Features</h2>
     <div class="features-grid">
-        <div class="feature-card" onclick="openFeature('Core Intelligence')"><div class="feature-icon">🧠</div><h3>Core Intelligence</h3><p>Your main AI assistant for asking questions, exploring knowledge, and solving complex problems.</p></div>
-        <div class="feature-card" onclick="openFeature('Creative Engine')"><div class="feature-icon">🎨</div><h3>Creative Engine</h3><p>Generate stories, ideas, scripts, and creative content instantly with our advanced AI.</p></div>
-        <div class="feature-card" onclick="openFeature('Professional Writer')"><div class="feature-icon">✍️</div><h3>Professional Writer</h3><p>Write emails, proposals, reports, and formal documents with professional-grade assistance.</p></div>
-        <div class="feature-card" onclick="openFeature('Emotional Insight')"><div class="feature-icon">💝</div><h3>Emotional Insight</h3><p>Understand emotions and receive thoughtful, human-like responses that show genuine empathy.</p></div>
-        <div class="feature-card" onclick="openFeature('Document Intelligence')"><div class="feature-icon">📄</div><h3>Document Intelligence</h3><p>Upload and analyze PDFs, contracts, and complex documents with intelligent summarization.</p></div>
-        <div class="feature-card" onclick="openFeature('CV Architect')"><div class="feature-icon">📝</div><h3>CV Architect</h3><p>Build a professional CV quickly and easily with AI-powered suggestions.</p></div>
-        <div class="feature-card" onclick="openFeature('Smart Scheduler')"><div class="feature-icon">📅</div><h3>Smart Scheduler</h3><p>Organize your day, tasks, and productivity with intelligent scheduling assistance.</p></div>
-        <div class="feature-card" onclick="openFeature('Educational Tutor')"><div class="feature-icon">📚</div><h3>Educational Tutor</h3><p>Past exam questions, memoranda, and challenges to help you practice and learn.</p></div>
-        <div class="feature-card" onclick="openFeature('Currency Converter')"><div class="feature-icon">💱</div><h3>Currency Converter</h3><p>Quickly and accurately convert currencies with real-time exchange rates.</p></div>
-        <div class="feature-card" onclick="openFeature('Career Alerts')"><div class="feature-icon">💼</div><h3>Career Alerts</h3><p>Get job opportunities tailored to your skills and career preferences.</p></div>
-        <div class="feature-card" onclick="openFeature('Q&A–Teach AI')"><div class="feature-icon">❓</div><h3>Q&A–Teach AI</h3><p>Ask questions and teach the AI to provide better answers over time.</p></div>
-        <div class="feature-card" onclick="openFeature('AI Calls')"><div class="feature-icon">📞</div><h3>AI Calls</h3><p>Talk to AI through voice or video interaction for natural conversations.</p></div>
-        <div class="feature-card" onclick="openFeature('AI Powered Meetings')"><div class="feature-icon">🎥</div><h3>AI Powered Meetings</h3><p>AI joins meetings, takes notes, summarizes discussions, and extracts action items.</p></div>
-        <div class="feature-card" onclick="openFeature('Private Journal')"><div class="feature-icon">📓</div><h3>Private Journal</h3><p>A safe, encrypted space for your thoughts, reflections, and personal growth.</p></div>
+        <div class="feature-card" onclick="navigateTo('Core-Intelligence', 'Core Intelligence')"><div class="feature-icon">🧠</div><h3>Core Intelligence</h3><p>Your main AI assistant for asking questions, exploring knowledge, and solving complex problems.</p></div>
+        <div class="feature-card" onclick="navigateTo('Creative-Engine', 'Creative Engine')"><div class="feature-icon">🎨</div><h3>Creative Engine</h3><p>Generate images, videos, voice, music, poetry, scripts, stories and more.</p></div>
+        <div class="feature-card" onclick="navigateTo('Professional-Writer', 'Professional Writer')"><div class="feature-icon">✍️</div><h3>Professional Writer</h3><p>Write emails, proposals, reports, and formal documents with professional-grade assistance.</p></div>
+        <div class="feature-card" onclick="navigateTo('Emotional-Insight', 'Emotional Insight')"><div class="feature-icon">💝</div><h3>Emotional Insight</h3><p>Understand emotions and receive thoughtful, human-like responses that show genuine empathy.</p></div>
+        <div class="feature-card" onclick="navigateTo('Document-Intelligence', 'Document Intelligence')"><div class="feature-icon">📄</div><h3>Document Intelligence</h3><p>Upload and analyze PDFs, contracts, and complex documents with intelligent summarization.</p></div>
+        <div class="feature-card" onclick="navigateTo('CV-Architect', 'CV Architect')"><div class="feature-icon">📝</div><h3>CV Architect</h3><p>Build a professional CV quickly and easily with AI-powered suggestions.</p></div>
+        <div class="feature-card" onclick="navigateTo('Smart-Scheduler', 'Smart Scheduler')"><div class="feature-icon">📅</div><h3>Smart Scheduler</h3><p>Organize your day, tasks, and productivity with intelligent scheduling assistance.</p></div>
+        <div class="feature-card" onclick="navigateTo('Educational-Tutor', 'Educational Tutor')"><div class="feature-icon">📚</div><h3>Educational Tutor</h3><p>Past exam questions, memoranda, and challenges to help you practice and learn.</p></div>
+        <div class="feature-card" onclick="navigateTo('Currency-Converter', 'Currency Converter')"><div class="feature-icon">💱</div><h3>Currency Converter</h3><p>Quickly and accurately convert currencies with real-time exchange rates.</p></div>
+        <div class="feature-card" onclick="navigateTo('Career-Alerts', 'Career Alerts')"><div class="feature-icon">💼</div><h3>Career Alerts</h3><p>Get job opportunities tailored to your skills and career preferences.</p></div>
+        <div class="feature-card" onclick="navigateTo('Q&A–Teach-AI', 'Q&A Teach AI')"><div class="feature-icon">❓</div><h3>Q&A–Teach AI</h3><p>Ask questions and teach the AI to provide better answers over time.</p></div>
+        <div class="feature-card" onclick="navigateTo('AI-Calls', 'AI Calls')"><div class="feature-icon">📞</div><h3>AI Calls</h3><p>Talk to AI through voice or video interaction for natural conversations.</p></div>
+        <div class="feature-card" onclick="navigateTo('AI-Powered-Meetings', 'AI Powered Meetings')"><div class="feature-icon">🎥</div><h3>AI Powered Meetings</h3><p>AI joins meetings, takes notes, summarizes discussions, and extracts action items.</p></div>
+        <div class="feature-card" onclick="navigateTo('Private-Journal', 'Private Journal')"><div class="feature-icon">📓</div><h3>Private Journal</h3><p>A safe, encrypted space for your thoughts, reflections, and personal growth.</p></div>
     </div>
 </div>
 
@@ -393,25 +442,24 @@
 </div>
 
 <script>
-    // API Configuration
     const API_URL = 'https://jai1-sh81.onrender.com';
-    
-    // Generate or retrieve client ID
     let clientId = localStorage.getItem('klynx_client_id');
-    if (!clientId) {
-        clientId = 'klynx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('klynx_client_id', clientId);
+    if (!clientId) { 
+        clientId = 'klynx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9); 
+        localStorage.setItem('klynx_client_id', clientId); 
     }
     
-    // Check if user is logged in
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
+    const loadingOverlay = document.getElementById('loadingOverlay');
     
     if (!token && !user) {
-        window.location.href = '/login.html';
+        loadingOverlay.style.display = 'flex';
+        setTimeout(() => { window.location.href = '/login.html'; }, 1000);
+    } else {
+        loadingOverlay.style.display = 'none';
     }
 
-    // Display welcome message with user name
     if (user) {
         try {
             const userData = JSON.parse(user);
@@ -422,27 +470,53 @@
         } catch(e) {}
     }
 
-    // Silently notify JAI about page view
-    async function notifyJAIPageView(pageName) {
+    function showToast(msg) { 
+        const toast = document.getElementById('toast'); 
+        toast.textContent = msg; 
+        toast.classList.add('show'); 
+        setTimeout(() => toast.classList.remove('show'), 3000); 
+    }
+
+    async function notifyJAI(featureName, displayName) {
         try {
-            await fetch(`${API_URL}/api/chat`, { 
+            // Send the "entering" command for JAI to know which page the user is on
+            const response = await fetch(`${API_URL}/api/chat`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ 
-                    message: `Entering ${pageName}`,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: `entering ${displayName}`,
                     clientId: clientId,
                     options: { speech: false }
                 })
             });
+            
+            const data = await response.json();
+            console.log('JAI notified:', data);
+            return true;
         } catch (error) {
-            // Silently fail - don't block navigation
-            console.log('Silent notification failed');
+            console.error('Failed to notify JAI:', error);
+            return false;
         }
     }
 
+    async function navigateTo(featureName, displayName) {
+        // Show toast notification
+        showToast(`🚀 Loading ${displayName}...`);
+        
+        // Notify JAI API with "entering" command
+        await notifyJAI(featureName, displayName);
+        
+        // Navigate after a small delay
+        setTimeout(() => {
+            window.location.href = `/${featureName}.html`;
+        }, 300);
+    }
+
     function startChat() { 
-        notifyJAIPageView('Chat Page');
-        window.location.href = '/chat.html';
+        showToast('🚀 Opening Chat...');
+        setTimeout(() => { 
+            window.location.href = '/chat.html'; 
+        }, 200);
     }
     
     function scrollToSection(section) { 
@@ -452,19 +526,8 @@
     function logout() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        window.location.href = '/login.html';
-    }
-
-    // Feature navigation - converts feature name to filename.html with silent JAI notification
-    async function openFeature(featureName) {
-        // Silently notify JAI about feature navigation
-        await notifyJAIPageView(featureName);
-        
-        let filename = featureName.replace(/ /g, '-').replace(/–/g, '-');
-        filename = filename + '.html';
-        
-        console.log('Navigating to:', filename);
-        window.location.href = filename;
+        showToast('👋 Logging out...');
+        setTimeout(() => { window.location.href = '/login.html'; }, 500);
     }
 
     // Animate stats when they come into view
@@ -494,9 +557,6 @@
 
     const statsSection = document.querySelector('.stats-section');
     if (statsSection) observer.observe(statsSection);
-    
-    // Silently notify that user is on dashboard
-    notifyJAIPageView('Dashboard');
 </script>
 </body>
 </html>
