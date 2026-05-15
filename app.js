@@ -64,7 +64,7 @@ app.get('/chat', (req, res) => {
 
 app.get('/index', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+}); 
 
 
 app.post('/api/ai/chat', async (req, res) => {
