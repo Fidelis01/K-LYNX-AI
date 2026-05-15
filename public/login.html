@@ -332,6 +332,35 @@
     document.getElementById('loginPassword').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') login();
         });
+
+
+// 1. Start with a "Loading" state
+let isInitialLoad = true;
+
+firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+        // SUCCESS: User is found
+        console.log("Welcome:", user.email);
+        isInitialLoad = false;
+        // Hide your loading spinner and show your content here
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+    } else {
+        // WAIT: Only redirect if this isn't the very first check
+        if (!isInitialLoad) {
+            console.log("No active session found. Redirecting...");
+            window.location.href = 'login.html';
+        } else {
+            // This was the very first check, give Firebase 2 seconds to recover the session
+            isInitialLoad = false;
+            setTimeout(() => {
+                if (!firebase.auth().currentUser) {
+                    window.location.href = 'login.html';
+                }
+            }, 2000); 
+        }
+    }
+});
     </script>
 </body>
 </html>
