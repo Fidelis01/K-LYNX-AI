@@ -441,6 +441,49 @@
     <div class="copyright"><p>&copy; 2026 K-LYNX AI++. All rights reserved. Built with ❤️ in South Africa.</p></div>
 </div>
 
+<script type="module">
+  // 1. Import the same modern SDKs you used in the login page
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+  // 2. Use your exact Firebase Config here
+  const firebaseConfig = {
+    apiKey: "AIzaSyDxxjFQkZuaKpf-MLwSrgFgOV513UqYi_A",
+    authDomain: "klynx-ai-7d556.firebaseapp.com",
+    projectId: "klynx-ai-7d556",
+    storageBucket: "klynx-ai-7d556.firebasestorage.app",
+    messagingSenderId: "281796331487",
+    appId: "1:281796331487:web:3c5e431bd396a1bf28e66a",
+    measurementId: "G-VR3RJWNVFK"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // 3. THE "PATIENT" AUTH CHECK
+  // This function waits for Firebase to say "I'm done looking for a user"
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // SUCCESS: Firebase found your login session!
+      console.log("Access Granted:", user.email);
+      
+      // Update these IDs to match your actual HTML elements
+      const loader = document.querySelector('.loading-container') || document.getElementById('loading-screen');
+      const content = document.querySelector('.main-container') || document.getElementById('main-content');
+
+      if (loader) loader.style.display = 'none';
+      if (content) content.style.display = 'block';
+
+    } else {
+      // FAIL: No session found. ONLY THEN redirect to login.
+      console.log("No session. Redirecting to login...");
+      
+      // Make sure this path is correct for your Render setup
+      window.location.href = 'login.html'; 
+    }
+  });
+</script>
+
 <script>
     const API_URL = 'https://jai1-sh81.onrender.com';
     let clientId = localStorage.getItem('klynx_client_id');
