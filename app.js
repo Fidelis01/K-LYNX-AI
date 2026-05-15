@@ -17,7 +17,6 @@ const admin = require("firebase-admin");
 const serviceAccount = require("./klynx-ai-firebase-key.json"); // Make sure this matches your file name!
 
 // 3. INITIALIZE FIREBASE
-const admin = require('firebase-admin');
 
 let serviceAccount;
 
