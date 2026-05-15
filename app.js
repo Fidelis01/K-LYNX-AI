@@ -10,24 +10,31 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// 1. IMPORT FIREBASE
-const admin = require("firebase-admin");
+const admin = require('firebase-admin');
 
-// 2. LOAD YOUR SECRET FIREBASE KEY
-const serviceAccount = require("./klynx-ai-firebase-key.json"); // Make sure this matches your file name!
-
-// 3. INITIALIZE FIREBASE
+let serviceAccount;
 
 if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-  // On Render: Parse the secret string back into a JSON object
-  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    // RENDER: Parse the secret environment variable
+    try {
+        serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    } catch (error) {
+        console.error("Render Env Var Error: The JSON is formatted incorrectly.");
+        process.exit(1);
+    }
 } else {
-  // On your laptop: Use the local file
-  serviceAccount = require('./klynx-ai-firebase-key.json');
+    // LAPTOP: Look for the file
+    try {
+        serviceAccount = require('./klynx-ai-firebase-key.json');
+    } catch (error) {
+        console.error("Missing File: Could not find ./klynx-ai-firebase-key.json on local machine.");
+        process.exit(1);
+    }
 }
 
+// Initialize Firebase
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+    credential: admin.credential.cert(serviceAccount)
 });
 
 const db = admin.firestore();
