@@ -1,1 +1,1 @@
-Welcome to K-LYNX AI use "npm start or node app" to wake the server
+Welcome to K-LYNX AI, use "npm start or node app" to wake the server

@@ -3,431 +3,560 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>K-LYNX AI</title>
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
-
+<title>K-LYNX AI | Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
+   * { margin: 0; padding: 0; box-sizing: border-box; }
+   
+   body {
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    min-height: 100vh;
+    font-family: 'Open Sans', sans-serif;
+    color: #fff;
+   }
 
-/* ---------- GLOBAL ---------- */
+   .header {
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+   }
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Open Sans', sans-serif;
-}
+   .logo {
+    font-size: 28px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #00d4ff, #00ffaa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+   }
 
-body{
-background:#05060f;
-color:white;
-min-height:100vh;
-}
+   .nav-links {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+   }
 
-/* ---------- TOP BAR ---------- */
+   .nav-links a {
+    color: #fff;
+    text-decoration: none;
+    transition: 0.3s;
+    font-weight: 500;
+    cursor: pointer;
+   }
 
-.topBar{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:20px 30px;
-}
+   .nav-links a:hover { color: #00d4ff; }
 
-.logo{
-font-size:22px;
-font-weight:600;
-letter-spacing:1px;
-}
+   .profile-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00d4ff, #00ffaa);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s;
+   }
 
-.right{
-display:flex;
-gap:15px;
-align-items:center;
-}
+   .profile-icon:hover { transform: scale(1.1); }
 
-select{
-background:#111;
-color:white;
-border:none;
-padding:6px 10px;
-border-radius:6px;
-}
+   .hero {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    padding: 40px 20px;
+    text-align: center;
+   }
 
-.profile{
-width:35px;
-height:35px;
-border-radius:50%;
-background:linear-gradient(135deg,#ff69b4,#8a2be2,#4b0082);
-}
+   .hero-content { max-width: 800px; }
 
-/* ---------- HERO ---------- */
+   .hero h1 {
+    font-size: 56px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #00d4ff, #00ffaa, #00d4ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+   }
 
-.hero{
-display:flex;
-justify-content:center;
-align-items:center;
-margin-top:60px;
-padding:20px;
-}
+   .hero p {
+    font-size: 20px;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 30px;
+    line-height: 1.6;
+   }
 
-.heroCard{
-max-width:600px;
-width:100%;
-padding:40px;
-border-radius:20px;
+   .btn-group {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+   }
 
-/* glass effect */
-background:rgba(255,255,255,0.05);
-backdrop-filter:blur(15px);
+   .btn-primary {
+    background: linear-gradient(135deg, #00d4ff, #00ffaa);
+    color: #0F172A;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 40px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+   }
 
-box-shadow:
-0 0 40px rgba(255,105,180,0.2),
-0 0 80px rgba(138,43,226,0.15);
+   .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+   }
 
-text-align:center;
-}
+   .btn-secondary {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    padding: 12px 30px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 40px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+   }
 
-.heroCard h1{
-font-size:28px;
-margin-bottom:10px;
-}
+   .btn-secondary:hover {
+    background: rgba(0, 212, 255, 0.2);
+    border-color: #00d4ff;
+    transform: translateY(-3px);
+   }
 
-.heroCard p{
-opacity:0.8;
-margin-bottom:25px;
-}
+   .features-section {
+    padding: 80px 20px;
+    background: rgba(0,0,0,0.3);
+   }
 
-/* BUTTONS */
+   .section-title {
+    text-align: center;
+    font-size: 36px;
+    margin-bottom: 50px;
+    font-weight: 700;
+   }
 
-.heroButtons{
-display:flex;
-justify-content:center;
-gap:15px;
-flex-wrap:wrap;
-}
+   .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+   }
 
-.btn{
-padding:10px 20px;
-border-radius:20px;
-border:none;
-cursor:pointer;
-font-weight:600;
-}
+   .feature-card {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    transition: 0.3s;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.1);
+   }
 
-/* primary */
+   .feature-card:hover {
+    transform: translateY(-10px);
+    border-color: rgba(0, 212, 255, 0.5);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+   }
 
-.primary{
-background:linear-gradient(135deg,#ff69b4,#8a2be2,#4b0082);
-color:white;
-}
+   .feature-icon { font-size: 48px; margin-bottom: 20px; }
+   .feature-card h3 { font-size: 20px; margin-bottom: 15px; color: #00d4ff; }
+   .feature-card p { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.5; }
 
-/* secondary */
+   .stats-section {
+    padding: 80px 20px;
+    background: linear-gradient(135deg, #1E293B, #0F172A);
+   }
 
-.secondary{
-background:rgba(255,255,255,0.1);
-color:white;
-}
+   .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    max-width: 1000px;
+    margin: 0 auto;
+    text-align: center;
+   }
 
-/* hover */
+   .stat-item h2 {
+    font-size: 48px;
+    font-weight: 800;
+    color: #00d4ff;
+   }
 
-.btn:hover{
-transform:scale(1.05);
-}
+   .stat-item p {
+    font-size: 16px;
+    color: rgba(255,255,255,0.7);
+    margin-top: 10px;
+   }
 
-/* ---------- FEATURES ---------- */
+   .testimonials {
+    padding: 80px 20px;
+   }
 
-.features{
-margin-top:60px;
-padding:20px;
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:20px;
-}
+   .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+   }
 
-/* CARD */
+   .testimonial-card {
+    background: rgba(255,255,255,0.05);
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: 0.3s;
+   }
 
-.card{
-padding:25px;
-border-radius:15px;
-text-align:center;
-cursor:pointer;
+   .testimonial-card:hover {
+    border-color: rgba(0, 212, 255, 0.5);
+   }
 
-background:rgba(255,255,255,0.05);
-backdrop-filter:blur(10px);
+   .testimonial-text {
+    font-style: italic;
+    margin-bottom: 20px;
+    line-height: 1.6;
+   }
 
-transition:0.3s;
-}
+   .testimonial-author {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+   }
 
-/* hover glow */
+   .author-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00d4ff, #00ffaa);
+   }
 
-.card:hover{
-transform:translateY(-5px) scale(1.03);
+   .author-info h4 { font-size: 16px; margin-bottom: 5px; }
+   .author-info p { font-size: 12px; color: rgba(255,255,255,0.6); }
 
-box-shadow:
-0 0 20px rgba(255,105,180,0.3),
-0 0 40px rgba(138,43,226,0.2);
-}
+   .footer {
+    background: #0F172A;
+    padding: 50px 30px 30px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+   }
 
-.card h3{
-font-size:16px;
-}
+   .footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+   }
 
-/* ---------- RESPONSIVE ---------- */
+   .footer-section h4 {
+    margin-bottom: 20px;
+    color: #00d4ff;
+   }
 
-@media(max-width:900px){
-.features{
-grid-template-columns:repeat(2,1fr);
-}
-}
+   .footer-section p, .footer-section a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    line-height: 2;
+    display: block;
+    transition: 0.3s;
+   }
 
-@media(max-width:600px){
-.features{
-grid-template-columns:1fr;
-}
-}
-/* ---------- GLASS PANEL MODAL ---------- */
+   .footer-section a:hover { color: #00d4ff; }
 
-.featureModal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.8);
-  width: 320px;
-  max-width: 90%;
-  padding: 25px;
-  border-radius: 20px;
-  
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px);
-  
-  box-shadow:
-    0 0 30px rgba(255, 105, 180, 0.25),
-    0 0 60px rgba(138, 43, 226, 0.2);
-  
-  text-align: center;
-  z-index: 100;
-  
-  opacity: 0;
-  pointer-events: none;
-  transition: 0.3s;
-}
+   .social-links {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+   }
 
-.featureModal.active {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-  pointer-events: auto;
-}
+   .social-links a {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+    color: white;
+   }
 
-.featureModal h2 {
-  margin-bottom: 10px;
-}
+   .social-links a:hover {
+    background: #00d4ff;
+    color: #0F172A;
+    transform: translateY(-3px);
+   }
 
-.featureModal p {
-  font-size: 14px;
-  opacity: 0.85;
-  margin-bottom: 20px;
-}
+   .copyright {
+    text-align: center;
+    padding-top: 40px;
+    margin-top: 40px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.5);
+   }
 
-/* modal buttons */
+   .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.95);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    flex-direction: column;
+   }
 
-.modalButtons {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
+   .spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(0,212,255,0.3);
+    border-top-color: #00d4ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+   }
 
-.modalButtons button {
-  flex: 1;
-  padding: 10px;
-  border: none;
-  border-radius: 15px;
-  cursor: pointer;
-  font-weight: 600;
-}
+   @keyframes spin { to { transform: rotate(360deg); } }
+   
+   .toast { 
+    position: fixed; 
+    bottom: 30px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    background: #1E293B; 
+    padding: 12px 28px; 
+    border-radius: 50px; 
+    border-left: 4px solid #00ffaa; 
+    display: none; 
+    z-index: 1000; 
+    font-size: 14px; 
+   }
+   
+   .toast.show { display: block; animation: slideUp 0.3s ease; }
+   
+   @keyframes slideUp { 
+    from { opacity: 0; transform: translateX(-50%) translateY(20px); } 
+    to { opacity: 1; transform: translateX(-50%) translateY(0); } 
+   }
 
-.useBtn {
-  background: linear-gradient(135deg, #ff69b4, #8a2be2, #4b0082);
-  color: white;
-}
-
-.backBtn {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-}
-
-
+   @media (max-width: 768px) {
+    .hero h1 { font-size: 36px; }
+    .header { padding: 15px 20px; }
+    .nav-links { gap: 15px; }
+    .section-title { font-size: 28px; }
+   }
 </style>
 </head>
-
 <body>
 
-<!-- TOP BAR -->
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><p>Checking authentication...</p></div>
+<div id="toast" class="toast"></div>
 
-<div class="topBar">
-
-<div class="logo">K-LYNX AI++</div>
-
-<div class="right">
-<select>
-<option>English</option>
-<option>Zulu</option>
-<option>Xhosa</option>
-<option>Sesotho</option>
-<option>Sepedi</option>
-<option>Setswana</option>
-<option>Afrikaans</option>
-<option>Siswati</option>
-<option>isiNdebele</option>
-<option>Tshivenda</option>
-<option>Xitsonga</option>
-<option>Swahili</option>
-<option>Pidgin</option>
-<option>Arabic</option>
-<option>Portuguese</option>
-<option>Japanese</option>
-<option>Korean</option>
-<option>Spanish</option>
-<option>Hindi</option>
-<option>Thai</option>
-<option>German</option>
-<option>Italian</option>
-<option>Dutch</option>
-<option>Bengali</option>
-<option>French</option>
-</select>
-
-<div class="profile"></div>
+<div class="header">
+    <div class="logo">K-LYNX AI++ <span style="font-size:12px;">beta</span></div>
+    <div class="nav-links">
+        <a onclick="scrollToSection('home')">Home</a>
+        <a onclick="scrollToSection('features')">Features</a>
+        <div class="profile-icon" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+        </div>
+    </div>
 </div>
 
+<div class="hero" id="home">
+    <div class="hero-content">
+        <h1 id="welcomeTitle">Welcome to K-LYNX AI++</h1>
+        <p>Experience the next generation of artificial intelligence designed to supercharge your productivity, creativity, and growth.</p>
+        <div class="btn-group">
+            <button class="btn-primary" onclick="startChat()">Start Chatting <i class="fas fa-arrow-right"></i></button>
+            <button class="btn-secondary" onclick="scrollToSection('features')">Explore Features <i class="fas fa-robot"></i></button>
+        </div>
+    </div>
 </div>
 
-<!-- HERO -->
-
-<div class="hero">
-
-<div class="heroCard">
-
-<h1>Welcome to K-LYNX AI++</h1>
-<p>Powerful AI for work, life, and growth.</p>
-
-<div class="heroButtons">
-<button class="btn primary" onclick="startChat()">Start Chat</button>
-<button class="btn secondary" onclick="scrollFeatures()">Explore Features</button>
+<div class="features-section" id="features">
+    <h2 class="section-title">🌟 Powerful Features</h2>
+    <div class="features-grid">
+        <div class="feature-card" onclick="navigateTo('Core-Intelligence', 'Core Intelligence')"><div class="feature-icon">🧠</div><h3>Core Intelligence</h3><p>Your main AI assistant for asking questions, exploring knowledge, and solving complex problems.</p></div>
+        <div class="feature-card" onclick="navigateTo('Creative-Engine', 'Creative Engine')"><div class="feature-icon">🎨</div><h3>Creative Engine</h3><p>Generate images, videos, voice, music, poetry, scripts, stories and more.</p></div>
+        <div class="feature-card" onclick="navigateTo('Professional-Writer', 'Professional Writer')"><div class="feature-icon">✍️</div><h3>Professional Writer</h3><p>Write emails, proposals, reports, and formal documents with professional-grade assistance.</p></div>
+        <div class="feature-card" onclick="navigateTo('Emotional-Insight', 'Emotional Insight')"><div class="feature-icon">💝</div><h3>Emotional Insight</h3><p>Understand emotions and receive thoughtful, human-like responses that show genuine empathy.</p></div>
+        <div class="feature-card" onclick="navigateTo('Document-Intelligence', 'Document Intelligence')"><div class="feature-icon">📄</div><h3>Document Intelligence</h3><p>Upload and analyze PDFs, contracts, and complex documents with intelligent summarization.</p></div>
+        <div class="feature-card" onclick="navigateTo('CV-Architect', 'CV Architect')"><div class="feature-icon">📝</div><h3>CV Architect</h3><p>Build a professional CV quickly and easily with AI-powered suggestions.</p></div>
+        <div class="feature-card" onclick="navigateTo('Smart-Scheduler', 'Smart Scheduler')"><div class="feature-icon">📅</div><h3>Smart Scheduler</h3><p>Organize your day, tasks, and productivity with intelligent scheduling assistance.</p></div>
+        <div class="feature-card" onclick="navigateTo('Educational-Tutor', 'Educational Tutor')"><div class="feature-icon">📚</div><h3>Educational Tutor</h3><p>Past exam questions, memoranda, and challenges to help you practice and learn.</p></div>
+        <div class="feature-card" onclick="navigateTo('Currency-Converter', 'Currency Converter')"><div class="feature-icon">💱</div><h3>Currency Converter</h3><p>Quickly and accurately convert currencies with real-time exchange rates.</p></div>
+        <div class="feature-card" onclick="navigateTo('Career-Alerts', 'Career Alerts')"><div class="feature-icon">💼</div><h3>Career Alerts</h3><p>Get job opportunities tailored to your skills and career preferences.</p></div>
+        <div class="feature-card" onclick="navigateTo('Q&A–Teach-AI', 'Q&A Teach AI')"><div class="feature-icon">❓</div><h3>Q&A–Teach AI</h3><p>Ask questions and teach the AI to provide better answers over time.</p></div>
+        <div class="feature-card" onclick="navigateTo('AI-Calls', 'AI Calls')"><div class="feature-icon">📞</div><h3>AI Calls</h3><p>Talk to AI through voice or video interaction for natural conversations.</p></div>
+        <div class="feature-card" onclick="navigateTo('AI-Powered-Meetings', 'AI Powered Meetings')"><div class="feature-icon">🎥</div><h3>AI Powered Meetings</h3><p>AI joins meetings, takes notes, summarizes discussions, and extracts action items.</p></div>
+        <div class="feature-card" onclick="navigateTo('Private-Journal', 'Private Journal')"><div class="feature-icon">📓</div><h3>Private Journal</h3><p>A safe, encrypted space for your thoughts, reflections, and personal growth.</p></div>
+    </div>
 </div>
 
+<div class="stats-section">
+    <div class="stats-grid">
+        <div class="stat-item"><h2>50K+</h2><p>Active Users</p></div>
+        <div class="stat-item"><h2>1M+</h2><p>Conversations</p></div>
+        <div class="stat-item"><h2>99.9%</h2><p>Uptime</p></div>
+        <div class="stat-item"><h2>24/7</h2><p>Support</p></div>
+    </div>
 </div>
 
+<div class="testimonials">
+    <h2 class="section-title">⭐ What Our Users Say</h2>
+    <div class="testimonials-grid">
+        <div class="testimonial-card"><p class="testimonial-text">"K-LYNX AI has transformed how I work. The document intelligence feature alone saves me hours every week!"</p><div class="testimonial-author"><div class="author-avatar"></div><div class="author-info"><h4>Sarah Johnson</h4><p>Product Manager</p></div></div></div>
+        <div class="testimonial-card"><p class="testimonial-text">"The CV Architect helped me land my dream job. The AI suggestions were incredibly helpful."</p><div class="testimonial-author"><div class="author-avatar"></div><div class="author-info"><h4>Michael Chen</h4><p>Software Engineer</p></div></div></div>
+        <div class="testimonial-card"><p class="testimonial-text">"Best AI assistant I've ever used. The emotional insight feature makes conversations feel genuinely human."</p><div class="testimonial-author"><div class="author-avatar"></div><div class="author-info"><h4>Amanda Williams</h4><p>Content Creator</p></div></div></div>
+    </div>
 </div>
 
-<!-- FEATURES -->
-
-<div class="features" id="features">
-
-<div class="card" onclick="openFeature('Core Intelligence')"><h3>Core Intelligence</h3></div>
-<div class="card" onclick="openFeature('Creative Engine')"><h3>Creative Engine</h3></div>
-<div class="card" onclick="openFeature('Professional Writer')"><h3>Professional Writer</h3></div>
-<div class="card" onclick="openFeature('Emotional Insight')"><h3>Emotional Insight</h3></div>
-<div class="card" onclick="openFeature('Document Intelligence')"><h3>Document Intelligence</h3></div>
-<div class="card" onclick="openFeature('CV Architect')"><h3>CV Architect</h3></div>
-<div class="card" onclick="openFeature('Smart Scheduler')"><h3>Smart Scheduler</h3></div>
-<div class="card" onclick
- ="openFeature('Educational Tutor')"><h3>Educational Tutor</h3></div>
-<div class="card" onclick
- ="openFeature('Currency Converter')"><h3>Currency Converter</h3></div>
-<div class="card" onclick="openFeature('Career Alerts')"><h3>Career Alerts</h3></div>
-<div class="card" onclick
-="openFeature('Q&A–Teach AI')"><h3>Q&A–Teach AI</h3></div>
-<div class="card" onclick="openFeature('AI Calls')"><h3>AI Calls</h3></div>
-<div class="card" onclick
- ="openFeature( 'AI Powered Meetings')"><h3>AI Powered Meetings</h3></div>
- <div class="card" onclick
-  ="openFeature('Private Journal')"><h3>Private Journal</h3></div>
-
-
+<div class="footer">
+    <div class="footer-content">
+        <div class="footer-section"><h4>K-LYNX AI++</h4><p>Empowering minds with artificial intelligence. Built for Africa, designed for the world.</p><div class="social-links"><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-linkedin"></i></a><a href="#"><i class="fab fa-github"></i></a><a href="#"><i class="fab fa-discord"></i></a></div></div>
+        <div class="footer-section"><h4>Product</h4><a onclick="scrollToSection('features')">Features</a><a href="#">API</a><a href="#">Integrations</a></div>
+        <div class="footer-section"><h4>Company</h4><a href="#">About Us</a><a href="#">Blog</a><a href="#">Contact</a></div>
+        <div class="footer-section"><h4>Legal</h4><a href="#">Privacy Policy</a><a href="#">Terms of Service</a></div>
+    </div>
+    <div class="copyright"><p>&copy; 2026 K-LYNX AI++. All rights reserved. Built with ❤️ in South Africa.</p></div>
 </div>
 
 <script>
+    const API_URL = 'https://jai1-sh81.onrender.com';
+    let clientId = localStorage.getItem('klynx_client_id');
+    if (!clientId) { 
+        clientId = 'klynx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9); 
+        localStorage.setItem('klynx_client_id', clientId); 
+    }
+    
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    
+    if (!token && !user) {
+        loadingOverlay.style.display = 'flex';
+        setTimeout(() => { window.location.href = '/login.html'; }, 1000);
+    } else {
+        loadingOverlay.style.display = 'none';
+    }
 
-/* BUTTON ACTIONS */
+    if (user) {
+        try {
+            const userData = JSON.parse(user);
+            const welcomeTitle = document.getElementById('welcomeTitle');
+            if (welcomeTitle && userData.name) {
+                welcomeTitle.innerHTML = `Welcome back, ${userData.name}! 👋`;
+            }
+        } catch(e) {}
+    }
 
-function startChat() {
-  alert("Chat feature coming next 🔥")
-}
+    function showToast(msg) { 
+        const toast = document.getElementById('toast'); 
+        toast.textContent = msg; 
+        toast.classList.add('show'); 
+        setTimeout(() => toast.classList.remove('show'), 3000); 
+    }
 
-function scrollFeatures() {
-  document.getElementById("features").scrollIntoView({ behavior: "smooth" })
-}
+    async function notifyJAI(featureName, displayName) {
+        try {
+            // Send the "entering" command for JAI to know which page the user is on
+            const response = await fetch(`${API_URL}/api/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: `entering ${displayName}`,
+                    clientId: clientId,
+                    options: { speech: false }
+                })
+            });
+            
+            const data = await response.json();
+            console.log('JAI notified:', data);
+            return true;
+        } catch (error) {
+            console.error('Failed to notify JAI:', error);
+            return false;
+        }
+    }
 
-/* FEATURE DESCRIPTIONS */
+    async function navigateTo(featureName, displayName) {
+        // Show toast notification
+        showToast(`🚀 Loading ${displayName}...`);
+        
+        // Notify JAI API with "entering" command
+        await notifyJAI(featureName, displayName);
+        
+        // Navigate after a small delay
+        setTimeout(() => {
+            window.location.href = `/${featureName}.html`;
+        }, 300);
+    }
 
-const featureDescriptions = {
-  
-  "Core Intelligence": "Your main AI assistant for asking questions, exploring knowledge, and solving problems.",
-  
-  "Creative Engine": "Generate stories, ideas, scripts, and creative content instantly.",
-  
-  "Professional Writer": "Write emails, proposals, and formal documents professionally.",
-  
-  "Emotional Insight": "Understand emotions and receive thoughtful, human-like responses.",
-  
-  "Document Intelligence": "Upload and simplify PDFs, contracts, and complex documents.",
-  
-  "CV Architect": "Build a professional CV quickly and easily.",
-  
-  "Smart Scheduler": "Organize your day, tasks, and productivity.",
-  
-  "Educational Tutor": "Provides past exam questions, memoranda, and educational challenges to help you practice and assess your knowledge.",
-  
- "Currency Converter": "Quickly and accurately converts currencies, helping you stay on top of exchange rates.",
-  
-  "Career Alerts": "Get job opportunities tailored to your skills.",
-  
- "Q&A–Teach AI": "Lets you ask questions and teaches the AI to provide better answers over time.",
+    function startChat() { 
+        showToast('🚀 Opening Chat...');
+        setTimeout(() => { 
+            window.location.href = '/chat.html'; 
+        }, 200);
+    }
+    
+    function scrollToSection(section) { 
+        document.getElementById(section).scrollIntoView({ behavior: 'smooth' }); 
+    }
+    
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        showToast('👋 Logging out...');
+        setTimeout(() => { window.location.href = '/login.html'; }, 500);
+    }
 
-  "AI Calls": "Talk to AI through voice or video interaction.",
-  
-  "AI Powered Meetings": "AI joins meetings, takes notes, and summarizes.",
-  
-  "Private Journal": "A safe space for your thoughts and personal reflection."
-  
-}
+    // Animate stats when they come into view
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const stats = entry.target.querySelectorAll('.stat-item h2');
+                stats.forEach(stat => {
+                    const finalValue = stat.innerText;
+                    stat.innerText = '0';
+                    let current = 0;
+                    const increment = parseInt(finalValue) / 60;
+                    const timer = setInterval(() => {
+                        current += increment;
+                        if (current >= parseInt(finalValue)) {
+                            stat.innerText = finalValue;
+                            clearInterval(timer);
+                        } else {
+                            stat.innerText = Math.floor(current).toLocaleString();
+                        }
+                    }, 30);
+                });
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
 
-/* MODAL LOGIC */
-
-let selectedFeature = ""
-
-function openFeature(name) {
-  
-  selectedFeature = name
-  
-  document.getElementById("modalTitle").innerText = name
-  document.getElementById("modalDesc").innerText = featureDescriptions[name] || "Explore this feature."
-  
-  document.getElementById("featureModal").classList.add("active")
-  
-}
-
-function closeModal() {
-  document.getElementById("featureModal").classList.remove("active")
-}
-
-function useFeature() {
-  alert("Launching " + selectedFeature + " 🚀")
-  closeModal()
-}
-
+    const statsSection = document.querySelector('.stats-section');
+    if (statsSection) observer.observe(statsSection);
 </script>
-<!-- FEATURE MODAL -->
-
-<div class="featureModal" id="featureModal">
-  
-  <h2 id="modalTitle">Feature</h2>
-  <p id="modalDesc">Description</p>
-  
-  <div class="modalButtons">
-    <button class="backBtn" onclick="closeModal()">Back</button>
-    <button class="useBtn" onclick="useFeature()">Use Feature</button>
-  </div>
-  
-</div>
 </body>
 </html>
