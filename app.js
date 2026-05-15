@@ -18,8 +18,6 @@ const serviceAccount = require("./klynx-ai-firebase-key.json"); // Make sure thi
 
 // 3. INITIALIZE FIREBASE
 
-let serviceAccount;
-
 if (process.env.FIREBASE_SERVICE_ACCOUNT) {
   // On Render: Parse the secret string back into a JSON object
   serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
