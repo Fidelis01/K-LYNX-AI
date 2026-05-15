@@ -17,9 +17,20 @@ const admin = require("firebase-admin");
 const serviceAccount = require("./klynx-ai-firebase-key.json"); // Make sure this matches your file name!
 
 // 3. INITIALIZE FIREBASE
+const admin = require('firebase-admin');
+
+let serviceAccount;
+
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  // On Render: Parse the secret string back into a JSON object
+  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+} else {
+  // On your laptop: Use the local file
+  serviceAccount = require('./klynx-ai-firebase-key.json');
+}
+
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseId: "(default)" // <--- Make sure this is added
+  credential: admin.credential.cert(serviceAccount)
 });
 
 const db = admin.firestore();
