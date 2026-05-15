@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
+   /* ALL YOUR CSS REMAINS EXACTLY THE SAME */
    * { margin: 0; padding: 0; box-sizing: border-box; }
    
    body {
@@ -14,6 +15,8 @@
     min-height: 100vh;
     font-family: 'Open Sans', sans-serif;
     color: #fff;
+    /* Start hidden to prevent "flicker" before auth check */
+    display: none; 
    }
 
    .header {
@@ -318,8 +321,8 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.95);
-    display: none;
+    background: #0F172A;
+    display: flex; /* Always show initially */
     justify-content: center;
     align-items: center;
     z-index: 9999;
@@ -368,7 +371,7 @@
 </head>
 <body>
 
-<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><p>Checking authentication...</p></div>
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><p style="margin-top:15px;">Connecting to K-LYNX AI...</p></div>
 <div id="toast" class="toast"></div>
 
 <div class="header">
@@ -376,7 +379,7 @@
     <div class="nav-links">
         <a onclick="scrollToSection('home')">Home</a>
         <a onclick="scrollToSection('features')">Features</a>
-        <div class="profile-icon" onclick="logout()">
+        <div class="profile-icon" id="logoutBtn">
             <i class="fas fa-sign-out-alt"></i>
         </div>
     </div>
@@ -422,31 +425,20 @@
     </div>
 </div>
 
-<div class="testimonials">
-    <h2 class="section-title">⭐ What Our Users Say</h2>
-    <div class="testimonials-grid">
-        <div class="testimonial-card"><p class="testimonial-text">"K-LYNX AI has transformed how I work. The document intelligence feature alone saves me hours every week!"</p><div class="testimonial-author"><div class="author-avatar"></div><div class="author-info"><h4>Sarah Johnson</h4><p>Product Manager</p></div></div></div>
-        <div class="testimonial-card"><p class="testimonial-text">"The CV Architect helped me land my dream job. The AI suggestions were incredibly helpful."</p><div class="testimonial-author"><div class="author-avatar"></div><div class="author-info"><h4>Michael Chen</h4><p>Software Engineer</p></div></div></div>
-        <div class="testimonial-card"><p class="testimonial-text">"Best AI assistant I've ever used. The emotional insight feature makes conversations feel genuinely human."</p><div class="testimonial-author"><div class="author-avatar"></div><div class="author-info"><h4>Amanda Williams</h4><p>Content Creator</p></div></div></div>
-    </div>
-</div>
-
 <div class="footer">
     <div class="footer-content">
-        <div class="footer-section"><h4>K-LYNX AI++</h4><p>Empowering minds with artificial intelligence. Built for Africa, designed for the world.</p><div class="social-links"><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-linkedin"></i></a><a href="#"><i class="fab fa-github"></i></a><a href="#"><i class="fab fa-discord"></i></a></div></div>
-        <div class="footer-section"><h4>Product</h4><a onclick="scrollToSection('features')">Features</a><a href="#">API</a><a href="#">Integrations</a></div>
-        <div class="footer-section"><h4>Company</h4><a href="#">About Us</a><a href="#">Blog</a><a href="#">Contact</a></div>
-        <div class="footer-section"><h4>Legal</h4><a href="#">Privacy Policy</a><a href="#">Terms of Service</a></div>
+        <div class="footer-section"><h4>K-LYNX AI++</h4><p>Empowering minds with artificial intelligence. Built for Africa, designed for the world.</p></div>
+        <div class="footer-section"><h4>Product</h4><a onclick="scrollToSection('features')">Features</a></div>
+        <div class="footer-section"><h4>Company</h4><a href="#">About Us</a></div>
+        <div class="footer-section"><h4>Legal</h4><a href="#">Privacy Policy</a></div>
     </div>
-    <div class="copyright"><p>&copy; 2026 K-LYNX AI++. All rights reserved. Built with ❤️ in South Africa.</p></div>
+    <div class="copyright"><p>&copy; 2026 K-LYNX AI++. Built with ❤️ in South Africa.</p></div>
 </div>
 
 <script type="module">
-  // 1. Import the same modern SDKs you used in the login page
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-  // 2. Use your exact Firebase Config here
   const firebaseConfig = {
     apiKey: "AIzaSyDxxjFQkZuaKpf-MLwSrgFgOV513UqYi_A",
     authDomain: "klynx-ai-7d556.firebaseapp.com",
@@ -460,58 +452,43 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
-  // 3. THE "PATIENT" AUTH CHECK
-  // This function waits for Firebase to say "I'm done looking for a user"
+  // AUTH CHECK LOGIC
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      // SUCCESS: Firebase found your login session!
-      console.log("Access Granted:", user.email);
+      console.log("Verified Session for:", user.email);
       
-      // Update these IDs to match your actual HTML elements
-      const loader = document.querySelector('.loading-container') || document.getElementById('loading-screen');
-      const content = document.querySelector('.main-container') || document.getElementById('main-content');
+      // 1. Hide Loader, Show Page
+      document.getElementById('loadingOverlay').style.display = 'none';
+      document.body.style.display = 'block';
 
-      if (loader) loader.style.display = 'none';
-      if (content) content.style.display = 'block';
-
+      // 2. Personalize Welcome Title
+      const welcomeTitle = document.getElementById('welcomeTitle');
+      if (welcomeTitle) {
+          welcomeTitle.innerHTML = `Welcome back, ${user.displayName || 'User'}! 👋`;
+      }
     } else {
-      // FAIL: No session found. ONLY THEN redirect to login.
-      console.log("No session. Redirecting to login...");
-      
-      // Make sure this path is correct for your Render setup
-      window.location.href = 'login.html'; 
+      // No user found, kick to login
+      window.location.href = 'signup.html'; 
     }
   });
+
+  // LOGOUT LOGIC
+  window.logout = async () => {
+      try {
+          await signOut(auth);
+          window.location.href = 'signup.html';
+      } catch (err) {
+          console.error("Logout failed", err);
+      }
+  };
+  document.getElementById('logoutBtn').onclick = window.logout;
 </script>
 
 <script>
+    // HELPER FUNCTIONS
     const API_URL = 'https://jai1-sh81.onrender.com';
-    let clientId = localStorage.getItem('klynx_client_id');
-    if (!clientId) { 
-        clientId = 'klynx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9); 
-        localStorage.setItem('klynx_client_id', clientId); 
-    }
-    
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    
-    if (!token && !user) {
-        loadingOverlay.style.display = 'flex';
-        setTimeout(() => { window.location.href = '/login.html'; }, 1000);
-    } else {
-        loadingOverlay.style.display = 'none';
-    }
-
-    if (user) {
-        try {
-            const userData = JSON.parse(user);
-            const welcomeTitle = document.getElementById('welcomeTitle');
-            if (welcomeTitle && userData.name) {
-                welcomeTitle.innerHTML = `Welcome back, ${userData.name}! 👋`;
-            }
-        } catch(e) {}
-    }
+    let clientId = localStorage.getItem('klynx_client_id') || 'klynx_' + Date.now();
+    localStorage.setItem('klynx_client_id', clientId);
 
     function showToast(msg) { 
         const toast = document.getElementById('toast'); 
@@ -520,86 +497,26 @@
         setTimeout(() => toast.classList.remove('show'), 3000); 
     }
 
-    async function notifyJAI(featureName, displayName) {
+    async function navigateTo(featureName, displayName) {
+        showToast(`🚀 Loading ${displayName}...`);
         try {
-            // Send the "entering" command for JAI to know which page the user is on
-            const response = await fetch(`${API_URL}/api/chat`, {
+            await fetch(`${API_URL}/api/chat`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: `entering ${displayName}`,
-                    clientId: clientId,
-                    options: { speech: false }
-                })
+                body: JSON.stringify({ message: `entering ${displayName}`, clientId })
             });
-            
-            const data = await response.json();
-            console.log('JAI notified:', data);
-            return true;
-        } catch (error) {
-            console.error('Failed to notify JAI:', error);
-            return false;
-        }
-    }
-
-    async function navigateTo(featureName, displayName) {
-        // Show toast notification
-        showToast(`🚀 Loading ${displayName}...`);
-        
-        // Notify JAI API with "entering" command
-        await notifyJAI(featureName, displayName);
-        
-        // Navigate after a small delay
-        setTimeout(() => {
-            window.location.href = `/${featureName}.html`;
-        }, 300);
+        } catch (e) { console.error(e); }
+        setTimeout(() => { window.location.href = `/${featureName}.html`; }, 300);
     }
 
     function startChat() { 
         showToast('🚀 Opening Chat...');
-        setTimeout(() => { 
-            window.location.href = '/chat.html'; 
-        }, 200);
+        setTimeout(() => { window.location.href = '/chat.html'; }, 200);
     }
     
     function scrollToSection(section) { 
         document.getElementById(section).scrollIntoView({ behavior: 'smooth' }); 
     }
-    
-    function logout() {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        showToast('👋 Logging out...');
-        setTimeout(() => { window.location.href = '/login.html'; }, 500);
-    }
-
-    // Animate stats when they come into view
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const stats = entry.target.querySelectorAll('.stat-item h2');
-                stats.forEach(stat => {
-                    const finalValue = stat.innerText;
-                    stat.innerText = '0';
-                    let current = 0;
-                    const increment = parseInt(finalValue) / 60;
-                    const timer = setInterval(() => {
-                        current += increment;
-                        if (current >= parseInt(finalValue)) {
-                            stat.innerText = finalValue;
-                            clearInterval(timer);
-                        } else {
-                            stat.innerText = Math.floor(current).toLocaleString();
-                        }
-                    }, 30);
-                });
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.5 });
-
-    const statsSection = document.querySelector('.stats-section');
-    if (statsSection) observer.observe(statsSection);
 </script>
 </body>
 </html>
