@@ -468,7 +468,7 @@
       }
     } else {
       // No user found, kick to login
-      window.location.href = 'signup.html'; 
+      window.location.href = 'login.html'; 
     }
   });
 
@@ -476,7 +476,7 @@
   window.logout = async () => {
       try {
           await signOut(auth);
-          window.location.href = 'signup.html';
+          window.location.href = 'login.html';
       } catch (err) {
           console.error("Logout failed", err);
       }
