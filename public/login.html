@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+    <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Sign Up | K-LYNX</title>
-  <style>
+    <style>
         * {
             margin: 0;
             padding: 0;
@@ -121,7 +121,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
         #loginForm { animation: fadeIn 0.3s ease-in-out; }
-  </style>
+    </style>
 </head>
 <body id="signupBody">
   <div class="signup-container">
@@ -130,10 +130,10 @@
         <h1>K-LYNX AI++</h1>
         <p id="form-title">Create your account</p>
       </div>
-      
-      <div id="errorMsg" class="error-msg"></div>
-      <div id="successMsg" class="success-msg"></div>
-
+        
+        <div id="errorMsg" class="error-msg"></div>
+        <div id="successMsg" class="success-msg"></div>
+        
       <div id="signup-form">
             <div class="input-group">
                 <label>👤 Full Name</label>
@@ -169,19 +169,19 @@
           <input type="email" id="loginEmail" placeholder="Enter your email">
         </div>
         <div class="input-group">
-          <label>🔑 Password</label>
+            <label>🔑 Password</label>
           <input type="password" id="loginPassword" placeholder="Enter your password">
         </div>
 
         <button id="loginBtn" class="signup-btn">Login</button>
-      </div>
+        </div>
 
       <div class="login-link">
         <span id="toggle-text">Already have an account?</span> 
         <a href="#" id="login-link">Login</a>
       </div>
+        </div>
     </div>
-  </div>
 
   <!-- NOTE: Changed to type="module" to support Firebase imports -->
   <script type="module">
@@ -231,17 +231,17 @@
         }
     });
 
-    function showError(msg) {
-        const errorDiv = document.getElementById('errorMsg');
-        errorDiv.textContent = msg;
-        errorDiv.style.display = 'block';
+        function showError(msg) {
+            const errorDiv = document.getElementById('errorMsg');
+            errorDiv.textContent = msg;
+            errorDiv.style.display = 'block';
         setTimeout(() => { errorDiv.style.display = 'none'; }, 4000);
-    }
+        }
 
-    function showSuccess(msg) {
-        const successDiv = document.getElementById('successMsg');
-        successDiv.textContent = msg;
-        successDiv.style.display = 'block';
+        function showSuccess(msg) {
+            const successDiv = document.getElementById('successMsg');
+            successDiv.textContent = msg;
+            successDiv.style.display = 'block';
     }
 
 
@@ -252,7 +252,7 @@
     // SIGNUP LOGIC (Continues calling your backend so it can create the Firestore doc)
     async function signup() {
         const name = document.getElementById('fullname').value.trim();
-        const email = document.getElementById('email').value.trim();
+            const email = document.getElementById('email').value.trim();
         const language = document.getElementById('language').value.trim();
         const password = document.getElementById('password').value.trim();
         const confirmPassword = document.getElementById('confirmPassword').value.trim();
@@ -278,7 +278,7 @@
         } catch (err) {
             showError('❌ Could not connect to the server');
         }
-    }
+            }
 
     // NEW LOGIN LOGIC (Uses Firebase Client SDK to get the secure idToken)
     async function login() {
@@ -296,22 +296,22 @@
 
             // 3. Send the token to your backend to get Firestore data
             const response = await fetch('/api/auth/login', {
-                method: 'POST',
+                    method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ idToken }) // Look! We are sending the token now.
-            });
+                });
 
-            const data = await response.json();
+                const data = await response.json();
 
             if (response.ok && data.success) {
                 // If you are setting custom session tokens from your backend, store them here.
                 showSuccess(`✅ Welcome back, ${data.user.name || 'User'}! Redirecting...`);
                 setTimeout(() => { window.location.href = '/public/index.html'; }, 1500);
-            } else {
+                } else {
                 showError('❌ ' + (data.message || 'Server rejected token'));
-            }
+                }
             
-        } catch (err) {
+            } catch (err) {
             console.error(err);
             // Firebase returns specific error codes we can catch
             if(err.code === 'auth/invalid-credential') {
@@ -331,7 +331,7 @@
     });
     document.getElementById('loginPassword').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') login();
-    });
-  </script>
+        });
+    </script>
 </body>
 </html>
