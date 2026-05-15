@@ -130,8 +130,7 @@
 
     window.logout = function() {
         if (confirm('Are you sure you want to logout?')) {
-            localStorage.removeItem('klynx_chat_history'); // Clear chat on logout
-            window.location.href = '/';
+            window.location.href = '/login.html';
         }
     }
 
